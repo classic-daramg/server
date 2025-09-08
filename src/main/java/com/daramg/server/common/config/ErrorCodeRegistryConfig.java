@@ -1,7 +1,7 @@
-package com.daramg.server.global.config;
+package com.daramg.server.common.config;
 
-import com.daramg.server.global.exception.BaseErrorCode;
-import com.daramg.server.global.exception.CommonErrorStatus;
+import com.daramg.server.common.exception.BaseErrorCode;
+import com.daramg.server.common.exception.CommonErrorStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
