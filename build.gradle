@@ -99,18 +99,14 @@ openapi3{
 	description = '클래식 듣는 다람쥐의 API 문서입니다.'
 	version = '0.1.0'
 	format = 'yaml'
+	outputDirectory = file('build/api-spec')
 }
 
 tasks.register('copyOasToSwagger', Copy) {
+	dependsOn tasks.named('openapi3')
 	delete 'src/main/resources/static/swagger-ui/openapi3.yaml'
 	from "build/api-spec/openapi3.yaml"
 	into 'src/main/resources/static/swagger-ui'
-	dependsOn tasks.named('test')
-	dependsOn tasks.named('openapi3')
-}
-
-tasks.named('build') {
-	dependsOn tasks.named('copyOasToSwagger')
 }
 
 tasks.named('bootJar') {

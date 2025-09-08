@@ -23,11 +23,8 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
 
-    - name: Build with Gradle
-      run: ./gradlew build -x test
-
     - name: Test with CI Profile
-      run: ./gradlew test -Dspring.profiles.active=ci
+      run: ./gradlew build -Dspring.profiles.active=ci
 
     - name: Submit Dependency Graph
       uses: gradle/actions/dependency-submission@v3
