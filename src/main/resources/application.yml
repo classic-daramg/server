@@ -1,0 +1,27 @@
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    url: /swagger-ui/openapi3.yaml
+
+spring:
+  profiles:
+    active: local
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    version: 1
+server:
+  port: 8080
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: local
+    import: application-local.yml

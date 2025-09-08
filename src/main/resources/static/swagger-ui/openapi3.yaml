@@ -1,0 +1,11 @@
+openapi: 3.0.1
+info:
+  title: Classic Daramg's API docs
+  description: 클래식 듣는 다람쥐의 API 문서입니다.
+  version: 0.1.0
+servers:
+- url: http://localhost:8080
+tags: []
+paths: {}
+components:
+  schemas: {}

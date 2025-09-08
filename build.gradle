@@ -1,16 +1,17 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.5.5'
+	id 'org.springframework.boot' version '3.5.3'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.asciidoctor.jvm.convert' version '3.3.2'
+	id 'com.epages.restdocs-api-spec' version '0.18.2'
 }
 
 group = 'com.daramg'
 version = '0.0.1-SNAPSHOT'
-description = 'Demo project for Spring Boot'
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
+		languageVersion = JavaLanguageVersion.of(22)
 	}
 }
 
@@ -22,6 +23,10 @@ configurations {
 
 repositories {
 	mavenCentral()
+}
+
+ext {
+	set('snippetsDir', file("build/generated-snippets"))
 }
 
 dependencies {
@@ -36,10 +41,74 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'io.rest-assured:rest-assured'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// OAS
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+	testImplementation 'com.epages:restdocs-api-spec-mockmvc:0.18.2'
+
+	// fixture
+	testImplementation("com.navercorp.fixturemonkey:fixture-monkey-starter:1.0.21")
 }
 
 tasks.named('test') {
+	outputs.dir snippetsDir
 	useJUnitPlatform()
+	testLogging {
+		events "failed"
+		exceptionFormat "full"
+		showStandardStreams = false
+
+		afterTest { desc, result ->
+			if (result.resultType == TestResult.ResultType.FAILURE) {
+				println "\n ❌===== FAILED: ${desc.getDisplayName}"
+
+				def exception = result.exception
+				if (exception?.getClass()?.name == 'org.opentest4j.AssertionFailedError') {
+					def expected = exception.expected.stringRepresentation
+					def actual = exception.getActual().getStringRepresentation()
+
+					println "▶ Reason : Assertion Failed"
+					println "  - 🟢Expected: ${expected}"
+					println "  - 🔴Actual  : ${actual}"
+				} else if (exception?.getClass()?.name == 'org.opentest4j.BusinessException') {
+					println "▶ Reason : ${exception.class.simpleName}"
+					println "  - ${exception.errorCode.message}"
+				} else if (exception != null) {
+					println "▶ Reason : ${exception.class.simpleName}"
+					println "  - ${exception.message}"
+				}
+				println "=======================================================================\n"
+			}
+		}
+	}
+}
+
+tasks.named('asciidoctor') {
+	inputs.dir snippetsDir
+	dependsOn test
+}
+
+openapi3{
+	server = 'http://localhost:8080'
+	//server = 추가
+	title = "Classic Daramg's API docs"
+	description = '클래식 듣는 다람쥐의 API 문서입니다.'
+	version = '0.1.0'
+	format = 'yaml'
+	outputDirectory = file('build/api-spec')
+}
+
+tasks.register('copyOasToSwagger', Copy) {
+	dependsOn tasks.named('openapi3')
+	delete 'src/main/resources/static/swagger-ui/openapi3.yaml'
+	from "build/api-spec/openapi3.yaml"
+	into 'src/main/resources/static/swagger-ui'
+}
+
+tasks.named('bootJar') {
+	dependsOn tasks.named('copyOasToSwagger')
 }

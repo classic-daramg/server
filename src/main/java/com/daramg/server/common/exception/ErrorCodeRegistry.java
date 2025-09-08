@@ -1,4 +1,4 @@
-package com.daramg.server.global.exception;
+package com.daramg.server.common.exception;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

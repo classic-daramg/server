@@ -1,4 +1,4 @@
-package com.daramg.server.global.exception;
+package com.daramg.server.common.exception;
 
 import org.springframework.http.HttpStatus;
 

@@ -1,6 +1,6 @@
-package com.daramg.server.global.exception;
+package com.daramg.server.common.exception;
 
-import com.daramg.server.global.dto.ErrorResponse;
+import com.daramg.server.common.dto.ErrorResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;

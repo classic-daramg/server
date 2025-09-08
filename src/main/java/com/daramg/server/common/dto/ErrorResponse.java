@@ -1,6 +1,6 @@
-package com.daramg.server.global.dto;
+package com.daramg.server.common.dto;
 
-import com.daramg.server.global.exception.BaseErrorCode;
+import com.daramg.server.common.exception.BaseErrorCode;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
