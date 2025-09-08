@@ -113,6 +113,6 @@ tasks.named('build') {
 	dependsOn tasks.named('copyOasToSwagger')
 }
 
-tasks.named('processResources') {
+tasks.named('bootJar') {
 	dependsOn tasks.named('copyOasToSwagger')
 }
