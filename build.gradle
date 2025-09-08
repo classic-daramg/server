@@ -112,3 +112,7 @@ tasks.register('copyOasToSwagger', Copy) {
 tasks.named('build') {
 	dependsOn tasks.named('copyOasToSwagger')
 }
+
+tasks.named('processResources') {
+	dependsOn tasks.named('copyOasToSwagger')
+}
