@@ -1,5 +1,7 @@
-package com.daramg.server.global.exception;
+package com.daramg.server.exception;
 
+import com.daramg.server.common.exception.BusinessException;
+import com.daramg.server.common.exception.CommonErrorStatus;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
