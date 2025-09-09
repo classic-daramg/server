@@ -6,6 +6,60 @@ info:
 servers:
 - url: http://localhost:8080
 tags: []
-paths: {}
+paths:
+  /send-verification-email:
+    post:
+      tags:
+      - Auth API
+      summary: 회원가입 시 인증코드 이메일 발송
+      description: 새로운 사용자를 위해 이메일 주소로 인증코드를 발송합니다.
+      operationId: 회원가입을_위한_인증코드_메일_발송
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/send-verification-email-272417006"
+            examples:
+              회원가입을_위한_인증코드_메일_발송이다야:
+                value: "{\"email\":\"daramg123@gmail.com\"}"
+              회원가입을_위한_인증코드_메일_발송:
+                value: "{\"email\":\"daramg123@gmail.com\"}"
+      responses:
+        "200":
+          description: "200"
+  /verify-email:
+    post:
+      tags:
+      - Auth API
+      summary: 인증번호로 이메일 인증
+      description: 사용자가 제공한 인증번호로 이메일 주소를 인증합니다.
+      operationId: 인증번호로_이메일_인증
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/verify-email-1072797477"
+            examples:
+              인증번호로_이메일_인증:
+                value: "{\"email\":\"daramg123@gmail.com\",\"verificationCode\":\"\
+                  123456\"}"
+      responses:
+        "200":
+          description: "200"
 components:
-  schemas: {}
+  schemas:
+    send-verification-email-272417006:
+      type: object
+      properties:
+        email:
+          type: string
+          description: 이메일
+    verify-email-1072797477:
+      type: object
+      properties:
+        email:
+          type: string
+          description: 이메일
+        verificationCode:
+          type: string
+          description: "인증번호: 6자리 숫자"
