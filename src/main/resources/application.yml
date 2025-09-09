@@ -7,6 +7,8 @@ springdoc:
 spring:
   profiles:
     active: local
+  config:
+    import: "optional:application-secret.yml"
   jpa:
     open-in-view: false
     hibernate:
@@ -14,14 +16,22 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
-    version: 1
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username:
+    password:
+    properties:
+      mail:
+        smtp:
+          auth: true
+          timeout: 5000
+          starttls:
+            enable: true
+
 server:
   port: 8080
-
----
-
-spring:
-  config:
-    activate:
-      on-profile: local
-    import: application-local.yml
