@@ -19,7 +19,7 @@ public class AuthController {
 
     @PostMapping("/send-verification-email")
     @ResponseStatus(HttpStatus.OK)
-    public void sendVerificationEmail(@RequestBody EmailRequest request) {
+    public void sendVerificationEmail(@RequestBody @Valid EmailRequest request) {
         mailVerificationService.sendVerificationEmail(request);
     }
 

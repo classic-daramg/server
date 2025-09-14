@@ -1,4 +1,4 @@
-package com.daramg.server.auth;
+package com.daramg.server.auth.controller;
 
 import com.daramg.server.auth.application.MailVerificationService;
 import com.daramg.server.auth.dto.EmailRequest;

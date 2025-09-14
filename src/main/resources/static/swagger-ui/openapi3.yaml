@@ -20,8 +20,6 @@ paths:
             schema:
               $ref: "#/components/schemas/send-verification-email-272417006"
             examples:
-              회원가입을_위한_인증코드_메일_발송이다야:
-                value: "{\"email\":\"daramg123@gmail.com\"}"
               회원가입을_위한_인증코드_메일_발송:
                 value: "{\"email\":\"daramg123@gmail.com\"}"
       responses:

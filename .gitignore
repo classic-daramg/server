@@ -37,4 +37,4 @@ out/
 .vscode/
 
 ### 보안정보
-!**/src/main/**/application-secret.yml
+application-secret.yml

@@ -27,6 +27,7 @@ public class MailVerificationServiceImpl implements MailVerificationService{
     public void sendVerificationEmail(EmailRequest request) {
         String verificationCode = VerificationCodeGenerator.generate();
         verificationCodeRepository.save(request.getEmail(), verificationCode);
+        
         try {
             String htmlContent = mailContentBuilder.buildVerificationEmail(verificationCode);
             MimeMessage mimeMessage = mimeMessageGenerator.generate(
@@ -48,6 +49,6 @@ public class MailVerificationServiceImpl implements MailVerificationService{
         if (storedCode == null || !storedCode.equals(request.getVerificationCode())) {
             throw new BusinessException(AuthErrorStatus.CODE_VERIFICATION_FAILED);
         }
-        verificationCodeRepository.deleteByEmail(request.getVerificationCode());
+        verificationCodeRepository.deleteByEmail(request.getEmail());
     }
 }

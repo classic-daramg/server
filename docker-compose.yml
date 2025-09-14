@@ -1,0 +1,7 @@
+services:
+  backend:
+    build:
+      context: ./
+    ports:
+      - "8080:8080"
+    container_name: spring-app
