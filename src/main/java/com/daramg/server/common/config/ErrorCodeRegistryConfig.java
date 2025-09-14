@@ -1,5 +1,6 @@
 package com.daramg.server.common.config;
 
+import com.daramg.server.auth.exception.AuthErrorStatus;
 import com.daramg.server.common.exception.BaseErrorCode;
 import com.daramg.server.common.exception.CommonErrorStatus;
 import org.springframework.context.annotation.Bean;
@@ -11,8 +12,14 @@ import java.util.List;
 
 @Configuration
 public class ErrorCodeRegistryConfig {
+
     @Bean
     public List<BaseErrorCode> errorCodeList() {
-        return new ArrayList<>(Arrays.asList(CommonErrorStatus.values()));
+        List<BaseErrorCode> errorCodes = new ArrayList<>();
+
+        errorCodes.addAll(Arrays.asList(CommonErrorStatus.values()));
+        errorCodes.addAll(Arrays.asList(AuthErrorStatus.values()));
+
+        return errorCodes;
     }
 }

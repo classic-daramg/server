@@ -35,3 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### 보안정보
+application-secret.yml

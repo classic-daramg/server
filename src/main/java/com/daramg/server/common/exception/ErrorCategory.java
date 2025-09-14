@@ -3,6 +3,7 @@ package com.daramg.server.common.exception;
 public enum ErrorCategory {
 
     COMMON("COMMON_"),
+    AUTH("AUTH_"),
     USER("USER_"),
     POST("POST_");
 
