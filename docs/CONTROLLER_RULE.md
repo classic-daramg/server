@@ -1,4 +1,4 @@
-# 컨틀롤러 구현 가이드
+# 컨트롤러 구현 가이드
 
 ## 1. 기본 애노테이션 정의
 - 클래스 레벨에 @RestController, @RequiredArgsConstructor 붙이기

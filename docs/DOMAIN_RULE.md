@@ -1,5 +1,5 @@
 # 도메인 구현 가이드
-- 기본적으로 엔티티 간에는 단방향 매핑을 적용한다.
+- 기본적으로 엔티티 간에는 단방향 매핑을 우선적으로 고려한다.
 
 ## 기본 엔티티 클래스 구현
 
@@ -22,7 +22,7 @@
 
 ### 4. 업데이트 로직
 - 엔티티 클래스는 기본적으로 update 메서드를 정의한다.
-- 이때 PUT에 맞게 구현한다. 즉 일부 필드만 파라미터로 들어와도 그 일부 필드만 업데이트할 수 있도록 구현한다.
+- 이때 PATCH에 맞게 구현한다. 즉 일부 필드만 파라미터로 들어와도 그 일부 필드만 업데이트할 수 있도록 구현한다.
 
 
 ### 5. 컬럼 정의 및 연관관계 매핑
@@ -142,5 +142,5 @@ public class StudentNumber {
 - 엔티티 클래스를 정의하고 나면 그 도메인 클래스의 레포지토리 인터페이스도 해당 /domain 패키지에 정의해야 한다.
 - 레포지토리 클래스명은 엔티티 클래스명 + Repository로 한다. ex) PlayerRepository
 - 레포지토리 클래스는 JpaRepository를 상속받는다.
-  - ex)  public interface PlayerRepository extends Repository<Player, Long>
+  - ex)  public interface PlayerRepository extends JpaRepository<Player, Long>
 

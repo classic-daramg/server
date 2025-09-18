@@ -7,7 +7,7 @@
 
 ## 설정
 - 클래스 레벨의 애노테이션은 "@WebMvcTest(컨트롤러_클래스명.class)"을 기본으로 한다.
-- 컨트롤러 클래스는 전부 ControllerTestSupport를 상속받아야 한다.
+- 컨트롤러 테스트 클래스는 전부 'ControllerTestSupport'를 상속받아야 한다.
 
 ## 모범 예시
 ```
@@ -19,7 +19,7 @@ VerificationMailRequest request = new VerificationMailRequest("daramg123@gmail.c
         doNothing().when(mailVerificationService).verifyEmailWithCode(Mockito.any(VerificationMailRequest.class));
 
         // when
-        ResultActions result =  mockMvc.perform(post("/verify-email", request)
+        ResultActions result =  mockMvc.perform(post("/verify-email")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
 
