@@ -63,7 +63,7 @@ public class AuthControllerTest extends ControllerTestSupport {
         doNothing().when(mailVerificationService).verifyEmailWithCode(Mockito.any(VerificationMailRequest.class));
 
         // when
-        ResultActions result =  mockMvc.perform(post("/verify-email", request)
+        ResultActions result =  mockMvc.perform(post("/verify-email")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
 
