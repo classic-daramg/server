@@ -10,6 +10,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.NonNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Table(name = "comments")
@@ -27,6 +30,9 @@ public class Comment extends BaseEntity<Comment> {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_comment_id")
     private Comment parentComment;
+
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> childComments = new ArrayList<>();
 
     @Column(name = "like_count", nullable = false)
     private int likeCount = 0;
