@@ -4,10 +4,7 @@ import com.daramg.server.common.domain.BaseEntity;
 import com.daramg.server.domain.composer.ComposerPost;
 import com.daramg.server.domain.composer.Composer;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.lang.NonNull;
 
 import java.util.ArrayList;
@@ -21,7 +18,7 @@ public class Post extends BaseEntity<Post> {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "composer_id")
-    private Composer composer;
+    private Composer primaryComposer = null;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
@@ -66,10 +63,10 @@ public class Post extends BaseEntity<Post> {
     private List<ComposerPost> composerPosts = new ArrayList<>();
 
     @Builder
-    public Post(Composer composer, @NonNull PostType type, @NonNull String title, 
-               @NonNull String content, List<String> images, String videoUrl,
-               List<String> hashtags, @NonNull PostStatus status) {
-        this.composer = composer;
+    public Post(Composer primaryComposer, @NonNull PostType type, @NonNull String title,
+                @NonNull String content, @Singular List<String> images, String videoUrl,
+                @Singular List<String> hashtags, @NonNull PostStatus status) {
+        this.primaryComposer = primaryComposer;
         this.type = type;
         this.title = title;
         this.content = content;
@@ -78,18 +75,4 @@ public class Post extends BaseEntity<Post> {
         this.hashtags = hashtags != null ? hashtags : new ArrayList<>();
         this.status = status;
     }
-
-    public void update(Composer composer, PostType type, String title, String content,
-                      List<String> images, String videoUrl, List<String> hashtags, 
-                      PostStatus status) {
-        if (composer != null) this.composer = composer;
-        if (type != null) this.type = type;
-        if (title != null) this.title = title;
-        if (content != null) this.content = content;
-        if (images != null) this.images = images;
-        if (videoUrl != null) this.videoUrl = videoUrl;
-        if (hashtags != null) this.hashtags = hashtags;
-        if (status != null) this.status = status;
-    }
-
 }

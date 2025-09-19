@@ -36,18 +36,16 @@ public class BaseEntity<T extends AbstractAggregateRoot<T>> extends AbstractAggr
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        BaseEntity<?> that = (BaseEntity<?>) o;
+        if (!(o instanceof BaseEntity<?> that)) return false;
 
         if (this.id == null || that.id == null) {
             return false;
         }
-
         return id.equals(that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return getClass().hashCode();
     }
 }

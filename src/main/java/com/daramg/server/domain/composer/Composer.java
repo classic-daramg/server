@@ -64,18 +64,4 @@ public class Composer extends BaseEntity<Composer> {
         this.era = era;
         this.continent = continent;
     }
-
-    public void update(String koreanName, String englishName, String nativeName,
-                      Gender gender, String nationality, Short birthYear, 
-                      Short deathYear, Era era, Continent continent) {
-        if (koreanName != null) this.koreanName = koreanName;
-        if (englishName != null) this.englishName = englishName;
-        if (nativeName != null) this.nativeName = nativeName;
-        if (gender != null) this.gender = gender;
-        if (nationality != null) this.nationality = nationality;
-        if (birthYear != null) this.birthYear = birthYear;
-        if (deathYear != null) this.deathYear = deathYear;
-        if (era != null) this.era = era;
-        if (continent != null) this.continent = continent;
-    }
 }
