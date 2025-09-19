@@ -1,7 +1,6 @@
 package com.daramg.server.domain.post;
 
 import com.daramg.server.common.domain.BaseEntity;
-import com.daramg.server.domain.composer.ComposerPost;
 import com.daramg.server.domain.composer.Composer;
 import jakarta.persistence.*;
 import lombok.*;
@@ -58,9 +57,6 @@ public class Post extends BaseEntity<Post> {
 
     @Column(name = "is_blocked", nullable = false)
     private boolean isBlocked = false;
-
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ComposerPost> composerPosts = new ArrayList<>();
 
     @Builder
     public Post(Composer primaryComposer, @NonNull PostType type, @NonNull String title,
