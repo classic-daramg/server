@@ -47,9 +47,6 @@ public class Composer extends BaseEntity<Composer> {
     @Column(name = "continent")
     private Continent continent;
 
-    @OneToMany(mappedBy = "composer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ComposerPost> composerPosts = new ArrayList<>();
-
     @Builder
     public Composer(@NonNull String koreanName, @NonNull String englishName, 
                    String nativeName, @NonNull Gender gender, String nationality,
