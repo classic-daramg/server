@@ -46,7 +46,7 @@ public class User extends BaseEntity<User> {
 
     @Builder
     public User(@NonNull String email, @NonNull String password, @NonNull String name,
-               LocalDate birthDate, String profileImage, String bio, List<String> achievements) {
+                @NonNull LocalDate birthDate, String profileImage, String bio, List<String> achievements) {
         this.email = email;
         this.password = password;
         this.name = name;

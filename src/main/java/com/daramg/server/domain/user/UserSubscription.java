@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @Table(name = "user_subscriptions",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "uc_subscriber_follower",
-                        columnNames = {"subscriber_id", "follower_id"}
+                        name = "uc_subscriber_followed",
+                        columnNames = {"subscriber_id", "followed_id"}
                 )
         })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -23,12 +23,12 @@ public class UserSubscription extends BaseEntity<UserSubscription> {
     private User subscriber;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "follower_id", nullable = false)
-    private User follower;
+    @JoinColumn(name = "followed_id", nullable = false)
+    private User followed;
 
-    private UserSubscription(User subscriber, User follower) {
+    private UserSubscription(User subscriber, User followed) {
         this.subscriber = subscriber;
-        this.follower = follower;
+        this.followed = followed;
     }
 }
 
