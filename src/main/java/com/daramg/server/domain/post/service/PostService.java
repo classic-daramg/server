@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class PostService {
 
     private final PostRepository postRepository;
@@ -21,7 +21,6 @@ public class PostService {
     private final EntityUtils entityUtils;
 
     public void create(PostRequest request, User user) {
-        entityUtils.getEntity(user.getId(), User.class);
         Post post = postMapper.toEntity(request, user);
         postRepository.save(post);
     }

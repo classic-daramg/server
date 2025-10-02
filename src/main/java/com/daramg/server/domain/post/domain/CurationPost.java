@@ -34,6 +34,6 @@ public class CurationPost extends Post {
                         @Singular List<Composer> additionalComposers) {
         super(user, title, content, images, videoUrl, hashtags, postStatus);
         this.primaryComposer = primaryComposer;
-        this.additionalComposers = additionalComposers != null ? additionalComposers : new ArrayList<>();
+        this.additionalComposers = additionalComposers;
     }
 }

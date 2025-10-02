@@ -62,9 +62,9 @@ public abstract class Post extends BaseEntity<Post> {
         this.user = user;
         this.title = title;
         this.content = content;
-        this.images = images != null ? images : new ArrayList<>();
+        this.images = images;
         this.videoUrl = videoUrl;
-        this.hashtags = hashtags != null ? hashtags : new ArrayList<>();
+        this.hashtags = hashtags;
         this.postStatus = postStatus;
     }
 }
