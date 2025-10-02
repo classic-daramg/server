@@ -5,7 +5,6 @@ import lombok.Getter;
 import org.springframework.data.domain.AbstractAggregateRoot;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @MappedSuperclass
 @Getter
