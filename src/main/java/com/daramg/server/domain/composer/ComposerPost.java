@@ -1,7 +1,7 @@
 package com.daramg.server.domain.composer;
 
 import com.daramg.server.common.domain.BaseEntity;
-import com.daramg.server.domain.post.Post;
+import com.daramg.server.domain.post.domain.Post;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

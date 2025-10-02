@@ -112,13 +112,10 @@ openapi3{
 	outputDirectory = file('build/api-spec')
 }
 
-tasks.register('copyOasToSwagger', Copy) {
-	dependsOn tasks.named('openapi3')
-	delete 'src/main/resources/static/swagger-ui/openapi3.yaml'
-	from "build/api-spec/openapi3.yaml"
-	into 'src/main/resources/static/swagger-ui'
-}
-
 tasks.named('bootJar') {
-	dependsOn tasks.named('copyOasToSwagger')
+	layered {}
+	from(tasks.named('openapi3').map { it.outputDirectory }) {
+		into 'static/swagger-ui'
+		rename { String fileName -> "openapi3.yaml" }
+	}
 }
