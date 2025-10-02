@@ -1,6 +1,5 @@
 package com.daramg.server.domain.post.mapper;
 
-import com.daramg.server.common.application.EntityUtils;
 import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.domain.post.domain.FreePost;
 import com.daramg.server.domain.post.domain.StoryPost;
