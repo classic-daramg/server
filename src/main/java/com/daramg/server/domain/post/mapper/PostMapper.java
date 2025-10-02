@@ -8,6 +8,7 @@ import com.daramg.server.domain.post.domain.CurationPost;
 import com.daramg.server.domain.post.domain.Post;
 import com.daramg.server.domain.post.domain.PostType;
 import com.daramg.server.domain.post.dto.PostRequest;
+import com.daramg.server.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -18,22 +19,21 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PostMapper {
 
-    private final EntityUtils entityUtils;
-
     private final Map<PostType, PostSupplier> mappers = Map.of(
-            PostType.FREE, request -> toFreePost((PostRequest.CreateFree) request),
-            PostType.STORY, request -> toStoryPost((PostRequest.CreateStory) request),
-            PostType.CURATION, request -> toCurationPost((PostRequest.CreateCuration) request)
+            PostType.FREE, (request, user) -> toFreePost((PostRequest.CreateFree) request, user),
+            PostType.STORY, (request, user) -> toStoryPost((PostRequest.CreateStory) request, user),
+            PostType.CURATION, (request, user) -> toCurationPost((PostRequest.CreateCuration) request, user)
     );
 
-    public Post toEntity(PostRequest request) {
+    public Post toEntity(PostRequest request, User user) {
         return Optional.ofNullable(mappers.get(request.getPostType()))
-                .map(supplier -> supplier.get(request))
+                .map(supplier -> supplier.get(request, user))
                 .orElseThrow(BusinessException::new); // TODO: 메시지 포함하도록
     }
 
-    private Post toFreePost(PostRequest.CreateFree request) {
+    private Post toFreePost(PostRequest.CreateFree request, User user) {
         return FreePost.builder()
+                .user(user)
                 .title(request.getTitle())
                 .content(request.getContent())
                 .images(request.getImages())
@@ -44,8 +44,9 @@ public class PostMapper {
 
     }
 
-    private Post toStoryPost(PostRequest.CreateStory request) {
+    private Post toStoryPost(PostRequest.CreateStory request, User user) {
         return StoryPost.builder()
+                .user(user)
                 .title(request.getTitle())
                 .content(request.getContent())
                 .images(request.getImages())
@@ -57,8 +58,9 @@ public class PostMapper {
 
     }
 
-    private Post toCurationPost(PostRequest.CreateCuration request) {
+    private Post toCurationPost(PostRequest.CreateCuration request, User user) {
         return CurationPost.builder()
+                .user(user)
                 .title(request.getTitle())
                 .content(request.getContent())
                 .images(request.getImages())

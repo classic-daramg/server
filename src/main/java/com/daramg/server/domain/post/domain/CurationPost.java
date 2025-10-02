@@ -1,6 +1,7 @@
 package com.daramg.server.domain.post.domain;
 
 import com.daramg.server.domain.composer.Composer;
+import com.daramg.server.domain.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.lang.NonNull;
@@ -27,11 +28,11 @@ public class CurationPost extends Post {
     private List<Composer> additionalComposers = new ArrayList<>();
 
     @Builder
-    public CurationPost(Composer primaryComposer, @NonNull String title,
+    public CurationPost(@NonNull User user, Composer primaryComposer, @NonNull String title,
                         @NonNull String content, @Singular List<String> images, String videoUrl,
                         @Singular List<String> hashtags, @NonNull PostStatus postStatus,
                         @Singular List<Composer> additionalComposers) {
-        super(title, content, images, videoUrl, hashtags, postStatus);
+        super(user, title, content, images, videoUrl, hashtags, postStatus);
         this.primaryComposer = primaryComposer;
         this.additionalComposers = additionalComposers != null ? additionalComposers : new ArrayList<>();
     }

@@ -3,6 +3,7 @@ package com.daramg.server.domain.post.dto;
 import com.daramg.server.domain.composer.Composer;
 import com.daramg.server.domain.post.domain.PostStatus;
 import com.daramg.server.domain.post.domain.PostType;
+import com.daramg.server.domain.user.User;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class PostRequest {
 
+    private final User user;
     private final String title;
     private final String content;
     private final List<String> images;

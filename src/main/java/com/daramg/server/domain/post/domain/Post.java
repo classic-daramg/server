@@ -1,6 +1,7 @@
 package com.daramg.server.domain.post.domain;
 
 import com.daramg.server.common.domain.BaseEntity;
+import com.daramg.server.domain.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.lang.NonNull;
@@ -15,6 +16,10 @@ import java.util.List;
 @DiscriminatorColumn(name = "TYPE", discriminatorType = DiscriminatorType.STRING)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class Post extends BaseEntity<Post> {
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Column(name = "title", nullable = false, columnDefinition = "TEXT")
     private String title;
@@ -51,9 +56,10 @@ public abstract class Post extends BaseEntity<Post> {
     @Column(name = "is_blocked", nullable = false)
     private boolean isBlocked = false;
 
-    protected Post(@NonNull String title, @NonNull String content, 
+    protected Post(@NonNull User user, @NonNull String title, @NonNull String content,
                    @Singular List<String> images, String videoUrl,
                    @Singular List<String> hashtags, @NonNull PostStatus postStatus) {
+        this.user = user;
         this.title = title;
         this.content = content;
         this.images = images != null ? images : new ArrayList<>();

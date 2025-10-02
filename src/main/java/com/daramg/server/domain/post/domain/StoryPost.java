@@ -1,6 +1,7 @@
 package com.daramg.server.domain.post.domain;
 
 import com.daramg.server.domain.composer.Composer;
+import com.daramg.server.domain.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.lang.NonNull;
@@ -18,10 +19,10 @@ public class StoryPost extends Post {
     private Composer primaryComposer;
 
     @Builder
-    public StoryPost(Composer primaryComposer, @NonNull String title,
+    public StoryPost(@NonNull User user, Composer primaryComposer, @NonNull String title,
                      @NonNull String content, @Singular List<String> images, String videoUrl,
                      @Singular List<String> hashtags, @NonNull PostStatus postStatus) {
-        super(title, content, images, videoUrl, hashtags, postStatus);
+        super(user, title, content, images, videoUrl, hashtags, postStatus);
         this.primaryComposer = primaryComposer;
     }
 }

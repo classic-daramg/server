@@ -1,5 +1,6 @@
 package com.daramg.server.domain.post.domain;
 
+import com.daramg.server.domain.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.lang.NonNull;
@@ -13,9 +14,9 @@ import java.util.List;
 public class FreePost extends Post {
 
     @Builder
-    public FreePost(@NonNull String title, @NonNull String content, 
+    public FreePost(@NonNull User user, @NonNull String title, @NonNull String content,
                     @Singular List<String> images, String videoUrl,
                     @Singular List<String> hashtags, @NonNull PostStatus postStatus) {
-        super(title, content, images, videoUrl, hashtags, postStatus);
+        super(user, title, content, images, videoUrl, hashtags, postStatus);
     }
 }
