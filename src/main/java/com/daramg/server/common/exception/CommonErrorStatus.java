@@ -14,7 +14,8 @@ public enum CommonErrorStatus implements BaseErrorCode {
 
     BAD_REQUEST(HttpStatus.BAD_REQUEST, ErrorCategory.COMMON.generate(400), "유효하지 않은 요청입니다."),
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, ErrorCategory.COMMON.generate(401), "인증이 필요합니다."),
-    FORBIDDEN(HttpStatus.FORBIDDEN, ErrorCategory.COMMON.generate(403), "금지된 요청입니다.");
+    FORBIDDEN(HttpStatus.FORBIDDEN, ErrorCategory.COMMON.generate(403), "금지된 요청입니다."),
+    NOT_FOUND(HttpStatus.NOT_FOUND , ErrorCategory.COMMON.generate(404), "찾을 수 없는 리소스입니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
