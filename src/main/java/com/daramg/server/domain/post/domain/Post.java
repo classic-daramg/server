@@ -83,7 +83,7 @@ public abstract class Post extends BaseEntity<Post> {
             updateImages(vo.getImages());
         }
         if (vo.getVideoUrl() != null) {
-            updateVideoUrl(vo.getVideoUrl());
+            updateVideoUrl(vo.getVideoUrl().isEmpty() ? null : vo.getVideoUrl());
         }
         if (vo.getHashtags() != null) {
             updateHashtags(vo.getHashtags());

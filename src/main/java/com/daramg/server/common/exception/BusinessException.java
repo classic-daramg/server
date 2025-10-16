@@ -22,4 +22,9 @@ public class BusinessException extends RuntimeException{
         super(message);
         this.errorCode = defaultErrorCode;
     }
+
+    public BusinessException(String message, BaseErrorCode errorCode) {
+        super(message);
+        this.errorCode = errorCode;
+    }
 }

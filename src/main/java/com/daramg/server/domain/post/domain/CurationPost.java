@@ -53,14 +53,9 @@ public class CurationPost extends Post {
     }
 
     public void updateAdditionalComposers(List<Composer> additionalComposers) {
-        this.additionalComposers.removeIf(existingComposer ->
-                !additionalComposers.contains(existingComposer)
-        );
-
-        additionalComposers.forEach(newComposer -> {
-            if (!this.additionalComposers.contains(newComposer)) {
-                this.additionalComposers.add(newComposer);
-            }
-        });
+        this.additionalComposers.clear();
+        if (additionalComposers != null) {
+            this.additionalComposers.addAll(additionalComposers);
+        }
     }
 }

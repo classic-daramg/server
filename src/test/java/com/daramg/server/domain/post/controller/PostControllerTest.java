@@ -57,7 +57,7 @@ public class PostControllerTest extends ControllerTestSupport {
                                 .description("사용자가 자유 포스트를 생성합니다.")
                                 .requestFields(
                                         fieldWithPath("title").type(JsonFieldType.STRING).description("포스트의 제목(15자 이내)"),
-                                        fieldWithPath("content").type(JsonFieldType.STRING).description("포스트의 내용(3000자 이내)"),
+                                        fieldWithPath("content").type(JsonFieldType.STRING).description("포스트의 내용(5자 이상 3000자 이하)"),
                                         fieldWithPath("postStatus").type(JsonFieldType.STRING).description("포스트의 게시 상태(PUBLISHED, DRAFT)"),
                                         fieldWithPath("images").type(JsonFieldType.ARRAY).description("포스트에 넣을 이미지 리스트").optional(),
                                         fieldWithPath("videoUrl").type(JsonFieldType.STRING).description("포스트에 넣을 비디오 url").optional(),
@@ -100,7 +100,7 @@ public class PostControllerTest extends ControllerTestSupport {
                                 .description("사용자가 큐레이션 포스트를 생성합니다.")
                                 .requestFields(
                                         fieldWithPath("title").type(JsonFieldType.STRING).description("포스트의 제목(15자 이내)"),
-                                        fieldWithPath("content").type(JsonFieldType.STRING).description("포스트의 내용(3000자 이내)"),
+                                        fieldWithPath("content").type(JsonFieldType.STRING).description("포스트의 내용(5자 이상 3000자 이하)"),
                                         fieldWithPath("postStatus").type(JsonFieldType.STRING).description("포스트의 게시 상태(PUBLISHED, DRAFT)"),
                                         fieldWithPath("images").type(JsonFieldType.ARRAY).description("포스트에 넣을 이미지 리스트").optional(),
                                         fieldWithPath("videoUrl").type(JsonFieldType.STRING).description("포스트에 넣을 비디오 url").optional(),
@@ -144,7 +144,7 @@ public class PostControllerTest extends ControllerTestSupport {
                                 .description("사용자가 스토리 포스트를 생성합니다.")
                                 .requestFields(
                                         fieldWithPath("title").type(JsonFieldType.STRING).description("포스트의 제목(15자 이내)"),
-                                        fieldWithPath("content").type(JsonFieldType.STRING).description("포스트의 내용(3000자 이내)"),
+                                        fieldWithPath("content").type(JsonFieldType.STRING).description("포스트의 내용(5자 이상 3000자 이하)"),
                                         fieldWithPath("postStatus").type(JsonFieldType.STRING).description("포스트의 게시 상태(PUBLISHED, DRAFT)"),
                                         fieldWithPath("images").type(JsonFieldType.ARRAY).description("포스트에 넣을 이미지 리스트").optional(),
                                         fieldWithPath("videoUrl").type(JsonFieldType.STRING).description("포스트에 넣을 비디오 url").optional(),
@@ -160,7 +160,7 @@ public class PostControllerTest extends ControllerTestSupport {
     }
 
     @Test
-    void 자유_포스트를_업데이트한다() throws Exception {
+    void 자유_포스트를_수정한다() throws Exception {
         //given
         Long postId = 1L;
         PostUpdateDto.UpdateFree requestDto = new PostUpdateDto.UpdateFree(
@@ -190,11 +190,11 @@ public class PostControllerTest extends ControllerTestSupport {
                                 )
                                 .requestFields(
                                         fieldWithPath("title").type(JsonFieldType.STRING).description("포스트의 제목(15자 이내)").optional(),
-                                        fieldWithPath("content").type(JsonFieldType.STRING).description("포스트의 내용(3000자 이내)").optional(),
+                                        fieldWithPath("content").type(JsonFieldType.STRING).description("포스트의 내용(5자 이상 3000자 이하)").optional(),
                                         fieldWithPath("postStatus").type(JsonFieldType.STRING).description("포스트의 게시 상태(PUBLISHED, DRAFT)"),
-                                        fieldWithPath("images").type(JsonFieldType.ARRAY).description("포스트에 넣을 이미지 리스트").optional(),
-                                        fieldWithPath("videoUrl").type(JsonFieldType.STRING).description("포스트에 넣을 비디오 url").optional(),
-                                        fieldWithPath("hashtags").type(JsonFieldType.ARRAY).description("포스트에 넣을 해시태그 리스트").optional()
+                                        fieldWithPath("images").type(JsonFieldType.ARRAY).description("포스트에 넣을 이미지 리스트(삭제 시 빈 리스트)").optional(),
+                                        fieldWithPath("videoUrl").type(JsonFieldType.STRING).description("포스트에 넣을 비디오 url(삭제 시 빈 문자열)").optional(),
+                                        fieldWithPath("hashtags").type(JsonFieldType.ARRAY).description("포스트에 넣을 해시태그 리스트(삭제 시 빈 리스트)").optional()
                                 )
                                 .build()
                         ),
@@ -235,11 +235,11 @@ public class PostControllerTest extends ControllerTestSupport {
                                 )
                                 .requestFields(
                                         fieldWithPath("title").type(JsonFieldType.STRING).description("포스트의 제목(15자 이내)").optional(),
-                                        fieldWithPath("content").type(JsonFieldType.STRING).description("포스트의 내용(3000자 이내)").optional(),
+                                        fieldWithPath("content").type(JsonFieldType.STRING).description("포스트의 내용(5자 이상 3000자 이하)").optional(),
                                         fieldWithPath("postStatus").type(JsonFieldType.STRING).description("포스트의 게시 상태(PUBLISHED, DRAFT)"),
-                                        fieldWithPath("images").type(JsonFieldType.ARRAY).description("포스트에 넣을 이미지 리스트").optional(),
-                                        fieldWithPath("videoUrl").type(JsonFieldType.STRING).description("포스트에 넣을 비디오 url").optional(),
-                                        fieldWithPath("hashtags").type(JsonFieldType.ARRAY).description("포스트에 넣을 해시태그 리스트").optional()
+                                        fieldWithPath("images").type(JsonFieldType.ARRAY).description("포스트에 넣을 이미지 리스트(삭제 시 빈 리스트)").optional(),
+                                        fieldWithPath("videoUrl").type(JsonFieldType.STRING).description("포스트에 넣을 비디오 url(삭제 시 빈 문자열)").optional(),
+                                        fieldWithPath("hashtags").type(JsonFieldType.ARRAY).description("포스트에 넣을 해시태그 리스트(삭제 시 빈 리스트)").optional()
                                 )
                                 .build()
                         ),
@@ -281,12 +281,12 @@ public class PostControllerTest extends ControllerTestSupport {
                                 )
                                 .requestFields(
                                         fieldWithPath("title").type(JsonFieldType.STRING).description("포스트의 제목(15자 이내)").optional(),
-                                        fieldWithPath("content").type(JsonFieldType.STRING).description("포스트의 내용(3000자 이내)").optional(),
+                                        fieldWithPath("content").type(JsonFieldType.STRING).description("포스트의 내용(5자 이상 3000자 이하)").optional(),
                                         fieldWithPath("postStatus").type(JsonFieldType.STRING).description("포스트의 게시 상태(PUBLISHED, DRAFT)"),
-                                        fieldWithPath("images").type(JsonFieldType.ARRAY).description("포스트에 넣을 이미지 리스트").optional(),
-                                        fieldWithPath("videoUrl").type(JsonFieldType.STRING).description("포스트에 넣을 비디오 url").optional(),
-                                        fieldWithPath("hashtags").type(JsonFieldType.ARRAY).description("포스트에 넣을 해시태그 리스트").optional(),
-                                        fieldWithPath("additionalComposersId").type(JsonFieldType.ARRAY).description("추가 작곡가 ID 리스트").optional()
+                                        fieldWithPath("images").type(JsonFieldType.ARRAY).description("포스트에 넣을 이미지 리스트(삭제 시 빈 리스트)").optional(),
+                                        fieldWithPath("videoUrl").type(JsonFieldType.STRING).description("포스트에 넣을 비디오 url(삭제 시 빈 문자열)").optional(),
+                                        fieldWithPath("hashtags").type(JsonFieldType.ARRAY).description("포스트에 넣을 해시태그 리스트(삭제 시 빈 리스트)").optional(),
+                                        fieldWithPath("additionalComposersId").type(JsonFieldType.ARRAY).description("추가 작곡가 ID 리스트(삭제 시 빈 리스트)").optional()
                                 )
                                 .build()
                         ),

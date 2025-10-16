@@ -1,6 +1,7 @@
 package com.daramg.server.domain.post.service;
 
 import com.daramg.server.common.application.EntityUtils;
+import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.common.exception.NotFoundException;
 import com.daramg.server.domain.composer.domain.Composer;
 import com.daramg.server.domain.composer.repository.ComposerRepository;
@@ -29,6 +30,8 @@ public class PostService {
     private final PostRepository postRepository;
     private final ComposerRepository composerRepository;
     private final EntityUtils entityUtils;
+
+    private static final String INVALID_POST_TYPE = "게시글 타입이 올바르지 않습니다.";
 
     @Transactional
     public void createFree(PostCreateDto.CreateFree dto, User user) {
@@ -93,26 +96,35 @@ public class PostService {
 
     @Transactional
     public void updateFree(Long postId, PostUpdateDto.UpdateFree dto, User user) {
-        FreePost post = (FreePost) entityUtils.getEntity(postId, Post.class);
-        PostUserValidator.check(post, user);
+        Post post = entityUtils.getEntity(postId, Post.class);
+        if (!(post instanceof FreePost freePost)) {
+            throw new BusinessException(INVALID_POST_TYPE);
+        }
+        PostUserValidator.check(freePost, user);
         PostUpdateVo vo = toUpdateVo(dto);
-        post.update(vo);
+        freePost.update(vo);
     }
 
     @Transactional
     public void updateStory(Long postId, PostUpdateDto.UpdateStory dto, User user) {
-        StoryPost post = (StoryPost) entityUtils.getEntity(postId, Post.class);
-        PostUserValidator.check(post, user);
+        Post post = entityUtils.getEntity(postId, Post.class);
+        if (!(post instanceof StoryPost storyPost)) {
+            throw new BusinessException(INVALID_POST_TYPE);
+        }
+        PostUserValidator.check(storyPost, user);
         PostUpdateVo vo = toUpdateVo(dto);
-        post.update(vo);
+        storyPost.update(vo);
     }
 
     @Transactional
     public void updateCuration(Long postId, PostUpdateDto.UpdateCuration dto, User user) {
-        CurationPost post = (CurationPost) entityUtils.getEntity(postId, Post.class);
-        PostUserValidator.check(post, user);
+        Post post = entityUtils.getEntity(postId, Post.class);
+        if (!(post instanceof CurationPost curationPost)) {
+            throw new BusinessException(INVALID_POST_TYPE);
+        }
+        PostUserValidator.check(curationPost, user);
         PostUpdateVo vo = toUpdateVo(dto);
-        post.update(vo);
+        curationPost.update(vo);
 
         if (dto.getAdditionalComposersId() != null){
             List<Long> composerIds = dto.getAdditionalComposersId();
@@ -121,7 +133,7 @@ public class PostService {
             if (composersToUpdate.size() != composerIds.size()) {
                 throw new NotFoundException("존재하지 않는 작곡가 ID가 포함되어 있습니다.");
             }
-            post.updateAdditionalComposers(composersToUpdate);
+            curationPost.updateAdditionalComposers(composersToUpdate);
         }
     }
 

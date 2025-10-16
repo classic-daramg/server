@@ -213,6 +213,30 @@ public class PostServiceTest extends ServiceTestSupport {
         }
 
         @Test
+        void 비디오_url에_빈문자열이_들어오면_null로_수정한다(){
+            //given
+            PostCreateDto.CreateFree createDto = new PostCreateDto.CreateFree(
+                    "원래 제목", "원래 내용", PostStatus.PUBLISHED, List.of("original image"), "original video", List.of("#original")
+            );
+            postService.createFree(createDto, user);
+
+            Post savedPost = postRepository.findAll().getFirst();
+            Long postId = savedPost.getId();
+
+            PostUpdateDto.UpdateFree updateDto = new PostUpdateDto.UpdateFree(
+                    "원래 제목", "원래 내용", PostStatus.PUBLISHED, List.of("original image"), "", List.of("#original")
+            );
+
+            //when
+            postService.updateFree(postId, updateDto, user);
+
+            //then
+            FreePost updatedPost = (FreePost) postRepository.findById(postId).orElseThrow();
+
+            assertThat(updatedPost.getVideoUrl()).isEqualTo(null);
+        }
+
+        @Test
         void 큐레이션_포스트를_정상적으로_수정한다(){
             //given
             PostCreateDto.CreateCuration createDto = new PostCreateDto.CreateCuration(
