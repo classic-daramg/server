@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
@@ -30,6 +31,9 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 })
 public abstract class ControllerTestSupport {
 
+    @Value("${cookie.name}")
+    protected String COOKIE_NAME;
+
     @Autowired
     protected MockMvc mockMvc;
 
@@ -46,4 +50,5 @@ public abstract class ControllerTestSupport {
                 .apply(documentationConfiguration(restDocumentation))
                 .build();
     }
+
 }

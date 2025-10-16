@@ -15,7 +15,6 @@ public class FixtureMonkeyUtils {
     private static final Random RANDOM = new Random();
 
     public static <T> ArbitraryBuilder<T> entityBuilder(Class<T> clazz) {
-        return INSTANCE.giveMeBuilder(clazz)
-                .set("id", RANDOM.nextLong(1, 10000));
+        return INSTANCE.giveMeBuilder(clazz);
     }
 }

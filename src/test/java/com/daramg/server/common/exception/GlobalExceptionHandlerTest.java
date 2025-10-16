@@ -1,4 +1,4 @@
-package com.daramg.server.exception;
+package com.daramg.server.common.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;

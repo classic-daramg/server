@@ -1,7 +1,8 @@
 package com.daramg.server.domain.post.domain;
 
 import com.daramg.server.common.domain.BaseEntity;
-import com.daramg.server.domain.user.User;
+import com.daramg.server.domain.post.domain.vo.PostUpdateVo;
+import com.daramg.server.domain.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.lang.NonNull;
@@ -32,7 +33,7 @@ public abstract class Post extends BaseEntity<Post> {
     @Column(name = "image_url")
     private List<String> images = new ArrayList<>();
 
-    @Column(name = "video_url", nullable = true)
+    @Column(name = "video_url")
     private String videoUrl;
 
     @ElementCollection
@@ -67,4 +68,50 @@ public abstract class Post extends BaseEntity<Post> {
         this.hashtags = hashtags;
         this.postStatus = postStatus;
     }
+
+    public void update(PostUpdateVo vo){
+        if (vo.getTitle() != null) {
+            updateTitle(vo.getTitle());
+        }
+        if (vo.getContent() != null) {
+            updateContent(vo.getContent());
+        }
+        if (vo.getPostStatus() != null) {
+            updatePostStatus(vo.getPostStatus());
+        }
+        if (vo.getImages() != null) {
+            updateImages(vo.getImages());
+        }
+        if (vo.getVideoUrl() != null) {
+            updateVideoUrl(vo.getVideoUrl().isEmpty() ? null : vo.getVideoUrl());
+        }
+        if (vo.getHashtags() != null) {
+            updateHashtags(vo.getHashtags());
+        }
+    }
+
+    protected void updateTitle(String title) {
+        this.title = title;
+    }
+
+    protected void updateContent(String content) {
+        this.content = content;
+    }
+
+    protected void updateImages(List<String> images) {
+        this.images = images;
+    }
+
+    protected void updatePostStatus(PostStatus postStatus) {
+        this.postStatus = postStatus;
+    }
+
+    protected void updateVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
+    }
+
+    protected void updateHashtags(List<String> hashtags) {
+        this.hashtags = hashtags;
+    }
+
 }

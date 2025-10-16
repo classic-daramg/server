@@ -1,4 +1,4 @@
-package com.daramg.server.domain.composer;
+package com.daramg.server.domain.composer.domain;
 
 public enum Continent {
     ASIA,

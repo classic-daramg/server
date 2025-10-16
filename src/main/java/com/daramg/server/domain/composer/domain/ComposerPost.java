@@ -1,4 +1,4 @@
-package com.daramg.server.domain.composer;
+package com.daramg.server.domain.composer.domain;
 
 import com.daramg.server.common.domain.BaseEntity;
 import com.daramg.server.domain.post.domain.Post;

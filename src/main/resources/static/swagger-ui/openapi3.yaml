@@ -1,0 +1,450 @@
+openapi: 3.0.1
+info:
+  title: Classic Daramg's API docs
+  description: 클래식 듣는 다람쥐의 API 문서입니다.
+  version: 0.1.0
+servers:
+- url: http://localhost:8080
+tags: []
+paths:
+  /posts/curation:
+    post:
+      tags:
+      - Post API
+      summary: 큐레이션 포스트 생성
+      description: 사용자가 큐레이션 포스트를 생성합니다.
+      operationId: post-controller-test/큐레이션_포스트를_생성한다
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/posts-curation-745665617"
+            examples:
+              post-controller-test/큐레이션_포스트를_생성한다:
+                value: |-
+                  {
+                    "title" : "큐레이션 포스트 제목",
+                    "content" : "큐레이션 포스트 내용입니다람쥐",
+                    "postStatus" : "DRAFT",
+                    "images" : [ "image url 1", "image url 2" ],
+                    "videoUrl" : "https://www.youtube.com/watch?v=mBXBOLG06Wc&list=RDmBXBOLG06Wc&start_radio=1",
+                    "hashtags" : [ "#classical", "#beethoven", "#music" ],
+                    "primaryComposerId" : 1,
+                    "additionalComposerIds" : [ 2, 3 ]
+                  }
+      responses:
+        "201":
+          description: "201"
+  /posts/free:
+    post:
+      tags:
+      - Post API
+      summary: 자유 포스트 생성
+      description: 사용자가 자유 포스트를 생성합니다.
+      operationId: post-controller-test/자유_포스트를_생성한다
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/posts-free-433540487"
+            examples:
+              post-controller-test/자유_포스트를_생성한다:
+                value: |-
+                  {
+                    "title" : "포스트 제목",
+                    "content" : "포스트 내용입니다람쥐",
+                    "postStatus" : "PUBLISHED",
+                    "images" : [ "image url 1", "image url 2" ],
+                    "videoUrl" : "https://www.youtube.com/watch?v=mBXBOLG06Wc&list=RDmBXBOLG06Wc&start_radio=1",
+                    "hashtags" : [ "#seventeen", "#bss", "#fighting" ]
+                  }
+      responses:
+        "201":
+          description: "201"
+  /posts/story:
+    post:
+      tags:
+      - Post API
+      summary: 스토리 포스트 생성
+      description: 사용자가 스토리 포스트를 생성합니다.
+      operationId: post-controller-test/스토리_포스트를_생성한다
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/posts-story1894247877"
+            examples:
+              post-controller-test/스토리_포스트를_생성한다:
+                value: |-
+                  {
+                    "title" : "스토리 포스트 제목",
+                    "content" : "스토리 포스트 내용입니다람쥐",
+                    "postStatus" : "PUBLISHED",
+                    "images" : [ "image url 1", "image url 2" ],
+                    "videoUrl" : "https://www.youtube.com/watch?v=mBXBOLG06Wc&list=RDmBXBOLG06Wc&start_radio=1",
+                    "hashtags" : [ "#romantic", "#chopin", "#piano" ],
+                    "primaryComposerId" : 1
+                  }
+      responses:
+        "201":
+          description: "201"
+  /posts/{postId}:
+    delete:
+      tags:
+      - Post API
+      summary: 포스트 삭제
+      description: 사용자가 포스트를 삭제합니다.
+      operationId: post-controller-test/포스트를_삭제한다
+      parameters:
+      - name: postId
+        in: path
+        description: 삭제할 포스트의 아이디
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: "204"
+  /posts/curation/{postId}:
+    patch:
+      tags:
+      - Post API
+      summary: 큐레이션 포스트 업데이트
+      description: 사용자가 큐레이션 포스트를 수정합니다.
+      operationId: post-controller-test/큐레이션_포스트를_업데이트한다
+      parameters:
+      - name: postId
+        in: path
+        description: 수정할 포스트의 아이디
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/posts-curation-postId-1538462666"
+            examples:
+              post-controller-test/큐레이션_포스트를_업데이트한다:
+                value: |-
+                  {
+                    "title" : "수정된 큐레이션 포스트 제목",
+                    "content" : "수정된 큐레이션 포스트 내용입니다람쥐",
+                    "postStatus" : "PUBLISHED",
+                    "images" : [ "updated image url 1", "updated image url 2" ],
+                    "videoUrl" : "https://www.youtube.com/watch?v=updated",
+                    "hashtags" : [ "#updated", "#curation", "#classical" ],
+                    "additionalComposersId" : [ 1, 2, 3 ]
+                  }
+      responses:
+        "200":
+          description: "200"
+  /posts/free/{postId}:
+    patch:
+      tags:
+      - Post API
+      summary: 자유 포스트 업데이트
+      description: 사용자가 자유 포스트를 수정합니다.
+      operationId: post-controller-test/자유_포스트를_수정한다
+      parameters:
+      - name: postId
+        in: path
+        description: 수정할 포스트의 아이디
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/posts-story-postId-1095836013"
+            examples:
+              post-controller-test/자유_포스트를_수정한다:
+                value: |-
+                  {
+                    "title" : "수정된 포스트 제목",
+                    "content" : "수정된 포스트 내용입니다람쥐",
+                    "postStatus" : "PUBLISHED",
+                    "images" : [ "updated image url 1", "updated image url 2" ],
+                    "videoUrl" : "https://www.youtube.com/watch?v=updated",
+                    "hashtags" : [ "#updated", "#seventeen", "#bss" ]
+                  }
+      responses:
+        "200":
+          description: "200"
+  /posts/story/{postId}:
+    patch:
+      tags:
+      - Post API
+      summary: 스토리 포스트 업데이트
+      description: 사용자가 스토리 포스트를 수정합니다.
+      operationId: post-controller-test/스토리_포스트를_업데이트한다
+      parameters:
+      - name: postId
+        in: path
+        description: 수정할 포스트의 아이디
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/posts-story-postId-1095836013"
+            examples:
+              post-controller-test/스토리_포스트를_업데이트한다:
+                value: |-
+                  {
+                    "title" : "수정된 스토리 포스트 제목",
+                    "content" : "수정된 스토리 포스트 내용입니다람쥐",
+                    "postStatus" : "PUBLISHED",
+                    "images" : [ "updated image url 1", "updated image url 2" ],
+                    "videoUrl" : "https://www.youtube.com/watch?v=updated",
+                    "hashtags" : [ "#updated", "#story", "#chopin" ]
+                  }
+      responses:
+        "200":
+          description: "200"
+  /send-verification-email:
+    post:
+      tags:
+      - Auth API
+      summary: 회원가입 시 인증코드 이메일 발송
+      description: 새로운 사용자를 위해 이메일 주소로 인증코드를 발송합니다.
+      operationId: 회원가입을_위한_인증코드_메일_발송
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/send-verification-email-272417006"
+            examples:
+              회원가입을_위한_인증코드_메일_발송:
+                value: "{\"email\":\"daramg123@gmail.com\"}"
+      responses:
+        "200":
+          description: "200"
+  /verify-email:
+    post:
+      tags:
+      - Auth API
+      summary: 인증번호로 이메일 인증
+      description: 사용자가 제공한 인증번호로 이메일 주소를 인증합니다.
+      operationId: 인증번호로_이메일_인증
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/verify-email-1072797477"
+            examples:
+              인증번호로_이메일_인증:
+                value: "{\"email\":\"daramg123@gmail.com\",\"verificationCode\":\"\
+                  123456\"}"
+      responses:
+        "200":
+          description: "200"
+components:
+  schemas:
+    posts-curation-745665617:
+      type: object
+      properties:
+        additionalComposerIds:
+          type: array
+          description: 추가 작곡가 아이디 리스트
+          items:
+            oneOf:
+            - type: object
+            - type: boolean
+            - type: string
+            - type: number
+        images:
+          type: array
+          description: 포스트에 넣을 이미지 리스트
+          items:
+            oneOf:
+            - type: object
+            - type: boolean
+            - type: string
+            - type: number
+        primaryComposerId:
+          type: number
+          description: 주요 작곡가 아이디
+        hashtags:
+          type: array
+          description: 포스트에 넣을 해시태그 리스트
+          items:
+            oneOf:
+            - type: object
+            - type: boolean
+            - type: string
+            - type: number
+        videoUrl:
+          type: string
+          description: 포스트에 넣을 비디오 url
+        postStatus:
+          type: string
+          description: "포스트의 게시 상태(PUBLISHED, DRAFT)"
+        title:
+          type: string
+          description: 포스트의 제목(15자 이내)
+        content:
+          type: string
+          description: 포스트의 내용(5자 이상 3000자 이하)
+    posts-free-433540487:
+      type: object
+      properties:
+        images:
+          type: array
+          description: 포스트에 넣을 이미지 리스트
+          items:
+            oneOf:
+            - type: object
+            - type: boolean
+            - type: string
+            - type: number
+        hashtags:
+          type: array
+          description: 포스트에 넣을 해시태그 리스트
+          items:
+            oneOf:
+            - type: object
+            - type: boolean
+            - type: string
+            - type: number
+        videoUrl:
+          type: string
+          description: 포스트에 넣을 비디오 url
+        postStatus:
+          type: string
+          description: "포스트의 게시 상태(PUBLISHED, DRAFT)"
+        title:
+          type: string
+          description: 포스트의 제목(15자 이내)
+        content:
+          type: string
+          description: 포스트의 내용(5자 이상 3000자 이하)
+    send-verification-email-272417006:
+      type: object
+      properties:
+        email:
+          type: string
+          description: 이메일
+    posts-story1894247877:
+      type: object
+      properties:
+        images:
+          type: array
+          description: 포스트에 넣을 이미지 리스트
+          items:
+            oneOf:
+            - type: object
+            - type: boolean
+            - type: string
+            - type: number
+        primaryComposerId:
+          type: number
+          description: 주요 작곡가 아이디
+        hashtags:
+          type: array
+          description: 포스트에 넣을 해시태그 리스트
+          items:
+            oneOf:
+            - type: object
+            - type: boolean
+            - type: string
+            - type: number
+        videoUrl:
+          type: string
+          description: 포스트에 넣을 비디오 url
+        postStatus:
+          type: string
+          description: "포스트의 게시 상태(PUBLISHED, DRAFT)"
+        title:
+          type: string
+          description: 포스트의 제목(15자 이내)
+        content:
+          type: string
+          description: 포스트의 내용(5자 이상 3000자 이하)
+    verify-email-1072797477:
+      type: object
+      properties:
+        email:
+          type: string
+          description: 이메일
+        verificationCode:
+          type: string
+          description: "인증번호: 6자리 숫자"
+    posts-curation-postId-1538462666:
+      type: object
+      properties:
+        images:
+          type: array
+          description: 포스트에 넣을 이미지 리스트(삭제 시 빈 리스트)
+          items:
+            oneOf:
+            - type: object
+            - type: boolean
+            - type: string
+            - type: number
+        additionalComposersId:
+          type: array
+          description: 추가 작곡가 ID 리스트(삭제 시 빈 리스트)
+          items:
+            oneOf:
+            - type: object
+            - type: boolean
+            - type: string
+            - type: number
+        hashtags:
+          type: array
+          description: 포스트에 넣을 해시태그 리스트(삭제 시 빈 리스트)
+          items:
+            oneOf:
+            - type: object
+            - type: boolean
+            - type: string
+            - type: number
+        videoUrl:
+          type: string
+          description: 포스트에 넣을 비디오 url(삭제 시 빈 문자열)
+        postStatus:
+          type: string
+          description: "포스트의 게시 상태(PUBLISHED, DRAFT)"
+        title:
+          type: string
+          description: 포스트의 제목(15자 이내)
+        content:
+          type: string
+          description: 포스트의 내용(5자 이상 3000자 이하)
+    posts-story-postId-1095836013:
+      type: object
+      properties:
+        images:
+          type: array
+          description: 포스트에 넣을 이미지 리스트(삭제 시 빈 리스트)
+          items:
+            oneOf:
+            - type: object
+            - type: boolean
+            - type: string
+            - type: number
+        hashtags:
+          type: array
+          description: 포스트에 넣을 해시태그 리스트(삭제 시 빈 리스트)
+          items:
+            oneOf:
+            - type: object
+            - type: boolean
+            - type: string
+            - type: number
+        videoUrl:
+          type: string
+          description: 포스트에 넣을 비디오 url(삭제 시 빈 문자열)
+        postStatus:
+          type: string
+          description: "포스트의 게시 상태(PUBLISHED, DRAFT)"
+        title:
+          type: string
+          description: 포스트의 제목(15자 이내)
+        content:
+          type: string
+          description: 포스트의 내용(5자 이상 3000자 이하)

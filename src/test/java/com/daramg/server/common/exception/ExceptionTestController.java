@@ -1,4 +1,4 @@
-package com.daramg.server.exception;
+package com.daramg.server.common.exception;
 
 import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.common.exception.CommonErrorStatus;

@@ -1,4 +1,4 @@
-package com.daramg.server.domain.user;
+package com.daramg.server.domain.user.domain;
 
 import com.daramg.server.common.domain.BaseEntity;
 import jakarta.persistence.*;

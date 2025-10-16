@@ -9,10 +9,22 @@ public class BusinessException extends RuntimeException{
     private final BaseErrorCode errorCode;
 
     public BusinessException() {
-        this(defaultErrorCode);
+        super(defaultErrorCode.getMessage());
+        this.errorCode = defaultErrorCode;
     }
 
     public BusinessException(BaseErrorCode errorCode) {
+        super(errorCode.getMessage());
+        this.errorCode = errorCode;
+    }
+
+    public BusinessException(String message) {
+        super(message);
+        this.errorCode = defaultErrorCode;
+    }
+
+    public BusinessException(String message, BaseErrorCode errorCode) {
+        super(message);
         this.errorCode = errorCode;
     }
 }
