@@ -79,7 +79,7 @@ test {
 
 		afterTest { desc, result ->
 			if (result.resultType == TestResult.ResultType.FAILURE) {
-				println "\n ❌===== FAILED: ${desc.getDisplayName}"
+				println "\n ❌===== FAILED: ${desc.displayName}"
 
 				def exception = result.exception
 				if (exception?.getClass()?.name == 'org.opentest4j.AssertionFailedError') {
@@ -109,10 +109,13 @@ openapi3{
 	description = '클래식 듣는 다람쥐의 API 문서입니다.'
 	version = '0.1.0'
 	format = 'yaml'
-	outputDirectory = file('build/api-spec')
+	outputDirectory = file('src/main/resources/static/swagger-ui')
 }
 
 tasks.named('bootJar') {
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+	dependsOn tasks.named('openapi3')
+
 	layered {}
 	from(tasks.named('openapi3').map { it.outputDirectory }) {
 		into 'static/swagger-ui'

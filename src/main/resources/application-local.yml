@@ -23,3 +23,8 @@ logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql: TRACE
+
+cookie:
+  valid-time: 604800
+  name: DARAMG_SES
+
