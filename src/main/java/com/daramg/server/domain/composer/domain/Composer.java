@@ -1,4 +1,4 @@
-package com.daramg.server.domain.composer;
+package com.daramg.server.domain.composer.domain;
 
 import com.daramg.server.common.domain.BaseEntity;
 import jakarta.persistence.*;
@@ -7,9 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.NonNull;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -48,7 +45,7 @@ public class Composer extends BaseEntity<Composer> {
     private Continent continent;
 
     @Builder
-    public Composer(@NonNull String koreanName, @NonNull String englishName, 
+    private Composer(@NonNull String koreanName, @NonNull String englishName,
                    String nativeName, @NonNull Gender gender, String nationality,
                    Short birthYear, Short deathYear, Era era, Continent continent) {
         this.koreanName = koreanName;
