@@ -2,7 +2,7 @@ package com.daramg.server.domain.interaction;
 
 import com.daramg.server.common.domain.BaseEntity;
 import com.daramg.server.domain.post.domain.Post;
-import com.daramg.server.domain.user.User;
+import com.daramg.server.domain.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

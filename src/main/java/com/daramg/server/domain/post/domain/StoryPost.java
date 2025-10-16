@@ -1,7 +1,8 @@
 package com.daramg.server.domain.post.domain;
 
-import com.daramg.server.domain.composer.Composer;
-import com.daramg.server.domain.user.User;
+import com.daramg.server.domain.composer.domain.Composer;
+import com.daramg.server.domain.post.domain.vo.PostCreateVo;
+import com.daramg.server.domain.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.lang.NonNull;
@@ -18,11 +19,24 @@ public class StoryPost extends Post {
     @JoinColumn(name = "composer_id")
     private Composer primaryComposer;
 
-    @Builder
+    @Builder(access = AccessLevel.PRIVATE)
     public StoryPost(@NonNull User user, Composer primaryComposer, @NonNull String title,
                      @NonNull String content, @Singular List<String> images, String videoUrl,
                      @Singular List<String> hashtags, @NonNull PostStatus postStatus) {
         super(user, title, content, images, videoUrl, hashtags, postStatus);
         this.primaryComposer = primaryComposer;
+    }
+
+    public static StoryPost from(PostCreateVo.Story vo) {
+        return StoryPost.builder()
+                .user(vo.getUser())
+                .title(vo.getTitle())
+                .content(vo.getContent())
+                .images(vo.getImages())
+                .videoUrl(vo.getVideoUrl())
+                .postStatus(vo.getPostStatus())
+                .hashtags(vo.getHashtags())
+                .primaryComposer(vo.getPrimaryComposer())
+                .build();
     }
 }
