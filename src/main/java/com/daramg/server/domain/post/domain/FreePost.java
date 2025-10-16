@@ -1,6 +1,7 @@
 package com.daramg.server.domain.post.domain;
 
-import com.daramg.server.domain.user.User;
+import com.daramg.server.domain.post.domain.vo.PostCreateVo;
+import com.daramg.server.domain.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.lang.NonNull;
@@ -13,10 +14,22 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FreePost extends Post {
 
-    @Builder
+    @Builder(access = AccessLevel.PRIVATE)
     public FreePost(@NonNull User user, @NonNull String title, @NonNull String content,
                     @Singular List<String> images, String videoUrl,
                     @Singular List<String> hashtags, @NonNull PostStatus postStatus) {
         super(user, title, content, images, videoUrl, hashtags, postStatus);
+    }
+
+    public static FreePost from(PostCreateVo.Free vo) {
+        return FreePost.builder()
+                .user(vo.getUser())
+                .title(vo.getTitle())
+                .content(vo.getContent())
+                .images(vo.getImages())
+                .videoUrl(vo.getVideoUrl())
+                .postStatus(vo.getPostStatus())
+                .hashtags(vo.getHashtags())
+                .build();
     }
 }
