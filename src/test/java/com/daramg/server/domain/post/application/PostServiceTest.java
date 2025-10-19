@@ -1,4 +1,4 @@
-package com.daramg.server.domain.post.service;
+package com.daramg.server.domain.post.application;
 
 import com.daramg.server.common.exception.NotFoundException;
 import com.daramg.server.domain.composer.domain.Composer;
@@ -49,7 +49,7 @@ public class PostServiceTest extends ServiceTestSupport {
 
     @BeforeEach
     void setUp() {
-        user = new User("email", "password", "name", LocalDate.now(), "profie", "bio", null);
+        user = new User("email", "password", "name", LocalDate.now(), "profile image", "호시", "bio", null);
         userRepository.save(user);
 
         composer = Composer.builder()
@@ -348,7 +348,7 @@ public class PostServiceTest extends ServiceTestSupport {
         @Test
         void 다른_사용자의_포스트를_수정하면_에러가_발생한다() {
             //given
-            User anotherUser = new User("another@email.com", "password", "another name", LocalDate.now(), "profile", "bio", null);
+            User anotherUser = new User("another@email.com", "password", "another name", LocalDate.now(), "profile", "햄쥑이", "bio", null);
             userRepository.save(anotherUser);
             
             PostCreateDto.CreateFree createDto = new PostCreateDto.CreateFree(
@@ -396,7 +396,7 @@ public class PostServiceTest extends ServiceTestSupport {
     @Test
     void 포스트와_작성자가_일치하지_않으면_삭제하지_못한다(){
         //given
-        User anotherUser = new User("another@email.com", "password", "another name", LocalDate.now(), "profile", "bio", null);
+        User anotherUser = new User("another@email.com", "password", "another name", LocalDate.now(), "profile image", "호랑이", "bio", null);
         userRepository.save(anotherUser);
         
         PostCreateDto.CreateFree createDto = new PostCreateDto.CreateFree(

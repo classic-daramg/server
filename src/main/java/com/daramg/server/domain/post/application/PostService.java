@@ -1,4 +1,4 @@
-package com.daramg.server.domain.post.service;
+package com.daramg.server.domain.post.application;
 
 import com.daramg.server.common.application.EntityUtils;
 import com.daramg.server.common.exception.BusinessException;
@@ -150,4 +150,3 @@ public class PostService {
         postRepository.deleteById(postId);
     }
 }
-

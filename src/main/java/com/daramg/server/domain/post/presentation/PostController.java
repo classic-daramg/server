@@ -1,8 +1,8 @@
-package com.daramg.server.domain.post.controller;
+package com.daramg.server.domain.post.presentation;
 
 import com.daramg.server.domain.post.dto.PostCreateDto;
 import com.daramg.server.domain.post.dto.PostUpdateDto;
-import com.daramg.server.domain.post.service.PostService;
+import com.daramg.server.domain.post.application.PostService;
 import com.daramg.server.domain.user.domain.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
