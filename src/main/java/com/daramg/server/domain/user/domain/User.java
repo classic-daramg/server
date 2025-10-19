@@ -1,6 +1,7 @@
 package com.daramg.server.domain.user.domain;
 
 import com.daramg.server.common.domain.BaseEntity;
+import com.daramg.server.auth.domain.SignupVo;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -33,6 +34,9 @@ public class User extends BaseEntity<User> {
     @Column(name = "profile_image")
     private String profileImage;
 
+    @Column(name = "nickname", nullable = false, unique = true)
+    private String nickname;
+
     @Column(name = "bio", columnDefinition = "TEXT")
     private String bio;
 
@@ -44,15 +48,40 @@ public class User extends BaseEntity<User> {
     @Column(name = "subscriber_count", nullable = false)
     private int subscriberCount = 0;
 
+    //TODO: 기본 이미지 저장
+    private static final String DEFAULT_PROFILE_IMAGE_URL = "https://default-image.png";
+
     @Builder
     public User(@NonNull String email, @NonNull String password, @NonNull String name,
-                @NonNull LocalDate birthDate, String profileImage, String bio, List<String> achievements) {
+                @NonNull LocalDate birthDate, String profileImage, @NonNull String nickname,
+                String bio, List<String> achievements) {
         this.email = email;
         this.password = password;
         this.name = name;
         this.birthDate = birthDate;
         this.profileImage = profileImage;
+        this.nickname = nickname;
         this.bio = bio;
         this.achievements = achievements != null ? achievements : new ArrayList<>();
+    }
+
+    public static User from(SignupVo vo){
+        String profileImage = (vo.getProfileImage() == null || vo.getProfileImage().isBlank())
+                ? DEFAULT_PROFILE_IMAGE_URL
+                : vo.getProfileImage();
+
+        return User.builder()
+                .email(vo.getEmail())
+                .name(vo.getName())
+                .birthDate(vo.getBirthDate())
+                .password(vo.getPassword())
+                .profileImage(profileImage)
+                .nickname(vo.getNickname())
+                .bio(vo.getBio())
+                .build();
+    }
+
+    public void changePassword(String password){
+        this.password = password;
     }
 }

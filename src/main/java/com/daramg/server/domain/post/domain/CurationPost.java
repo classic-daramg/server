@@ -29,7 +29,7 @@ public class CurationPost extends Post {
     private List<Composer> additionalComposers = new ArrayList<>();
 
     @Builder(access = AccessLevel.PRIVATE)
-    public CurationPost(@NonNull User user, Composer primaryComposer, @NonNull String title,
+    private CurationPost(@NonNull User user, Composer primaryComposer, @NonNull String title,
                         @NonNull String content, @Singular List<String> images, String videoUrl,
                         @Singular List<String> hashtags, @NonNull PostStatus postStatus,
                         @Singular List<Composer> additionalComposers) {

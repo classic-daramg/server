@@ -15,7 +15,7 @@ import java.util.List;
 public class FreePost extends Post {
 
     @Builder(access = AccessLevel.PRIVATE)
-    public FreePost(@NonNull User user, @NonNull String title, @NonNull String content,
+    private FreePost(@NonNull User user, @NonNull String title, @NonNull String content,
                     @Singular List<String> images, String videoUrl,
                     @Singular List<String> hashtags, @NonNull PostStatus postStatus) {
         super(user, title, content, images, videoUrl, hashtags, postStatus);

@@ -20,7 +20,7 @@ public class StoryPost extends Post {
     private Composer primaryComposer;
 
     @Builder(access = AccessLevel.PRIVATE)
-    public StoryPost(@NonNull User user, Composer primaryComposer, @NonNull String title,
+    private StoryPost(@NonNull User user, Composer primaryComposer, @NonNull String title,
                      @NonNull String content, @Singular List<String> images, String videoUrl,
                      @Singular List<String> hashtags, @NonNull PostStatus postStatus) {
         super(user, title, content, images, videoUrl, hashtags, postStatus);
