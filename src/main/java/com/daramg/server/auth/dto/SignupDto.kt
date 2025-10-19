@@ -1,0 +1,38 @@
+package com.daramg.server.auth.dto
+
+import jakarta.validation.constraints.*
+import java.time.LocalDate
+
+class SignupDto(
+    @get:NotBlank(message = "이름은 필수입니다")
+    val name: String,
+
+    @get:NotNull(message = "생년월일은 필수입니다")
+    val birthdate: LocalDate,
+
+    @get:NotBlank(message = "이메일은 필수입니다")
+    @get:Email(message = "이메일 형식이 올바르지 않습니다")
+    val email: String,
+
+    @get:Pattern(
+        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%^&*()]).{10,}\$",
+        message = "비밀번호는 영어 대/소문자, 숫자, 특수문자를 모두 포함하여 10자 이상이어야 합니다"
+    )
+    val password: String,
+
+    @get:Pattern(
+        regexp = "^(https?://).*[\\.(?i)(jpg|jpeg|png|gif|svg)]$",
+        message = "올바른 이미지 URL 형식이 아닙니다"
+    )
+    val profileImage: String?,
+
+    @get:NotBlank(message = "닉네임은 필수입니다")
+    @get:Pattern(
+        regexp = "^[a-zA-Z0-9가-힣._]{2,8}$",
+        message = "닉네임은 2~8자의 한글, 영문, 숫자와 일부 특수문자(_, .)만 사용할 수 있습니다."
+    )
+    val nickname: String,
+
+    @get:Size(max = 12, message = "bio는 12자 이하로 입력해주세요")
+    val bio: String?
+)
