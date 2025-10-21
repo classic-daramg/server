@@ -1,9 +1,9 @@
 package com.daramg.server.auth.application;
 
-import com.daramg.server.auth.dto.EmailRequest;
-import com.daramg.server.auth.dto.VerificationMailRequest;
+import com.daramg.server.auth.dto.EmailVerificationRequest;
+import com.daramg.server.auth.dto.CodeVerificationRequest;
 
 public interface MailVerificationService {
-    void sendVerificationEmail(EmailRequest request);
-    void verifyEmailWithCode(VerificationMailRequest request);
+    void sendVerificationEmail(EmailVerificationRequest request);
+    void verifyEmailWithCode(CodeVerificationRequest request);
 }

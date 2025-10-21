@@ -16,6 +16,7 @@ public enum AuthErrorStatus implements BaseErrorCode {
     INVALID_EMAIL(HttpStatus.BAD_REQUEST, ErrorCategory.AUTH.generate(400_3), "올바른 이메일 형식이 아닙니다."),
     VERIFICATION_CODE_NOT_EXIST(HttpStatus.BAD_REQUEST, ErrorCategory.AUTH.generate(400_4), "인증번호는 비어있을 수 없습니다."),
     INVALID_VERIFICATION_CODE(HttpStatus.BAD_REQUEST, ErrorCategory.AUTH.generate(400_5), "인증번호는 6자리 숫자여야 합니다."),
+    EMAIL_NOT_REGISTERED(HttpStatus.BAD_REQUEST, ErrorCategory.AUTH.generate(400_6), "가입되지 않은 이메일입니다."),
 
     SEND_VERIFICATION_EMAIL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCategory.AUTH.generate(500), "이메일 전송에 실패했습니다.");
 

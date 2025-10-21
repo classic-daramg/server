@@ -1,14 +1,15 @@
 package com.daramg.server.auth.application;
 
 import com.daramg.server.auth.MailMessages;
-import com.daramg.server.auth.dto.EmailRequest;
-import com.daramg.server.auth.dto.VerificationMailRequest;
+import com.daramg.server.auth.dto.EmailVerificationRequest;
+import com.daramg.server.auth.dto.CodeVerificationRequest;
 import com.daramg.server.auth.exception.AuthErrorStatus;
 import com.daramg.server.auth.repository.VerificationCodeRepository;
 import com.daramg.server.auth.util.MailContentBuilder;
 import com.daramg.server.auth.util.MimeMessageGenerator;
 import com.daramg.server.auth.util.VerificationCodeGenerator;
 import com.daramg.server.common.exception.BusinessException;
+import com.daramg.server.domain.user.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +24,28 @@ public class MailVerificationServiceImpl implements MailVerificationService{
     private final MailContentBuilder mailContentBuilder;
     private final JavaMailSender javaMailSender;
     private final VerificationCodeRepository verificationCodeRepository;
+    private final UserRepository userRepository;
 
-    public void sendVerificationEmail(EmailRequest request) {
+    public void sendVerificationEmail(EmailVerificationRequest request) {
+        switch (request.getEmailPurpose()) {
+            case SIGNUP -> sendForSignup(request);
+            case PASSWORD_RESET -> sendForPasswordReset(request);
+            default -> throw new BusinessException("지원하지 않는 이메일 발송 목적입니다.");
+        }
+    }
+
+    private void sendForSignup(EmailVerificationRequest request) {
+        sendVerificationCode(request);
+    }
+
+    private void sendForPasswordReset(EmailVerificationRequest request) {
+        if (!userRepository.existsByEmail(request.getEmail())){
+            throw new BusinessException(AuthErrorStatus.EMAIL_NOT_REGISTERED);
+        }
+        sendVerificationCode(request);
+    }
+
+    private void sendVerificationCode(EmailVerificationRequest request) {
         String verificationCode = VerificationCodeGenerator.generate();
         verificationCodeRepository.save(request.getEmail(), verificationCode);
         
@@ -42,7 +63,7 @@ public class MailVerificationServiceImpl implements MailVerificationService{
         }
     }
 
-    public void verifyEmailWithCode(VerificationMailRequest request) {
+    public void verifyEmailWithCode(CodeVerificationRequest request) {
         String storedCode = verificationCodeRepository.findByEmail(request.getEmail())
                 .orElse(null);
 

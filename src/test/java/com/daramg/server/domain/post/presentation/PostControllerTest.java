@@ -1,9 +1,9 @@
-package com.daramg.server.domain.post.controller;
+package com.daramg.server.domain.post.presentation;
 
 import com.daramg.server.domain.post.domain.PostStatus;
 import com.daramg.server.domain.post.dto.PostCreateDto;
 import com.daramg.server.domain.post.dto.PostUpdateDto;
-import com.daramg.server.domain.post.service.PostService;
+import com.daramg.server.domain.post.application.PostService;
 import com.daramg.server.testsupport.support.ControllerTestSupport;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import jakarta.servlet.http.Cookie;
