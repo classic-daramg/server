@@ -2,6 +2,7 @@ package com.daramg.server.auth.application;
 
 import com.daramg.server.auth.dto.PasswordDto;
 import com.daramg.server.auth.dto.SignupDto;
+import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.domain.user.domain.User;
 import com.daramg.server.domain.user.repository.UserRepository;
 import com.daramg.server.testsupport.support.ServiceTestSupport;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class AuthServiceTest extends ServiceTestSupport {
 
@@ -82,6 +84,77 @@ public class AuthServiceTest extends ServiceTestSupport {
             //then
             User updatedUser = userRepository.findById(user.getId()).orElseThrow();
             assertThat(updatedUser.getPassword()).isEqualTo(newPassword);
+        }
+    }
+
+    @Nested
+    @DisplayName("회원가입 실패 테스트")
+    class SignupFailure {
+        private User existingUser;
+
+        @BeforeEach
+        void setUp() {
+            existingUser = new User("existing@example.com", "Password123!", "기존닉네임", 
+                    LocalDate.of(1990, 1, 1), "https://example.com/profile.jpg", 
+                    "기존닉네임", "안녕하세요", null);
+            userRepository.save(existingUser);
+        }
+
+        @Test
+        void 중복된_이메일로_회원가입시_예외가_발생한다() {
+            //given
+            SignupDto signupDto = new SignupDto(
+                    "홍길동",
+                    LocalDate.of(1990, 1, 1),
+                    "existing@example.com", // 중복된 이메일
+                    "Password123!",
+                    "https://example.com/profile.jpg",
+                    "새로운닉네임",
+                    "안녕하세요"
+            );
+
+            //when & then
+            assertThatThrownBy(() -> authService.signup(signupDto))
+                    .isInstanceOf(BusinessException.class)
+                    .hasMessage("중복된 이메일입니다.");
+        }
+
+        @Test
+        void 중복된_닉네임으로_회원가입시_예외가_발생한다() {
+            //given
+            SignupDto signupDto = new SignupDto(
+                    "홍길동",
+                    LocalDate.of(1990, 1, 1),
+                    "new@example.com",
+                    "Password123!",
+                    "https://example.com/profile.jpg",
+                    "기존닉네임", // 중복된 닉네임
+                    "안녕하세요"
+            );
+
+            //when & then
+            assertThatThrownBy(() -> authService.signup(signupDto))
+                    .isInstanceOf(BusinessException.class)
+                    .hasMessage("중복된 닉네임입니다.");
+        }
+
+        @Test
+        void 이메일과_닉네임이_모두_중복될_때_이메일_중복_예외가_먼저_발생한다() {
+            //given
+            SignupDto signupDto = new SignupDto(
+                    "홍길동",
+                    LocalDate.of(1990, 1, 1),
+                    "existing@example.com", // 중복된 이메일
+                    "Password123!",
+                    "https://example.com/profile.jpg",
+                    "기존닉네임", // 중복된 닉네임
+                    "안녕하세요"
+            );
+
+            //when & then
+            assertThatThrownBy(() -> authService.signup(signupDto))
+                    .isInstanceOf(BusinessException.class)
+                    .hasMessage("중복된 이메일입니다.");
         }
     }
 

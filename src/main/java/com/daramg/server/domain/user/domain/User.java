@@ -81,6 +81,7 @@ public class User extends BaseEntity<User> {
                 .build();
     }
 
+    //TODO: 비밀번호 암호화 추가(PasswordEncoder)
     public void changePassword(String password){
         this.password = password;
     }

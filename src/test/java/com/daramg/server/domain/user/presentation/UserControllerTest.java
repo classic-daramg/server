@@ -27,7 +27,7 @@ public class UserControllerTest extends ControllerTestSupport {
     void 닉네임_중복_확인_사용가능() throws Exception {
         // given
         String nickname = "햄쥑이";
-        given(userService.isNicknameAvailable(nickname)).willReturn(false);
+        given(userService.isNicknameAvailable(nickname)).willReturn(true);
 
         // when
         ResultActions result = mockMvc.perform(get("/users/check-nickname")

@@ -1,5 +1,6 @@
 package com.daramg.server.auth.application;
 
+import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.domain.user.domain.User;
 import com.daramg.server.auth.domain.SignupVo;
 import com.daramg.server.auth.dto.LoginDto;
@@ -18,6 +19,12 @@ public class AuthService {
     private final UserRepository userRepository;
 
     public void signup(SignupDto dto){
+        if (userRepository.existsByEmail(dto.getEmail())) {
+            throw new BusinessException("중복된 이메일입니다.");
+        }
+        if (userRepository.existsByNickname(dto.getNickname())){
+            throw new BusinessException("중복된 닉네임입니다.");
+        }
         // TODO: bio, 닉네임에 금칙어 검사
         SignupVo vo = new SignupVo(
                 dto.getName(),
