@@ -3,7 +3,7 @@ package com.daramg.server.auth.dto
 import jakarta.validation.constraints.*
 import java.time.LocalDate
 
-class SignupDto(
+class SignupRequestDto(
     @get:NotBlank(message = "이름은 필수입니다")
     val name: String,
 
@@ -15,13 +15,14 @@ class SignupDto(
     val email: String,
 
     @get:Pattern(
-        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%^&*()]).{10,}\$",
+        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9]).{10,}\$",
         message = "비밀번호는 영어 대/소문자, 숫자, 특수문자를 모두 포함하여 10자 이상이어야 합니다"
     )
     val password: String,
 
     @get:Pattern(
-        regexp = "^(https?://).*[\\.(?i)(jpg|jpeg|png|gif|svg)]$",
+        regexp = "^(https?://).+\\.(jpg|jpeg|png|gif|svg)$",
+        flags = [Pattern.Flag.CASE_INSENSITIVE],
         message = "올바른 이미지 URL 형식이 아닙니다"
     )
     val profileImage: String?,

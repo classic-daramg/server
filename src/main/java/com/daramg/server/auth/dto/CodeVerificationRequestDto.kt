@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
 
-data class CodeVerificationRequest(
+data class CodeVerificationRequestDto(
     @field:NotBlank(message = "AUTH_400_2")
     @field:Email(message = "AUTH_400_3")
     val email: String,
