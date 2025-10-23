@@ -1,4 +1,4 @@
-package com.daramg.server.auth;
+package com.daramg.server.auth.domain;
 
 public final class MailMessages {
     private MailMessages() {}
