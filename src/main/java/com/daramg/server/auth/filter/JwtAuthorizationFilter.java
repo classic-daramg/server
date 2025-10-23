@@ -3,6 +3,7 @@ package com.daramg.server.auth.filter;
 import com.daramg.server.auth.application.AuthService;
 import com.daramg.server.auth.util.CookieUtil;
 import com.daramg.server.auth.util.JwtUtil;
+import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.common.exception.UnauthorizedException;
 import com.daramg.server.domain.user.domain.User;
 import jakarta.servlet.FilterChain;
@@ -49,10 +50,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
             filterChain.doFilter(request, response);
-        } catch (UnauthorizedException e){
+        } catch (BusinessException e){
             log.debug("JWT 인증 실패: {}", e.getMessage());
             SecurityContextHolder.clearContext();
-            authEntryPoint.commence(request, response, new AuthenticationException(e.getMessage()) {});
+            authEntryPoint.commence(request, response, new AuthenticationException(e.getMessage(), e) {});
         } catch (AuthenticationException e){
             log.debug("인증 예외 발생: {}", e.getMessage());
             SecurityContextHolder.clearContext();
