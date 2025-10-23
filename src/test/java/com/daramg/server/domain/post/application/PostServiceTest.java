@@ -159,7 +159,7 @@ public class PostServiceTest extends ServiceTestSupport {
             //when & then
             assertThatThrownBy(() -> postService.createCuration(requestDto, user))
                     .isInstanceOf(NotFoundException.class)
-                    .hasMessage("존재하지 않는 작곡가 ID가 포함되어 있습니다.");
+                    .hasMessageContaining("존재하지 않는 작곡가 ID가 포함되어 있습니다.");
         }
 
         @Test
@@ -342,7 +342,7 @@ public class PostServiceTest extends ServiceTestSupport {
             //when & then
             assertThatThrownBy(() -> postService.updateCuration(postId, updateDto, user))
                     .isInstanceOf(NotFoundException.class)
-                    .hasMessage("존재하지 않는 작곡가 ID가 포함되어 있습니다.");
+                    .hasMessageContaining("존재하지 않는 작곡가 ID가 포함되어 있습니다.");
         }
 
         @Test

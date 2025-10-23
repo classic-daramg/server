@@ -39,10 +39,10 @@ public class PostControllerTest extends ControllerTestSupport {
                 List.of("#seventeen", "#bss", "#fighting")
         );
 
-        Cookie cookie = new Cookie(COOKIE_NAME, "test-cookie");
+        Cookie cookie = new Cookie(COOKIE_NAME, "access_token");
 
         //when
-        ResultActions result = mockMvc.perform(post("/posts/free", requestDto)
+        ResultActions result = mockMvc.perform(post("/posts/free")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDto))
                 .cookie(cookie)
@@ -82,10 +82,10 @@ public class PostControllerTest extends ControllerTestSupport {
                 List.of(2L, 3L)
         );
 
-        Cookie cookie = new Cookie(COOKIE_NAME, "test-cookie");
+        Cookie cookie = new Cookie(COOKIE_NAME, "access_token");
 
         //when
-        ResultActions result = mockMvc.perform(post("/posts/curation", requestDto)
+        ResultActions result = mockMvc.perform(post("/posts/curation")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDto))
                 .cookie(cookie)
@@ -126,10 +126,10 @@ public class PostControllerTest extends ControllerTestSupport {
                 1L
         );
 
-        Cookie cookie = new Cookie(COOKIE_NAME, "test-cookie");
+        Cookie cookie = new Cookie(COOKIE_NAME, "access_token");
 
         //when
-        ResultActions result = mockMvc.perform(post("/posts/story", requestDto)
+        ResultActions result = mockMvc.perform(post("/posts/story")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDto))
                 .cookie(cookie)

@@ -1,6 +1,6 @@
 package com.daramg.server.auth.domain;
 
-import com.daramg.server.auth.dto.SignupDto;
+import com.daramg.server.auth.dto.SignupRequestDto;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -31,7 +31,7 @@ class AuthTest {
         @DisplayName("이메일이 빈 값이면 검증에 실패한다")
         void email_NotBlank_실패() {
             // given
-            SignupDto dto = new SignupDto(
+            SignupRequestDto dto = new SignupRequestDto(
                     "홍길동",
                     LocalDate.of(1990, 1, 1),
                     "", // 빈 이메일
@@ -42,7 +42,7 @@ class AuthTest {
             );
 
             // when
-            Set<ConstraintViolation<SignupDto>> violations = validator.validate(dto);
+            Set<ConstraintViolation<SignupRequestDto>> violations = validator.validate(dto);
 
             // then
             assertThat(violations).hasSize(1);
@@ -53,7 +53,7 @@ class AuthTest {
         @DisplayName("이메일 형식이 올바르지 않으면 검증에 실패한다")
         void email_InvalidFormat_실패() {
             // given
-            SignupDto dto = new SignupDto(
+            SignupRequestDto dto = new SignupRequestDto(
                     "홍길동",
                     LocalDate.of(1990, 1, 1),
                     "invalid-email", // 잘못된 이메일 형식
@@ -64,7 +64,7 @@ class AuthTest {
             );
 
             // when
-            Set<ConstraintViolation<SignupDto>> violations = validator.validate(dto);
+            Set<ConstraintViolation<SignupRequestDto>> violations = validator.validate(dto);
 
             // then
             assertThat(violations).hasSize(1);
@@ -75,7 +75,7 @@ class AuthTest {
         @DisplayName("이메일 형식이 올바르면 검증에 성공한다")
         void email_ValidFormat_성공() {
             // given
-            SignupDto dto = new SignupDto(
+            SignupRequestDto dto = new SignupRequestDto(
                     "홍길동",
                     LocalDate.of(1990, 1, 1),
                     "test@example.com", // 올바른 이메일 형식
@@ -86,7 +86,7 @@ class AuthTest {
             );
 
             // when
-            Set<ConstraintViolation<SignupDto>> violations = validator.validate(dto);
+            Set<ConstraintViolation<SignupRequestDto>> violations = validator.validate(dto);
 
             // then
             assertThat(violations).isEmpty();
@@ -101,7 +101,7 @@ class AuthTest {
         @DisplayName("비밀번호가 빈 값이면 검증에 실패한다")
         void password_NotBlank_실패() {
             // given
-            SignupDto dto = new SignupDto(
+            SignupRequestDto dto = new SignupRequestDto(
                     "홍길동",
                     LocalDate.of(1990, 1, 1),
                     "test@example.com",
@@ -112,7 +112,7 @@ class AuthTest {
             );
 
             // when
-            Set<ConstraintViolation<SignupDto>> violations = validator.validate(dto);
+            Set<ConstraintViolation<SignupRequestDto>> violations = validator.validate(dto);
 
             // then
             assertThat(violations).hasSize(1);
@@ -123,7 +123,7 @@ class AuthTest {
         @DisplayName("비밀번호가 10자 미만이면 검증에 실패한다")
         void password_TooShort_실패() {
             // given
-            SignupDto dto = new SignupDto(
+            SignupRequestDto dto = new SignupRequestDto(
                     "홍길동",
                     LocalDate.of(1990, 1, 1),
                     "test@example.com",
@@ -134,7 +134,7 @@ class AuthTest {
             );
 
             // when
-            Set<ConstraintViolation<SignupDto>> violations = validator.validate(dto);
+            Set<ConstraintViolation<SignupRequestDto>> violations = validator.validate(dto);
 
             // then
             assertThat(violations).hasSize(1);
@@ -145,7 +145,7 @@ class AuthTest {
         @DisplayName("비밀번호에 대문자가 없으면 검증에 실패한다")
         void password_NoUppercase_실패() {
             // given
-            SignupDto dto = new SignupDto(
+            SignupRequestDto dto = new SignupRequestDto(
                     "홍길동",
                     LocalDate.of(1990, 1, 1),
                     "test@example.com",
@@ -156,7 +156,7 @@ class AuthTest {
             );
 
             // when
-            Set<ConstraintViolation<SignupDto>> violations = validator.validate(dto);
+            Set<ConstraintViolation<SignupRequestDto>> violations = validator.validate(dto);
 
             // then
             assertThat(violations).hasSize(1);
@@ -167,7 +167,7 @@ class AuthTest {
         @DisplayName("비밀번호에 소문자가 없으면 검증에 실패한다")
         void password_NoLowercase_실패() {
             // given
-            SignupDto dto = new SignupDto(
+            SignupRequestDto dto = new SignupRequestDto(
                     "홍길동",
                     LocalDate.of(1990, 1, 1),
                     "test@example.com",
@@ -178,7 +178,7 @@ class AuthTest {
             );
 
             // when
-            Set<ConstraintViolation<SignupDto>> violations = validator.validate(dto);
+            Set<ConstraintViolation<SignupRequestDto>> violations = validator.validate(dto);
 
             // then
             assertThat(violations).hasSize(1);
@@ -189,7 +189,7 @@ class AuthTest {
         @DisplayName("비밀번호에 숫자가 없으면 검증에 실패한다")
         void password_NoNumber_실패() {
             // given
-            SignupDto dto = new SignupDto(
+            SignupRequestDto dto = new SignupRequestDto(
                     "홍길동",
                     LocalDate.of(1990, 1, 1),
                     "test@example.com",
@@ -200,7 +200,7 @@ class AuthTest {
             );
 
             // when
-            Set<ConstraintViolation<SignupDto>> violations = validator.validate(dto);
+            Set<ConstraintViolation<SignupRequestDto>> violations = validator.validate(dto);
 
             // then
             assertThat(violations).hasSize(1);
@@ -211,7 +211,7 @@ class AuthTest {
         @DisplayName("비밀번호에 특수문자가 없으면 검증에 실패한다")
         void password_NoSpecialChar_실패() {
             // given
-            SignupDto dto = new SignupDto(
+            SignupRequestDto dto = new SignupRequestDto(
                     "홍길동",
                     LocalDate.of(1990, 1, 1),
                     "test@example.com",
@@ -222,7 +222,7 @@ class AuthTest {
             );
 
             // when
-            Set<ConstraintViolation<SignupDto>> violations = validator.validate(dto);
+            Set<ConstraintViolation<SignupRequestDto>> violations = validator.validate(dto);
 
             // then
             assertThat(violations).hasSize(1);
@@ -233,7 +233,7 @@ class AuthTest {
         @DisplayName("비밀번호 형식이 올바르면 검증에 성공한다")
         void password_ValidFormat_성공() {
             // given
-            SignupDto dto = new SignupDto(
+            SignupRequestDto dto = new SignupRequestDto(
                     "홍길동",
                     LocalDate.of(1990, 1, 1),
                     "test@example.com",
@@ -244,7 +244,7 @@ class AuthTest {
             );
 
             // when
-            Set<ConstraintViolation<SignupDto>> violations = validator.validate(dto);
+            Set<ConstraintViolation<SignupRequestDto>> violations = validator.validate(dto);
 
             // then
             assertThat(violations).isEmpty();

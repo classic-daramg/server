@@ -2,15 +2,20 @@ package com.daramg.server.auth.presentation;
 
 import com.daramg.server.auth.application.AuthService;
 import com.daramg.server.auth.application.MailVerificationService;
-import com.daramg.server.auth.dto.EmailVerificationRequest;
-import com.daramg.server.auth.dto.CodeVerificationRequest;
+import com.daramg.server.auth.dto.*;
+import com.daramg.server.auth.exception.AuthErrorStatus;
+import com.daramg.server.auth.util.CookieUtil;
+import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.domain.user.domain.User;
-import com.daramg.server.auth.dto.LoginDto;
-import com.daramg.server.auth.dto.PasswordDto;
-import com.daramg.server.auth.dto.SignupDto;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,36 +23,98 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
 
+    @Value("${jwt.access-time}")
+    private long ACCESS_TIME_IN_SECONDS;
+
+    @Value("${cookie.access-name}")
+    private String ACCESS_COOKIE_NAME;
+
+    @Value("${cookie.refresh-name}")
+    private String REFRESH_COOKIE_NAME;
+
+    @Value("${jwt.refresh-time}")
+    private long REFRESH_TIME_IN_SECONDS;
+
     private final MailVerificationService mailVerificationService;
     private final AuthService authService;
 
     @PostMapping("/email-verifications")
     @ResponseStatus(HttpStatus.OK)
-    public void sendVerificationEmail(@RequestBody @Valid EmailVerificationRequest request) {
+    public void sendVerificationEmail(@RequestBody @Valid EmailVerificationRequestDto request) {
         mailVerificationService.sendVerificationEmail(request);
     }
 
     @PostMapping("/verify-email")
     @ResponseStatus(HttpStatus.OK)
-    public void verify(@RequestBody @Valid CodeVerificationRequest request) {
+    public void verify(@RequestBody @Valid CodeVerificationRequestDto request) {
         mailVerificationService.verifyEmailWithCode(request);
     }
 
     @PostMapping("/signup")
     @ResponseStatus(HttpStatus.CREATED)
-    public void signup(@Valid @RequestBody SignupDto request) {
+    public void signup(@Valid @RequestBody SignupRequestDto request) {
         authService.signup(request);
     }
 
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
-    public void login(@RequestBody LoginDto request) {
-        authService.login(request);
+    public void login(@RequestBody LoginRequestDto request, HttpServletResponse response) {
+        TokenResponseDto tokenResponse = authService.login(request);
+        setAccessTokenCookie(response, tokenResponse.getAccessToken()); // AT 쿠키
+        setRefreshTokenCookie(response, tokenResponse.getRefreshToken()); // RT 쿠키
     }
 
+    @PostMapping("/refresh")
+    @ResponseStatus(HttpStatus.OK)
+    public void refreshAccessToken(HttpServletRequest request, HttpServletResponse response) {
+        Cookie refreshTokenCookie = CookieUtil.getCookie(request, REFRESH_COOKIE_NAME)
+                .orElseThrow(() -> new BusinessException(AuthErrorStatus.INVALID_TOKEN_EXCEPTION));
+
+        String refreshToken = refreshTokenCookie.getValue();
+        TokenResponseDto tokenResponse = authService.refreshAccessToken(refreshToken);
+
+        setAccessTokenCookie(response, tokenResponse.getAccessToken()); // AT 쿠키
+    }
+
+    @DeleteMapping("/logout")
+    @ResponseStatus(HttpStatus.OK)
+    public void logout(HttpServletResponse response, User user) {
+        authService.logout(user);
+        clearAuthCookies(response);
+    }
+
+    /**
+     비밀번호 초기화 시 자동 로그아웃
+     */
     @PutMapping("/password-reset")
     @ResponseStatus(HttpStatus.OK)
-    public void resetPassword(@Valid @RequestBody PasswordDto request, User user){
-        authService.resetPassword(request, user);
+    public void resetPassword(@Valid @RequestBody PasswordRequestDto request, HttpServletResponse response){
+        authService.resetPassword(request);
+    }
+
+    private void setAccessTokenCookie(HttpServletResponse response, String accessToken) {
+        ResponseCookie accessCookie = CookieUtil.createCookie(
+                ACCESS_COOKIE_NAME,
+                accessToken,
+                ACCESS_TIME_IN_SECONDS
+        );
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+    }
+
+    private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
+        ResponseCookie refreshCookie = CookieUtil.createCookie(
+                REFRESH_COOKIE_NAME,
+                refreshToken,
+                REFRESH_TIME_IN_SECONDS
+        );
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+    }
+
+    private void clearAuthCookies(HttpServletResponse response) {
+        ResponseCookie expiredAccessCookie = CookieUtil.deleteCookie(ACCESS_COOKIE_NAME);
+        response.addHeader(HttpHeaders.SET_COOKIE, expiredAccessCookie.toString());
+
+        ResponseCookie expiredRefreshCookie = CookieUtil.deleteCookie(REFRESH_COOKIE_NAME);
+        response.addHeader(HttpHeaders.SET_COOKIE, expiredRefreshCookie.toString());
     }
 }
