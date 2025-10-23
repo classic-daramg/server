@@ -11,7 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-
+    services:
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 22
