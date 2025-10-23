@@ -23,11 +23,3 @@ logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql: TRACE
-
-cookie:
-  access-name: "access_token"
-  refresh-name: "refresh_token"
-
-jwt:
-  access-time: 3600000 # 1시간
-  refresh-time: 604800000 # 7일
