@@ -25,6 +25,9 @@ logging:
     org.hibernate.type.descriptor.sql: TRACE
 
 cookie:
-  valid-time: 604800
-  name: DARAMG_SES
+  access-name: "access_token"
+  refresh-name: "refresh_token"
 
+jwt:
+  access-time: 3600000 # 1시간
+  refresh-time: 604800000 # 7일
