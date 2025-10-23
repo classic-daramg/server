@@ -1,5 +1,9 @@
 package com.daramg.server.testsupport.support;
 
+import com.daramg.server.auth.filter.JwtAuthorizationFilter;
+import com.daramg.server.auth.resolver.AuthUserResolver;
+import com.daramg.server.auth.util.JwtUtil;
+import com.daramg.server.auth.util.JwtUtilTest;
 import com.daramg.server.common.config.ErrorCodeRegistryConfig;
 import com.daramg.server.common.exception.ErrorCodeRegistry;
 import com.daramg.server.common.exception.GlobalExceptionHandler;
@@ -12,9 +16,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.mockmvc.RestDocumentationResultHandler;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -27,12 +34,12 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 @Import({RestDocsConfig.class,
         ErrorCodeRegistry.class,
         ErrorCodeRegistryConfig.class,
-        GlobalExceptionHandler.class
+        GlobalExceptionHandler.class,
 })
 public abstract class ControllerTestSupport {
 
-    @Value("${cookie.name}")
-    protected String COOKIE_NAME;
+    @Value("${cookie.access-name}")
+    public String COOKIE_NAME;
 
     @Autowired
     protected MockMvc mockMvc;
@@ -42,6 +49,21 @@ public abstract class ControllerTestSupport {
 
     @Autowired
     protected RestDocumentationResultHandler restDocsHandler;
+
+    @MockitoBean
+    private JwtAuthorizationFilter jwtAuthorizationFilter;
+
+    @MockitoBean
+    protected AuthenticationEntryPoint authenticationEntryPoint;
+
+    @MockitoBean
+    private JwtUtil jwtUtil;
+
+    @MockitoBean
+    private RedisTemplate<String, String> redisTemplate;
+
+    @MockitoBean
+    protected AuthUserResolver authUserResolver;
 
     @BeforeEach
     void setUp(WebApplicationContext webApplicationContext,
