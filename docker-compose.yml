@@ -1,7 +1,6 @@
 services:
   backend:
-    build:
-      context: ./
+    image: ${ECR_HOST_URI}/daramg-server:latest
     ports:
       - "8080:8080"
     container_name: spring-app
