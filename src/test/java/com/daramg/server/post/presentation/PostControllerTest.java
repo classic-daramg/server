@@ -1,4 +1,4 @@
-package com.daramg.server.domain.post.presentation;
+package com.daramg.server.post.presentation;
 
 import com.daramg.server.post.domain.PostStatus;
 import com.daramg.server.post.dto.PostCreateDto;

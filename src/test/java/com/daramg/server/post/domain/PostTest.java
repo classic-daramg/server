@@ -1,4 +1,4 @@
-package com.daramg.server.domain.post.domain;
+package com.daramg.server.post.domain;
 
 import com.daramg.server.post.dto.PostCreateDto;
 import com.daramg.server.post.dto.PostUpdateDto;

@@ -1,4 +1,4 @@
-package com.daramg.server.domain.post.application;
+package com.daramg.server.post.application;
 
 import com.daramg.server.common.exception.NotFoundException;
 import com.daramg.server.composer.domain.Composer;
