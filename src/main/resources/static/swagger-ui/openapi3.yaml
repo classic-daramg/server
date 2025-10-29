@@ -325,6 +325,61 @@ paths:
       responses:
         "200":
           description: "200"
+  /posts/{postId}/like:
+    post:
+      tags:
+      - Post API
+      summary: 포스트 좋아요 토글
+      description: 유저가 포스트의 좋아요 상태를 토글합니다.
+      operationId: post-controller-test/포스트_좋아요를_토글한다
+      parameters:
+      - name: postId
+        in: path
+        description: 대상 포스트의 아이디
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/posts-postId-like-462227428"
+              examples:
+                post-controller-test/포스트_좋아요를_토글한다:
+                  value: |-
+                    {
+                      "isLiked" : true,
+                      "likeCount" : 10
+                    }
+  /posts/{postId}/scrap:
+    post:
+      tags:
+      - Post API
+      summary: 포스트 스크랩 토글
+      description: 사용자가 포스트의 스크랩 상태를 토글합니다.
+      operationId: post-controller-test/포스트_스크랩을_토글한다
+      parameters:
+      - name: postId
+        in: path
+        description: 대상 포스트의 아이디
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/posts-postId-scrap-180788132"
+              examples:
+                post-controller-test/포스트_스크랩을_토글한다:
+                  value: |-
+                    {
+                      "isScrapped" : true
+                    }
   /users/check-nickname:
     get:
       tags:
@@ -386,6 +441,8 @@ paths:
       responses:
         "200":
           description: "200"
+        "204":
+          description: "204"
 components:
   schemas:
     auth-signup-225747861:
@@ -457,7 +514,7 @@ components:
         content:
           type: string
           description: 포스트의 내용(5자 이상 3000자 이하)
-    posts-free-433540487:
+    posts-story1894247877:
       type: object
       properties:
         images:
@@ -469,6 +526,9 @@ components:
             - type: boolean
             - type: string
             - type: number
+        primaryComposerId:
+          type: number
+          description: 주요 작곡가 아이디
         hashtags:
           type: array
           description: 포스트에 넣을 해시태그 리스트
@@ -490,7 +550,37 @@ components:
         content:
           type: string
           description: 포스트의 내용(5자 이상 3000자 이하)
-    posts-story1894247877:
+    posts-postId-scrap-180788132:
+      type: object
+      properties:
+        isScrapped:
+          type: boolean
+          description: 현재 스크랩 여부
+    posts-postId-like-462227428:
+      type: object
+      properties:
+        isLiked:
+          type: boolean
+          description: 현재 좋아요 여부
+        likeCount:
+          type: number
+          description: 총 좋아요 수
+    users-check-nickname972730229:
+      type: object
+      properties:
+        '닉네임 사용 가능 유무: ':
+          type: boolean
+          description: "닉네임 사용 가능 여부 (true: 사용 가능, false: 사용 불가능)"
+    auth-password-reset-1301565020:
+      type: object
+      properties:
+        password:
+          type: string
+          description: "새 비밀번호 (영어 대/소문자, 숫자, 특수문자 포함 10자 이상)"
+        email:
+          type: string
+          description: 변경하고자 하는 유저의 이메일
+    posts-free-433540487:
       type: object
       properties:
         images:
@@ -502,9 +592,6 @@ components:
             - type: boolean
             - type: string
             - type: number
-        primaryComposerId:
-          type: number
-          description: 주요 작곡가 아이디
         hashtags:
           type: array
           description: 포스트에 넣을 해시태그 리스트
@@ -619,21 +706,6 @@ components:
         content:
           type: string
           description: 포스트의 내용(5자 이상 3000자 이하)
-    users-check-nickname972730229:
-      type: object
-      properties:
-        '닉네임 사용 가능 유무: ':
-          type: boolean
-          description: "닉네임 사용 가능 여부 (true: 사용 가능, false: 사용 불가능)"
-    auth-password-reset-1301565020:
-      type: object
-      properties:
-        password:
-          type: string
-          description: "새 비밀번호 (영어 대/소문자, 숫자, 특수문자 포함 10자 이상)"
-        email:
-          type: string
-          description: 변경하고자 하는 유저의 이메일
     auth-email-verifications1086464701:
       type: object
       properties:
