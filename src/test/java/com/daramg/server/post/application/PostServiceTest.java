@@ -6,15 +6,17 @@ import com.daramg.server.composer.domain.Continent;
 import com.daramg.server.composer.domain.Era;
 import com.daramg.server.composer.domain.Gender;
 import com.daramg.server.composer.repository.ComposerRepository;
-import com.daramg.server.post.application.PostService;
 import com.daramg.server.post.domain.CurationPost;
 import com.daramg.server.post.domain.FreePost;
 import com.daramg.server.post.domain.Post;
 import com.daramg.server.post.domain.PostStatus;
 import com.daramg.server.post.domain.StoryPost;
 import com.daramg.server.post.dto.PostCreateDto;
+import com.daramg.server.post.dto.PostLikeResponseDto;
+import com.daramg.server.post.dto.PostScrapResponseDto;
 import com.daramg.server.post.dto.PostUpdateDto;
 import com.daramg.server.post.repository.PostRepository;
+import com.daramg.server.post.repository.PostScrapRepository;
 import com.daramg.server.user.domain.User;
 import com.daramg.server.user.repository.UserRepository;
 import com.daramg.server.testsupport.support.ServiceTestSupport;
@@ -44,6 +46,9 @@ public class PostServiceTest extends ServiceTestSupport {
 
     @Autowired
     private ComposerRepository composerRepository;
+
+    @Autowired
+    private PostScrapRepository postScrapRepository;
 
     private User user;
     private Composer composer;
@@ -416,6 +421,159 @@ public class PostServiceTest extends ServiceTestSupport {
         
         // 삭제되지 않았는지 확인
         assertThat(postRepository.findById(postId)).isPresent();
+    }
+
+    @Nested
+    @DisplayName("포스트 좋아요 토글 테스트")
+    class PostLikeToggleTest {
+        @Test
+        void 포스트에_좋아요를_추가한다() {
+            //given
+            PostCreateDto.CreateFree createDto = new PostCreateDto.CreateFree(
+                    "좋아요 테스트 제목", "좋아요 테스트 내용", PostStatus.PUBLISHED,
+                    List.of("image"), "video", List.of("#like")
+            );
+            postService.createFree(createDto, user);
+            
+            Post savedPost = postRepository.findAll().getFirst();
+            Long postId = savedPost.getId();
+            
+            //when
+            PostLikeResponseDto response = postService.toggleLike(postId, user);
+            
+            //then
+            assertThat(response.isLiked()).isTrue();
+            assertThat(response.getLikeCount()).isEqualTo(1);
+            
+            Post updatedPost = postRepository.findById(postId).orElseThrow();
+            assertThat(updatedPost.getLikeCount()).isEqualTo(1);
+        }
+
+        @Test
+        void 이미_좋아요한_포스트의_좋아요를_취소한다() {
+            //given
+            PostCreateDto.CreateFree createDto = new PostCreateDto.CreateFree(
+                    "좋아요 취소 테스트 제목", "좋아요 취소 테스트 내용", PostStatus.PUBLISHED,
+                    List.of("image"), "video", List.of("#unlike")
+            );
+            postService.createFree(createDto, user);
+            
+            Post savedPost = postRepository.findAll().getFirst();
+            Long postId = savedPost.getId();
+            
+            // 먼저 좋아요 추가
+            postService.toggleLike(postId, user);
+            
+            //when - 좋아요 취소
+            PostLikeResponseDto response = postService.toggleLike(postId, user);
+            
+            //then
+            assertThat(response.isLiked()).isFalse();
+            assertThat(response.getLikeCount()).isEqualTo(0);
+            
+            Post updatedPost = postRepository.findById(postId).orElseThrow();
+            assertThat(updatedPost.getLikeCount()).isEqualTo(0);
+        }
+
+        @Test
+        void 여러_사용자가_같은_포스트에_좋아요를_누르면_개수가_증가한다() {
+            //given
+            PostCreateDto.CreateFree createDto = new PostCreateDto.CreateFree(
+                    "다중 좋아요 테스트 제목", "다중 좋아요 테스트 내용", PostStatus.PUBLISHED,
+                    List.of("image"), "video", List.of("#multi_like")
+            );
+            postService.createFree(createDto, user);
+            
+            Post savedPost = postRepository.findAll().getFirst();
+            Long postId = savedPost.getId();
+            
+            User anotherUser = new User("another@email.com", "password", "another name", 
+                    LocalDate.now(), "profile", "햄쥑이", "bio", null);
+            userRepository.save(anotherUser);
+            
+            //when
+            PostLikeResponseDto response1 = postService.toggleLike(postId, user);
+            PostLikeResponseDto response2 = postService.toggleLike(postId, anotherUser);
+            
+            //then
+            assertThat(response1.isLiked()).isTrue();
+            assertThat(response1.getLikeCount()).isEqualTo(1);
+            
+            assertThat(response2.isLiked()).isTrue();
+            assertThat(response2.getLikeCount()).isEqualTo(2);
+            
+            Post updatedPost = postRepository.findById(postId).orElseThrow();
+            assertThat(updatedPost.getLikeCount()).isEqualTo(2);
+        }
+
+        @Test
+        void 존재하지_않는_포스트에_좋아요를_누르면_에러가_발생한다() {
+            //given
+            Long nonExistentPostId = 999L;
+            
+            //when & then
+            assertThatThrownBy(() -> postService.toggleLike(nonExistentPostId, user))
+                    .isInstanceOf(NotFoundException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("포스트 스크랩 토글 테스트")
+    class PostScrapToggleTest {
+        @Test
+        void 포스트를_스크랩한다() {
+            //given
+            PostCreateDto.CreateFree createDto = new PostCreateDto.CreateFree(
+                    "스크랩 테스트 제목", "스크랩 테스트 내용", PostStatus.PUBLISHED,
+                    List.of("image"), "video", List.of("#scrap")
+            );
+            postService.createFree(createDto, user);
+
+            Post savedPost = postRepository.findAll().getFirst();
+            Long postId = savedPost.getId();
+
+            //when
+            PostScrapResponseDto response = postService.toggleScrap(postId, user);
+            boolean exists = postScrapRepository.existsByPostIdAndUserId(postId, user.getId());
+
+            //then
+            assertThat(response.isScrapped()).isTrue();
+            assertThat(exists).isTrue();
+        }
+
+        @Test
+        void 이미_스크랩한_포스트의_스크랩을_취소한다() {
+            //given
+            PostCreateDto.CreateFree createDto = new PostCreateDto.CreateFree(
+                    "스크랩 취소 테스트 제목", "스크랩 취소 테스트 내용", PostStatus.PUBLISHED,
+                    List.of("image"), "video", List.of("#unscrap")
+            );
+            postService.createFree(createDto, user);
+            
+            Post savedPost = postRepository.findAll().getFirst();
+            Long postId = savedPost.getId();
+            
+            // 먼저 스크랩 추가
+            postService.toggleScrap(postId, user);
+            
+            //when - 스크랩 취소
+            PostScrapResponseDto response = postService.toggleScrap(postId, user);
+            boolean exists = postScrapRepository.existsByPostIdAndUserId(postId, user.getId());
+
+            //then
+            assertThat(response.isScrapped()).isFalse();
+            assertThat(exists).isFalse();
+        }
+
+        @Test
+        void 존재하지_않는_포스트를_스크랩하려고_하면_에러가_발생한다() {
+            //given
+            Long nonExistentPostId = 999L;
+            
+            //when & then
+            assertThatThrownBy(() -> postService.toggleScrap(nonExistentPostId, user))
+                    .isInstanceOf(NotFoundException.class);
+        }
     }
 
 }

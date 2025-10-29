@@ -2,9 +2,10 @@ package com.daramg.server.post.presentation;
 
 import com.daramg.server.post.domain.PostStatus;
 import com.daramg.server.post.dto.PostCreateDto;
+import com.daramg.server.post.dto.PostLikeResponseDto;
+import com.daramg.server.post.dto.PostScrapResponseDto;
 import com.daramg.server.post.dto.PostUpdateDto;
 import com.daramg.server.post.application.PostService;
-import com.daramg.server.post.presentation.PostController;
 import com.daramg.server.testsupport.support.ControllerTestSupport;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import jakarta.servlet.http.Cookie;
@@ -18,11 +19,15 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.util.List;
 
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.cookies.CookieDocumentation.cookieWithName;
 import static org.springframework.restdocs.cookies.CookieDocumentation.requestCookies;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = PostController.class)
@@ -317,6 +322,78 @@ public class PostControllerTest extends ControllerTestSupport {
                                 .description("사용자가 포스트를 삭제합니다.")
                                 .pathParameters(
                                         parameterWithName("postId").description("삭제할 포스트의 아이디")
+                                )
+                                .build()
+                        ),
+                        requestCookies(
+                                cookieWithName(COOKIE_NAME).description("유저의 토큰")
+                        )
+                ));
+    }
+
+    @Test
+    void 포스트_좋아요를_토글한다() throws Exception {
+        //given
+        Long postId = 1L;
+        Cookie cookie = new Cookie(COOKIE_NAME, "test-cookie");
+
+        when(postService.toggleLike(anyLong(), any())).thenReturn(new PostLikeResponseDto(true, 10));
+
+        //when
+        ResultActions result = mockMvc.perform(post("/posts/{postId}/like", postId)
+                .cookie(cookie)
+        );
+
+        //then
+        result.andExpect(status().isOk())
+                .andExpect(jsonPath("$.isLiked").value(true))
+                .andExpect(jsonPath("$.likeCount").value(10))
+                .andDo(restDocsHandler.document(
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("Post API")
+                                .summary("포스트 좋아요 토글")
+                                .description("유저가 포스트의 좋아요 상태를 토글합니다.")
+                                .pathParameters(
+                                        parameterWithName("postId").description("대상 포스트의 아이디")
+                                )
+                                .responseFields(
+                                        fieldWithPath("isLiked").type(JsonFieldType.BOOLEAN).description("현재 좋아요 여부"),
+                                        fieldWithPath("likeCount").type(JsonFieldType.NUMBER).description("총 좋아요 수")
+                                )
+                                .build()
+                        ),
+                        requestCookies(
+                                cookieWithName(COOKIE_NAME).description("유저의 토큰")
+                        )
+                ));
+    }
+
+    @Test
+    void 포스트_스크랩을_토글한다() throws Exception {
+        //given
+        Long postId = 1L;
+        Cookie cookie = new Cookie(COOKIE_NAME, "test-cookie");
+
+        when(postService.toggleScrap(anyLong(), any())).thenReturn(new PostScrapResponseDto(true));
+
+        //when
+        ResultActions result = mockMvc.perform(post("/posts/{postId}/scrap", postId)
+                .cookie(cookie)
+        );
+
+        //then
+        result.andExpect(status().isOk())
+                .andExpect(jsonPath("$.isScrapped").value(true))
+                .andDo(restDocsHandler.document(
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("Post API")
+                                .summary("포스트 스크랩 토글")
+                                .description("사용자가 포스트의 스크랩 상태를 토글합니다.")
+                                .pathParameters(
+                                        parameterWithName("postId").description("대상 포스트의 아이디")
+                                )
+                                .responseFields(
+                                        fieldWithPath("isScrapped").type(JsonFieldType.BOOLEAN).description("현재 스크랩 여부")
                                 )
                                 .build()
                         ),
