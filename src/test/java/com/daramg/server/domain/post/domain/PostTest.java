@@ -1,7 +1,8 @@
 package com.daramg.server.domain.post.domain;
 
-import com.daramg.server.domain.post.dto.PostCreateDto;
-import com.daramg.server.domain.post.dto.PostUpdateDto;
+import com.daramg.server.post.dto.PostCreateDto;
+import com.daramg.server.post.dto.PostUpdateDto;
+import com.daramg.server.post.domain.PostStatus;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;

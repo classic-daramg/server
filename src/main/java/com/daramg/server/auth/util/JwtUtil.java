@@ -10,7 +10,7 @@ import com.auth0.jwt.interfaces.JWTVerifier;
 import com.daramg.server.auth.dto.TokenResponseDto;
 import com.daramg.server.auth.exception.AuthErrorStatus;
 import com.daramg.server.common.exception.BusinessException;
-import com.daramg.server.domain.user.domain.User;
+import com.daramg.server.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

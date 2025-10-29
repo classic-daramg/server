@@ -9,7 +9,7 @@ import com.daramg.server.auth.util.MailContentBuilder;
 import com.daramg.server.auth.util.MimeMessageGenerator;
 import com.daramg.server.auth.util.VerificationCodeGenerator;
 import com.daramg.server.common.exception.BusinessException;
-import com.daramg.server.domain.user.repository.UserRepository;
+import com.daramg.server.user.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;

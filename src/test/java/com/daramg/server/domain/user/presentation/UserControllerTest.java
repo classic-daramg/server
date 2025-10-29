@@ -1,7 +1,8 @@
 package com.daramg.server.domain.user.presentation;
 
-import com.daramg.server.domain.user.application.UserService;
+import com.daramg.server.user.application.UserService;
 import com.daramg.server.testsupport.support.ControllerTestSupport;
+import com.daramg.server.user.presentation.UserController;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
