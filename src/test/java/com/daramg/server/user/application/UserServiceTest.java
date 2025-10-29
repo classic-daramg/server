@@ -2,7 +2,6 @@ package com.daramg.server.user.application;
 
 import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.common.exception.NotFoundException;
-import com.daramg.server.user.application.UserService;
 import com.daramg.server.user.domain.User;
 import com.daramg.server.user.repository.UserRepository;
 import com.daramg.server.user.repository.UserFollowRepository;
@@ -98,28 +97,15 @@ public class UserServiceTest extends ServiceTestSupport {
 
         @Test
         @Transactional
-        void 이미_팔로우한_사용자를_다시_팔로우하면_아무것도_하지_않는다() {
+        void 이미_팔로우한_사용자를_다시_팔로우하면_예외가_발생한다() {
             //given
             Long followedId = followed.getId();
             userService.follow(follower, followedId);
-            
-            int followerCountAfterFirstFollow = followed.getFollowerCount();
-            int followingCountAfterFirstFollow = follower.getFollowingCount();
 
-            //when
-            userService.follow(follower, followedId);
-
-            //then
-            // 팔로우 관계는 하나만 존재해야 함
-            long followCount = userFollowRepository.count();
-            assertThat(followCount).isEqualTo(1);
-
-            // 카운트는 변경되지 않아야 함
-            User updatedFollower = userRepository.findById(follower.getId()).orElseThrow();
-            User updatedFollowed = userRepository.findById(followedId).orElseThrow();
-            
-            assertThat(updatedFollower.getFollowingCount()).isEqualTo(followingCountAfterFirstFollow);
-            assertThat(updatedFollowed.getFollowerCount()).isEqualTo(followerCountAfterFirstFollow);
+            //when & then
+            assertThatThrownBy(() -> userService.follow(follower, followedId))
+                    .isInstanceOf(BusinessException.class)
+                    .hasMessageContaining("이미 팔로우하고 있는 상태입니다.");
         }
     }
 

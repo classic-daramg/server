@@ -20,7 +20,6 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/check-nickname")
-    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Map<String, Boolean>> checkNicknameDuplication(
             @RequestParam
             @Pattern(
@@ -39,7 +38,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{followedId}/unfollow")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void unfollow(@PathVariable Long followedId, User follower) {
         userService.unfollow(follower, followedId);
     }

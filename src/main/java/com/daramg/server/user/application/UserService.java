@@ -31,7 +31,7 @@ public class UserService {
         boolean alreadyFollowing = userFollowRepository
                 .existsByFollowerIdAndFollowedId(follower.getId(), followedId);
         if (alreadyFollowing) {
-            return;
+            throw new BusinessException("이미 팔로우하고 있는 상태입니다.");
         }
 
         User followed = entityUtils.getEntity(followedId, User.class);

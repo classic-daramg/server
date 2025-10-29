@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Entity
 @Getter
@@ -31,7 +32,7 @@ public class UserFollow extends BaseEntity<UserFollow> {
         this.followed = followed;
     }
 
-    public static UserFollow of(User follower, User followed) {
+    public static UserFollow of(@NonNull User follower, @NonNull User followed) {
         return new UserFollow(follower, followed);
     }
 }

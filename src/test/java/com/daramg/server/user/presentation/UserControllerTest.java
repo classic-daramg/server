@@ -110,7 +110,7 @@ public class UserControllerTest extends ControllerTestSupport {
         );
 
         // then
-        result.andExpect(status().isOk())
+        result.andExpect(status().isNoContent())
                 .andDo(restDocsHandler.document(
                         resource(ResourceSnippetParameters.builder()
                                 .tag("User API")
