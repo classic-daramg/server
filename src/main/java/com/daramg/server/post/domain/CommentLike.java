@@ -1,4 +1,4 @@
-package com.daramg.server.interaction;
+package com.daramg.server.post.domain;
 
 import com.daramg.server.common.domain.BaseEntity;
 import com.daramg.server.user.domain.User;
