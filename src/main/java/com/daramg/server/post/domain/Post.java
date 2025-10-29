@@ -48,9 +48,6 @@ public abstract class Post extends BaseEntity<Post> {
     @Column(name = "like_count", nullable = false)
     private int likeCount = 0;
 
-    @Column(name = "scrap_count", nullable = false)
-    private int scrapCount = 0;
-
     @Column(name = "comment_count", nullable = false)
     private int commentCount = 0;
 
@@ -114,4 +111,13 @@ public abstract class Post extends BaseEntity<Post> {
         this.hashtags = hashtags;
     }
 
+    public void incrementPostLike(){
+        likeCount++;
+    }
+
+    public void decrementPostLike(){
+        if (likeCount > 0){
+            likeCount--;
+        }
+    }
 }

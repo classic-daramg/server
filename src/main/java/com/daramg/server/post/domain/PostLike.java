@@ -4,7 +4,6 @@ import com.daramg.server.common.domain.BaseEntity;
 import com.daramg.server.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.NonNull;
@@ -29,9 +28,12 @@ public class PostLike extends BaseEntity<PostLike> {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Builder
-    public PostLike(@NonNull Post post, @NonNull User user) {
+    private PostLike(Post post, User user) {
         this.post = post;
         this.user = user;
+    }
+
+    public static PostLike of(@NonNull Post post, @NonNull User user) {
+        return new PostLike(post, user);
     }
 }

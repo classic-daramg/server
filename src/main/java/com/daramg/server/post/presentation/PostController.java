@@ -1,12 +1,15 @@
 package com.daramg.server.post.presentation;
 
 import com.daramg.server.post.dto.PostCreateDto;
+import com.daramg.server.post.dto.PostLikeResponseDto;
+import com.daramg.server.post.dto.PostScrapResponseDto;
 import com.daramg.server.post.dto.PostUpdateDto;
 import com.daramg.server.post.application.PostService;
 import com.daramg.server.user.domain.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -62,5 +65,17 @@ public class PostController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePost(@PathVariable Long postId, User user) {
         postService.delete(postId, user);
+    }
+
+    @PostMapping("/{postId}/like")
+    public ResponseEntity<PostLikeResponseDto> postLikeToggle(@PathVariable Long postId, User user) {
+        PostLikeResponseDto response = postService.toggleLike(postId, user);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{postId}/scrap")
+    public ResponseEntity<PostScrapResponseDto> postScrapToggle(@PathVariable Long postId, User user) {
+        PostScrapResponseDto responseDto = postService.toggleScrap(postId, user);
+        return ResponseEntity.ok(responseDto);
     }
 }

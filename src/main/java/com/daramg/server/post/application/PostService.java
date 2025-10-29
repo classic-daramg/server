@@ -5,15 +5,16 @@ import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.common.exception.NotFoundException;
 import com.daramg.server.composer.domain.Composer;
 import com.daramg.server.composer.repository.ComposerRepository;
-import com.daramg.server.post.domain.CurationPost;
-import com.daramg.server.post.domain.FreePost;
-import com.daramg.server.post.domain.Post;
-import com.daramg.server.post.domain.StoryPost;
+import com.daramg.server.post.domain.*;
 import com.daramg.server.post.domain.vo.PostCreateVo;
 import com.daramg.server.post.domain.vo.PostUpdateVo;
 import com.daramg.server.post.dto.PostCreateDto;
+import com.daramg.server.post.dto.PostLikeResponseDto;
+import com.daramg.server.post.dto.PostScrapResponseDto;
 import com.daramg.server.post.dto.PostUpdateDto;
+import com.daramg.server.post.repository.PostLikeRepository;
 import com.daramg.server.post.repository.PostRepository;
+import com.daramg.server.post.repository.PostScrapRepository;
 import com.daramg.server.post.utils.PostUserValidator;
 import com.daramg.server.user.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,8 @@ public class PostService {
     private final EntityUtils entityUtils;
 
     private static final String INVALID_POST_TYPE = "게시글 타입이 올바르지 않습니다.";
+    private final PostLikeRepository postLikeRepository;
+    private final PostScrapRepository postScrapRepository;
 
     @Transactional
     public void createFree(PostCreateDto.CreateFree dto, User user) {
@@ -148,5 +151,38 @@ public class PostService {
         Post post = entityUtils.getEntity(postId, Post.class);
         PostUserValidator.check(post, user);
         postRepository.deleteById(postId);
+    }
+
+    @Transactional
+    public PostLikeResponseDto toggleLike(Long postId, User user) {
+        Post post = entityUtils.getEntity(postId, Post.class);
+
+        boolean alreadyLiked = postLikeRepository
+                .existsByPostIdAndUserId(postId, user.getId());
+        if (alreadyLiked) {
+            postLikeRepository.deleteByPostIdAndUserId(postId, user.getId());
+            post.decrementPostLike();
+            return new PostLikeResponseDto(false, post.getLikeCount());
+        }
+
+        postLikeRepository.save(PostLike.of(post, user));
+        post.incrementPostLike();
+        return new PostLikeResponseDto(true, post.getLikeCount());
+    }
+
+    @Transactional
+    public PostScrapResponseDto toggleScrap(Long postId, User user) {
+        Post post = entityUtils.getEntity(postId, Post.class);
+
+        boolean alreadyScrapped = postScrapRepository
+                .existsByPostIdAndUserId(postId, user.getId());
+
+        if (alreadyScrapped) {
+            postScrapRepository.deleteByPostIdAndUserId(postId, user.getId());
+            return new PostScrapResponseDto(false);
+        }
+
+        postScrapRepository.save(PostScrap.of(post, user));
+        return new PostScrapResponseDto(true);
     }
 }
