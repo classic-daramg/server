@@ -45,8 +45,11 @@ public class User extends BaseEntity<User> {
     @Column(name = "achievement")
     private List<String> achievements = new ArrayList<>();
 
-    @Column(name = "subscriber_count", nullable = false)
-    private int subscriberCount = 0;
+    @Column(name = "following_count", nullable = false)
+    private int followingCount = 0;
+
+    @Column(name = "follower_count", nullable = false)
+    private int followerCount = 0;
 
     //TODO: 기본 이미지 저장
     private static final String DEFAULT_PROFILE_IMAGE_URL = "https://default-image.png";
@@ -84,5 +87,25 @@ public class User extends BaseEntity<User> {
     //TODO: 비밀번호 암호화 추가(PasswordEncoder)
     public void changePassword(String password){
         this.password = password;
+    }
+
+    public void incrementFollowingCount() {
+        this.followingCount = this.followingCount + 1;
+    }
+
+    public void decrementFollowingCount() {
+        if (this.followingCount > 0) {
+            this.followingCount = this.followingCount - 1;
+        }
+    }
+
+    public void incrementFollowerCount() {
+        this.followerCount = this.followerCount + 1;
+    }
+
+    public void decrementFollowerCount() {
+        if (this.followerCount > 0) {
+            this.followerCount = this.followerCount - 1;
+        }
     }
 }

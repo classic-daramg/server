@@ -1,6 +1,7 @@
 package com.daramg.server.user.presentation;
 
 import com.daramg.server.user.application.UserService;
+import com.daramg.server.user.domain.User;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,5 +30,17 @@ public class UserController {
             String nickname) {
         boolean isAvailable = userService.isNicknameAvailable(nickname);
         return ResponseEntity.ok(Map.of("닉네임 사용 가능 유무: ", isAvailable));
+    }
+
+    @PostMapping("/{followedId}/follow")
+    @ResponseStatus(HttpStatus.OK)
+    public void follow(@PathVariable Long followedId, User follower) {
+        userService.follow(follower, followedId);
+    }
+
+    @DeleteMapping("/{followedId}/unfollow")
+    @ResponseStatus(HttpStatus.OK)
+    public void unfollow(@PathVariable Long followedId, User follower) {
+        userService.unfollow(follower, followedId);
     }
 }

@@ -8,27 +8,31 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "user_subscriptions",
+@Table(name = "user_follows",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "uc_subscriber_followed",
-                        columnNames = {"subscriber_id", "followed_id"}
+                        name = "uc_follower_followed",
+                        columnNames = {"follower_id", "followed_id"}
                 )
         })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserSubscription extends BaseEntity<UserSubscription> {
+public class UserFollow extends BaseEntity<UserFollow> {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "subscriber_id", nullable = false)
-    private User subscriber;
+    @JoinColumn(name = "follower_id", nullable = false)
+    private User follower;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "followed_id", nullable = false)
     private User followed;
 
-    private UserSubscription(User subscriber, User followed) {
-        this.subscriber = subscriber;
+    private UserFollow(User follower, User followed) {
+        this.follower = follower;
         this.followed = followed;
+    }
+
+    public static UserFollow of(User follower, User followed) {
+        return new UserFollow(follower, followed);
     }
 }
 
