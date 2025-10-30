@@ -1,4 +1,4 @@
-package com.daramg.server.post.domain;
+package com.daramg.server.comment.domain;
 
 import com.daramg.server.common.domain.BaseEntity;
 import com.daramg.server.user.domain.User;
@@ -29,9 +29,12 @@ public class CommentLike extends BaseEntity<CommentLike> {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Builder
-    public CommentLike(@NonNull Comment comment, @NonNull User user) {
+    private CommentLike(@NonNull Comment comment, @NonNull User user) {
         this.comment = comment;
         this.user = user;
+    }
+
+    public static CommentLike of(Comment comment, User user) {
+        return new CommentLike(comment, user);
     }
 }

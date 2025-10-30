@@ -120,4 +120,8 @@ public abstract class Post extends BaseEntity<Post> {
             likeCount--;
         }
     }
+
+    public void incrementCommentCount(){
+        commentCount++;
+    }
 }

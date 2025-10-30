@@ -1,5 +1,6 @@
 package com.daramg.server.post.domain;
 
+import com.daramg.server.comment.domain.Comment;
 import com.daramg.server.common.domain.BaseEntity;
 import com.daramg.server.user.domain.User;
 import jakarta.persistence.*;

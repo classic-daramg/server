@@ -1,9 +1,6 @@
 package com.daramg.server.post.presentation;
 
-import com.daramg.server.post.dto.PostCreateDto;
-import com.daramg.server.post.dto.PostLikeResponseDto;
-import com.daramg.server.post.dto.PostScrapResponseDto;
-import com.daramg.server.post.dto.PostUpdateDto;
+import com.daramg.server.post.dto.*;
 import com.daramg.server.post.application.PostService;
 import com.daramg.server.user.domain.User;
 import jakarta.validation.Valid;
@@ -68,13 +65,13 @@ public class PostController {
     }
 
     @PostMapping("/{postId}/like")
-    public ResponseEntity<PostLikeResponseDto> postLikeToggle(@PathVariable Long postId, User user) {
+    public ResponseEntity<PostLikeResponseDto> togglePostLike(@PathVariable Long postId, User user) {
         PostLikeResponseDto response = postService.toggleLike(postId, user);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/{postId}/scrap")
-    public ResponseEntity<PostScrapResponseDto> postScrapToggle(@PathVariable Long postId, User user) {
+    public ResponseEntity<PostScrapResponseDto> togglePostScrap(@PathVariable Long postId, User user) {
         PostScrapResponseDto responseDto = postService.toggleScrap(postId, user);
         return ResponseEntity.ok(responseDto);
     }
