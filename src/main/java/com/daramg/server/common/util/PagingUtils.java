@@ -10,6 +10,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.Base64;
 import java.util.List;
 import java.util.function.Function;
@@ -88,7 +89,8 @@ public class PagingUtils {
             String decoded = new String(Base64.getDecoder().decode(cursorString));
             String[] parts = decoded.split(CURSOR_DELIMITER);
             return new Cursor(LocalDateTime.parse(parts[0]), Long.parseLong(parts[1]));
-        } catch (Exception e) {
+        } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException |
+                 DateTimeParseException e) {
             throw new BusinessException("유효하지 않은 커서 포맷입니다.");
         }
     }
