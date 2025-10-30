@@ -127,6 +127,79 @@ paths:
       responses:
         "200":
           description: "200"
+  /comments/{commentId}:
+    delete:
+      tags:
+      - Comment API
+      summary: 댓글 삭제
+      description: 사용자가 자신의 댓글을 삭제합니다.
+      operationId: comment-controller-test/댓글을_삭제한다
+      parameters:
+      - name: commentId
+        in: path
+        description: 삭제할 댓글의 아이디
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: "204"
+  /comments/{commentId}/like:
+    post:
+      tags:
+      - Comment API
+      summary: 댓글 좋아요 토글
+      description: 사용자가 댓글의 좋아요 상태를 토글합니다.
+      operationId: comment-controller-test/댓글_좋아요를_토글한다
+      parameters:
+      - name: commentId
+        in: path
+        description: 대상 댓글의 아이디
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/posts-postId-like-462227428"
+              examples:
+                comment-controller-test/댓글_좋아요를_토글한다:
+                  value: |-
+                    {
+                      "isLiked" : true,
+                      "likeCount" : 7
+                    }
+  /comments/{parentCommentId}/replies:
+    post:
+      tags:
+      - Comment API
+      summary: 대댓글 생성
+      description: 사용자가 댓글에 대댓글을 생성합니다.
+      operationId: comment-controller-test/대댓글을_생성한다
+      parameters:
+      - name: parentCommentId
+        in: path
+        description: 대댓글을 달 부모 댓글의 아이디
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/comments-parentCommentId-replies-1993905827"
+            examples:
+              comment-controller-test/대댓글을_생성한다:
+                value: |-
+                  {
+                    "content" : "대댓글 내용입니다람쥐"
+                  }
+      responses:
+        "201":
+          description: "201"
   /posts/curation:
     post:
       tags:
@@ -325,6 +398,89 @@ paths:
       responses:
         "200":
           description: "200"
+  /posts/{postId}/comments:
+    post:
+      tags:
+      - Comment API
+      summary: 댓글 생성
+      description: 사용자가 포스트에 댓글을 생성합니다.
+      operationId: comment-controller-test/댓글을_생성한다
+      parameters:
+      - name: postId
+        in: path
+        description: 댓글을 달 포스트의 아이디
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/posts-postId-comments-179597731"
+            examples:
+              comment-controller-test/댓글을_생성한다:
+                value: |-
+                  {
+                    "content" : "댓글 내용입니다람쥐"
+                  }
+      responses:
+        "201":
+          description: "201"
+  /posts/{postId}/like:
+    post:
+      tags:
+      - Post API
+      summary: 포스트 좋아요 토글
+      description: 유저가 포스트의 좋아요 상태를 토글합니다.
+      operationId: post-controller-test/포스트_좋아요를_토글한다
+      parameters:
+      - name: postId
+        in: path
+        description: 대상 포스트의 아이디
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/posts-postId-like-462227428"
+              examples:
+                post-controller-test/포스트_좋아요를_토글한다:
+                  value: |-
+                    {
+                      "isLiked" : true,
+                      "likeCount" : 10
+                    }
+  /posts/{postId}/scrap:
+    post:
+      tags:
+      - Post API
+      summary: 포스트 스크랩 토글
+      description: 사용자가 포스트의 스크랩 상태를 토글합니다.
+      operationId: post-controller-test/포스트_스크랩을_토글한다
+      parameters:
+      - name: postId
+        in: path
+        description: 대상 포스트의 아이디
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/posts-postId-scrap-180788132"
+              examples:
+                post-controller-test/포스트_스크랩을_토글한다:
+                  value: |-
+                    {
+                      "isScrapped" : true
+                    }
   /users/check-nickname:
     get:
       tags:
@@ -352,6 +508,74 @@ paths:
                     {
                       "닉네임 사용 가능 유무: " : true
                     }
+  /users/following/{followedId}:
+    post:
+      tags:
+      - User API
+      summary: 유저 팔로우
+      description: 특정 유저를 팔로우합니다.
+      operationId: user-controller-test/유저를_팔로우한다
+      parameters:
+      - name: followedId
+        in: path
+        description: 팔로우할 유저의 ID
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "200"
+  /users/unfollowing/{followedId}:
+    delete:
+      tags:
+      - User API
+      summary: 유저 언팔로우
+      description: 특정 유저를 언팔로우합니다.
+      operationId: user-controller-test/유저를_언팔로우한다
+      parameters:
+      - name: followedId
+        in: path
+        description: 언팔로우할 유저의 ID
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: "204"
+  /users/{followedId}/follow:
+    post:
+      tags:
+      - User API
+      summary: 사용자 팔로우
+      description: 특정 사용자를 팔로우합니다.
+      operationId: user-controller-test/사용자를_팔로우한다
+      parameters:
+      - name: followedId
+        in: path
+        description: 팔로우할 사용자 ID
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "200"
+  /users/{followedId}/unfollow:
+    delete:
+      tags:
+      - User API
+      summary: 사용자 언팔로우
+      description: 특정 사용자를 언팔로우합니다.
+      operationId: user-controller-test/사용자를_언팔로우한다
+      parameters:
+      - name: followedId
+        in: path
+        description: 언팔로우할 사용자 ID
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "200"
 components:
   schemas:
     auth-signup-225747861:
@@ -423,39 +647,6 @@ components:
         content:
           type: string
           description: 포스트의 내용(5자 이상 3000자 이하)
-    posts-free-433540487:
-      type: object
-      properties:
-        images:
-          type: array
-          description: 포스트에 넣을 이미지 리스트
-          items:
-            oneOf:
-            - type: object
-            - type: boolean
-            - type: string
-            - type: number
-        hashtags:
-          type: array
-          description: 포스트에 넣을 해시태그 리스트
-          items:
-            oneOf:
-            - type: object
-            - type: boolean
-            - type: string
-            - type: number
-        videoUrl:
-          type: string
-          description: 포스트에 넣을 비디오 url
-        postStatus:
-          type: string
-          description: "포스트의 게시 상태(PUBLISHED, DRAFT)"
-        title:
-          type: string
-          description: 포스트의 제목(15자 이내)
-        content:
-          type: string
-          description: 포스트의 내용(5자 이상 3000자 이하)
     posts-story1894247877:
       type: object
       properties:
@@ -492,6 +683,69 @@ components:
         content:
           type: string
           description: 포스트의 내용(5자 이상 3000자 이하)
+    posts-postId-scrap-180788132:
+      type: object
+      properties:
+        isScrapped:
+          type: boolean
+          description: 현재 스크랩 여부
+    posts-postId-like-462227428:
+      type: object
+      properties:
+        isLiked:
+          type: boolean
+          description: 현재 좋아요 여부
+        likeCount:
+          type: number
+          description: 총 좋아요 수
+    users-check-nickname972730229:
+      type: object
+      properties:
+        '닉네임 사용 가능 유무: ':
+          type: boolean
+          description: "닉네임 사용 가능 여부 (true: 사용 가능, false: 사용 불가능)"
+    auth-password-reset-1301565020:
+      type: object
+      properties:
+        password:
+          type: string
+          description: "새 비밀번호 (영어 대/소문자, 숫자, 특수문자 포함 10자 이상)"
+        email:
+          type: string
+          description: 변경하고자 하는 유저의 이메일
+    posts-free-433540487:
+      type: object
+      properties:
+        images:
+          type: array
+          description: 포스트에 넣을 이미지 리스트
+          items:
+            oneOf:
+            - type: object
+            - type: boolean
+            - type: string
+            - type: number
+        hashtags:
+          type: array
+          description: 포스트에 넣을 해시태그 리스트
+          items:
+            oneOf:
+            - type: object
+            - type: boolean
+            - type: string
+            - type: number
+        videoUrl:
+          type: string
+          description: 포스트에 넣을 비디오 url
+        postStatus:
+          type: string
+          description: "포스트의 게시 상태(PUBLISHED, DRAFT)"
+        title:
+          type: string
+          description: 포스트의 제목(15자 이내)
+        content:
+          type: string
+          description: 포스트의 내용(5자 이상 3000자 이하)
     auth-verify-email-1072797477:
       type: object
       properties:
@@ -501,6 +755,12 @@ components:
         verificationCode:
           type: string
           description: "인증번호: 6자리 숫자"
+    posts-postId-comments-179597731:
+      type: object
+      properties:
+        content:
+          type: string
+          description: 댓글 내용(최대 500자)
     auth-login684347283:
       type: object
       properties:
@@ -510,6 +770,12 @@ components:
         email:
           type: string
           description: 이메일
+    comments-parentCommentId-replies-1993905827:
+      type: object
+      properties:
+        content:
+          type: string
+          description: 대댓글 내용(최대 500자)
     posts-curation-postId-1538462666:
       type: object
       properties:
@@ -585,21 +851,6 @@ components:
         content:
           type: string
           description: 포스트의 내용(5자 이상 3000자 이하)
-    users-check-nickname972730229:
-      type: object
-      properties:
-        '닉네임 사용 가능 유무: ':
-          type: boolean
-          description: "닉네임 사용 가능 여부 (true: 사용 가능, false: 사용 불가능)"
-    auth-password-reset-1301565020:
-      type: object
-      properties:
-        password:
-          type: string
-          description: "새 비밀번호 (영어 대/소문자, 숫자, 특수문자 포함 10자 이상)"
-        email:
-          type: string
-          description: 변경하고자 하는 유저의 이메일
     auth-email-verifications1086464701:
       type: object
       properties:

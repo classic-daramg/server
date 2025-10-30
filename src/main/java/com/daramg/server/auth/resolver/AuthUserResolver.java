@@ -2,7 +2,7 @@ package com.daramg.server.auth.resolver;
 
 import com.daramg.server.auth.exception.AuthErrorStatus;
 import com.daramg.server.common.exception.BusinessException;
-import com.daramg.server.domain.user.domain.User;
+import com.daramg.server.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.MethodParameter;

@@ -6,7 +6,7 @@ import com.daramg.server.auth.dto.*;
 import com.daramg.server.auth.exception.AuthErrorStatus;
 import com.daramg.server.auth.util.CookieUtil;
 import com.daramg.server.common.exception.BusinessException;
-import com.daramg.server.domain.user.domain.User;
+import com.daramg.server.user.domain.User;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
