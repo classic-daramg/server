@@ -2,7 +2,6 @@ package com.daramg.server.post.domain;
 
 import com.daramg.server.post.dto.PostCreateDto;
 import com.daramg.server.post.dto.PostUpdateDto;
-import com.daramg.server.post.domain.PostStatus;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -16,7 +15,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static java.util.Collections.emptyList;
 
-class PostTest {
+class PostValidationTest {
 
     private Validator validator;
 
