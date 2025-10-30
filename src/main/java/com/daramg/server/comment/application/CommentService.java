@@ -1,0 +1,99 @@
+package com.daramg.server.comment.application;
+
+import com.daramg.server.comment.domain.Comment;
+import com.daramg.server.comment.domain.CommentLike;
+import com.daramg.server.comment.dto.CommentLikeResponseDto;
+import com.daramg.server.comment.repository.CommentLikeRepository;
+import com.daramg.server.comment.repository.CommentRepository;
+import com.daramg.server.common.application.EntityUtils;
+import com.daramg.server.common.exception.BusinessException;
+import com.daramg.server.post.domain.Post;
+import com.daramg.server.post.dto.CommentCreateDto;
+import com.daramg.server.post.dto.CommentReplyCreateDto;
+import com.daramg.server.user.domain.User;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class CommentService {
+
+    private final EntityUtils entityUtils;
+    private final CommentRepository commentRepository;
+    private final CommentLikeRepository commentLikeRepository;
+
+    public void createComment(Long postId, CommentCreateDto request, User user){
+        Post post = entityUtils.getEntity(postId, Post.class);
+        if (post.isBlocked()){
+            throw new BusinessException("블락된 포스트에는 댓글을 남길 수 없습니다.");
+        }
+
+        Comment comment = Comment.of(
+                post,
+                user,
+                request.getContent(),
+                null
+        );
+
+        commentRepository.save(comment);
+        post.incrementCommentCount();
+    }
+
+    public void createReply(Long commentId, CommentReplyCreateDto request, User user){
+        Comment parentComment = entityUtils.getEntity(commentId, Comment.class);
+        if (parentComment.isDeleted() || parentComment.isBlocked()){
+            throw new BusinessException("삭제되었거나 블락된 댓글에는 대댓글을 남길 수 없습니다.");
+        }
+        Post post = parentComment.getPost();
+        if (post.isBlocked()){
+            throw new BusinessException("블락된 포스트에는 댓글을 남길 수 없습니다.");
+        }
+
+        Comment reply = Comment.of(
+                post,
+                user,
+                request.getContent(),
+                parentComment
+        );
+
+        commentRepository.save(reply);
+        post.incrementCommentCount();
+    }
+
+    public CommentLikeResponseDto toggleCommentLike(Long commentId, User user){
+        Comment comment = entityUtils.getEntity(commentId, Comment.class);
+        if (comment.isDeleted() || comment.isBlocked()){
+            throw new BusinessException("삭제되었거나 블락된 댓글에는 좋아요를 누를 수 없습니다.");
+        }
+
+        boolean alreadyLiked = commentLikeRepository
+                .existsByCommentIdAndUserId(commentId, user.getId());
+
+        if (alreadyLiked) {
+            commentLikeRepository.deleteByCommentIdAndUserId(commentId, user.getId());
+            comment.decrementLikeCount();
+            return new CommentLikeResponseDto(false, comment.getLikeCount());
+        }
+
+        commentLikeRepository.save(CommentLike.of(comment, user));
+        comment.incrementLikeCount();
+        return new CommentLikeResponseDto(true, comment.getLikeCount());
+    }
+
+    public void deleteComment(Long commentId, User user){
+        Comment comment = entityUtils.getEntity(commentId, Comment.class);
+
+        if (comment.isDeleted()){
+            throw new BusinessException("이미 삭제 처리된 댓글입니다.");
+        }
+        if (comment.getUser() == null || !comment.getUser().getId().equals(user.getId())){
+            throw new BusinessException("댓글을 작성한 유저만 댓글을 삭제할 수 있습니다.");
+        }
+
+        comment.softDelete();
+        commentLikeRepository.deleteAllByCommentId(commentId);
+        comment.resetLikeCount();
+    }
+}
