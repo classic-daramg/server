@@ -70,6 +70,29 @@ dependencies {
 
 	// jwt
 	implementation 'com.auth0:java-jwt:4.4.0'
+
+	// query dsl
+	implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
+	annotationProcessor "com.querydsl:querydsl-apt:5.1.0:jakarta"
+	annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
+}
+
+def generatedDir = 'src/main/generated'
+
+sourceSets {
+	main {
+		java {
+			srcDirs = ['src/main/java', generatedDir]
+		}
+	}
+}
+
+tasks.withType(JavaCompile) {
+	options.getGeneratedSourceOutputDirectory().set(file(generatedDir))
+}
+
+clean {
+	delete file(generatedDir)
 }
 
 test {
