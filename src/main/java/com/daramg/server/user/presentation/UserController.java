@@ -31,13 +31,13 @@ public class UserController {
         return ResponseEntity.ok(Map.of("닉네임 사용 가능 유무: ", isAvailable));
     }
 
-    @PostMapping("/{followedId}/follow")
+    @PostMapping("/following/{followedId}")
     @ResponseStatus(HttpStatus.OK)
     public void follow(@PathVariable Long followedId, User follower) {
         userService.follow(follower, followedId);
     }
 
-    @DeleteMapping("/{followedId}/unfollow")
+    @DeleteMapping("/unfollowing/{followedId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void unfollow(@PathVariable Long followedId, User follower) {
         userService.unfollow(follower, followedId);

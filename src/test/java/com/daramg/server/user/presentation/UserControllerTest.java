@@ -3,7 +3,6 @@ package com.daramg.server.user.presentation;
 import com.daramg.server.user.application.UserService;
 import com.daramg.server.testsupport.support.ControllerTestSupport;
 import com.daramg.server.user.domain.User;
-import com.daramg.server.user.presentation.UserController;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
@@ -72,7 +71,7 @@ public class UserControllerTest extends ControllerTestSupport {
         Cookie cookie = new Cookie(COOKIE_NAME, "access_token");
 
         // when
-        ResultActions result = mockMvc.perform(post("/users/{followedId}/follow", followedId)
+        ResultActions result = mockMvc.perform(post("/users/following/{followedId}", followedId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .cookie(cookie)
         );
@@ -104,7 +103,7 @@ public class UserControllerTest extends ControllerTestSupport {
         Cookie cookie = new Cookie(COOKIE_NAME, "access_token");
 
         // when
-        ResultActions result = mockMvc.perform(delete("/users/{followedId}/unfollow", followedId)
+        ResultActions result = mockMvc.perform(delete("/users/unfollowing/{followedId}", followedId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .cookie(cookie)
         );

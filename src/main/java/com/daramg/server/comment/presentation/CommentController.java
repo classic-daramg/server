@@ -20,9 +20,8 @@ public class CommentController {
 
     @PostMapping("/posts/{postId}/comments")
     @ResponseStatus(HttpStatus.CREATED)
-    public void createCommentPost(@PathVariable Long postId,
-                                  @Valid @RequestBody CommentCreateDto request,
-                                  User user) {
+    public void createComment(@PathVariable Long postId,
+                              @Valid @RequestBody CommentCreateDto request, User user) {
         commentService.createComment(postId, request, user);
     }
 
@@ -30,8 +29,7 @@ public class CommentController {
     @ResponseStatus(HttpStatus.CREATED)
     public void createReply(
             @PathVariable Long parentCommentId,
-            @Valid @RequestBody CommentReplyCreateDto request,
-            User user
+            @Valid @RequestBody CommentReplyCreateDto request, User user
     ) {
         commentService.createReply(parentCommentId, request, user);
     }
@@ -43,7 +41,8 @@ public class CommentController {
     }
 
     @PostMapping("/comments/{commentId}/like")
-    public ResponseEntity<CommentLikeResponseDto> toggleCommentLike(@PathVariable Long commentId, User user) {
+    public ResponseEntity<CommentLikeResponseDto> toggleCommentLike(
+            @PathVariable Long commentId, User user) {
         CommentLikeResponseDto responseDto = commentService.toggleCommentLike(commentId, user);
         return ResponseEntity.ok(responseDto);
     }

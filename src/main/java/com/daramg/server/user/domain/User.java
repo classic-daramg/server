@@ -90,22 +90,22 @@ public class User extends BaseEntity<User> {
     }
 
     public void incrementFollowingCount() {
-        this.followingCount = this.followingCount + 1;
+        followingCount++;
     }
 
     public void decrementFollowingCount() {
-        if (this.followingCount > 0) {
-            this.followingCount = this.followingCount - 1;
+        if (followingCount > 0) {
+            followingCount--;
         }
     }
 
     public void incrementFollowerCount() {
-        this.followerCount = this.followerCount + 1;
+        followerCount++;
     }
 
     public void decrementFollowerCount() {
-        if (this.followerCount > 0) {
-            this.followerCount = this.followerCount - 1;
+        if (followerCount > 0) {
+            followerCount--;
         }
     }
 }

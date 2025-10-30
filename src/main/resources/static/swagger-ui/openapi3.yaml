@@ -508,17 +508,51 @@ paths:
                     {
                       "닉네임 사용 가능 유무: " : true
                     }
-  /users/{followedId}/follow:
+  /users/following/{followedId}:
     post:
       tags:
       - User API
       summary: 유저 팔로우
       description: 특정 유저를 팔로우합니다.
-      operationId: user-controller-test/
+      operationId: user-controller-test/유저를_팔로우한다
       parameters:
       - name: followedId
         in: path
         description: 팔로우할 유저의 ID
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "200"
+  /users/unfollowing/{followedId}:
+    delete:
+      tags:
+      - User API
+      summary: 유저 언팔로우
+      description: 특정 유저를 언팔로우합니다.
+      operationId: user-controller-test/유저를_언팔로우한다
+      parameters:
+      - name: followedId
+        in: path
+        description: 언팔로우할 유저의 ID
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: "204"
+  /users/{followedId}/follow:
+    post:
+      tags:
+      - User API
+      summary: 사용자 팔로우
+      description: 특정 사용자를 팔로우합니다.
+      operationId: user-controller-test/사용자를_팔로우한다
+      parameters:
+      - name: followedId
+        in: path
+        description: 팔로우할 사용자 ID
         required: true
         schema:
           type: string
@@ -531,7 +565,7 @@ paths:
       - User API
       summary: 사용자 언팔로우
       description: 특정 사용자를 언팔로우합니다.
-      operationId: user-controller-test/
+      operationId: user-controller-test/사용자를_언팔로우한다
       parameters:
       - name: followedId
         in: path
@@ -542,8 +576,6 @@ paths:
       responses:
         "200":
           description: "200"
-        "204":
-          description: "204"
 components:
   schemas:
     auth-signup-225747861:
