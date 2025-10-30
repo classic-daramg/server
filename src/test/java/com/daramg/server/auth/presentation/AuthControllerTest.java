@@ -4,7 +4,7 @@ import com.daramg.server.auth.domain.EmailPurpose;
 import com.daramg.server.auth.application.MailVerificationService;
 import com.daramg.server.auth.application.AuthService;
 import com.daramg.server.auth.dto.*;
-import com.daramg.server.domain.user.domain.User;
+import com.daramg.server.user.domain.User;
 import com.daramg.server.testsupport.support.ControllerTestSupport;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import jakarta.servlet.http.Cookie;
