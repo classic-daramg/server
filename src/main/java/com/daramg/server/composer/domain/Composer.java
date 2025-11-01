@@ -36,6 +36,9 @@ public class Composer extends BaseEntity<Composer> {
     @Column(name = "death_year")
     private Short deathYear;
 
+    @Column(name = "bio")
+    private String bio;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "era")
     private Era era;
