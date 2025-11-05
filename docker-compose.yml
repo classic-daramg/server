@@ -1,7 +1,13 @@
+version: "3.8"
+
 services:
   backend:
-    build:
-      context: ./
+    image: ${ECR_PUBLIC_URI}/kldd-server:latest
     ports:
       - "8080:8080"
     container_name: spring-app
+    restart: always
+    environment:
+      - SPRING_MAIL_USERNAME=${SPRING_MAIL_USERNAME}
+      - SPRING_MAIL_PASSWORD=${SPRING_MAIL_PASSWORD}
+      - JWT_SECRET_KEY=${JWT_KEY}
