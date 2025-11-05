@@ -14,8 +14,7 @@ RUN gradle dependencies --no-daemon
 
 # 소스 코드를 복사하고 애플리케이션을 빌드
 COPY src src
-RUN gradle bootJar --no-daemon -x test
-
+RUN gradle openapi3 bootJar --no-daemon
 
 # 2. JAR 분해 스테이지 (Extractor Stage)
 # 빌드된 JAR 파일을 layertools를 이용해 여러 레이어로 분해
