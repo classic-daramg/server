@@ -29,7 +29,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
       - name: Login to ECR Public
-        uses: aws-actions/aws-ecr-login@v2
+        uses: aws-actions/amazon-ecr-login@v2
         with:
           registry-type: public
 
