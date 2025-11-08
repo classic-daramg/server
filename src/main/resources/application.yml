@@ -5,7 +5,7 @@ springdoc:
 
 spring:
   profiles:
-    active: local
+    active: prod
   config:
     import: "optional:application-secret.yml"
   jpa:
