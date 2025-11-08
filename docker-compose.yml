@@ -5,9 +5,31 @@ services:
     image: ${ECR_PUBLIC_URI}/kldd-server:latest
     ports:
       - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
     container_name: spring-app
     restart: always
     environment:
       - SPRING_MAIL_USERNAME=${SPRING_MAIL_USERNAME}
       - SPRING_MAIL_PASSWORD=${SPRING_MAIL_PASSWORD}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/kldd_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
+
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${DB_ROOT_PASSWORD}
+  db:
+    image: mysql:8.4
+    container_name: kldd-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: kldd_db
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    volumes:
+      - ./mysql-data:/var/lib/mysql
