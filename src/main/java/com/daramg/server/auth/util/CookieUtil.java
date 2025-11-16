@@ -15,7 +15,7 @@ public final class CookieUtil {
         long maxAgeInSeconds = cookieValidTimeMillis / 1000L;
         return ResponseCookie.from(cookieName, token)
                 .path("/")
-                .sameSite("Strict")
+                .sameSite("None")
                 .secure(true)
                 .maxAge(Math.toIntExact(maxAgeInSeconds))
                 .httpOnly(true)
