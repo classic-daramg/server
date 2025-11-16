@@ -35,7 +35,7 @@ class CookieUtilTest {
         assertThat(responseCookie.getName()).isEqualTo(cookieName);
         assertThat(responseCookie.getValue()).isEqualTo(token);
         assertThat(responseCookie.getPath()).isEqualTo("/");
-        assertThat(responseCookie.getSameSite()).isEqualTo("Strict");
+        assertThat(responseCookie.getSameSite()).isEqualTo("None");
         assertThat(responseCookie.isSecure()).isTrue();
         assertThat(responseCookie.isHttpOnly()).isTrue();
         assertThat(responseCookie.getMaxAge().getSeconds()).isEqualTo(3600L);
