@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     @Value("${jwt.access-time}")
-    private long ACCESS_TIME_IN_SECONDS;
+    private long accessTokenLifetimeInMillis;
 
     @Value("${cookie.access-name}")
     private String ACCESS_COOKIE_NAME;
@@ -33,7 +33,7 @@ public class AuthController {
     private String REFRESH_COOKIE_NAME;
 
     @Value("${jwt.refresh-time}")
-    private long REFRESH_TIME_IN_SECONDS;
+    private long refreshTokenLifetimeInMillis;
 
     private final MailVerificationService mailVerificationService;
     private final AuthService authService;
@@ -90,13 +90,14 @@ public class AuthController {
     @ResponseStatus(HttpStatus.OK)
     public void resetPassword(@Valid @RequestBody PasswordRequestDto request, HttpServletResponse response){
         authService.resetPassword(request);
+        clearAuthCookies(response);
     }
 
     private void setAccessTokenCookie(HttpServletResponse response, String accessToken) {
         ResponseCookie accessCookie = CookieUtil.createCookie(
                 ACCESS_COOKIE_NAME,
                 accessToken,
-                ACCESS_TIME_IN_SECONDS
+                accessTokenLifetimeInMillis
         );
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
     }
@@ -105,7 +106,7 @@ public class AuthController {
         ResponseCookie refreshCookie = CookieUtil.createCookie(
                 REFRESH_COOKIE_NAME,
                 refreshToken,
-                REFRESH_TIME_IN_SECONDS
+                refreshTokenLifetimeInMillis
         );
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
     }
