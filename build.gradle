@@ -129,7 +129,6 @@ test {
 }
 
 openapi3{
-	server = 'http://localhost:8080'
 	server = 'https://classic-daramg.duckdns.org'
 	title = "Classic Daramg's API docs"
 	description = '클래식 듣는 다람쥐의 API 문서입니다.'
