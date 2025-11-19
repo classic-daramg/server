@@ -83,8 +83,7 @@ public class ComposerServiceTest extends ServiceTestSupport {
     }
 
     private void invokeToggleLike(Long composerId, User user) throws Exception {
-        var method = ComposerService.class.getMethod("toggleLike", Long.class, User.class);
-        method.invoke(composerService, composerId, user);
+        composerService.toggleLike(composerId, user);
     }
 }
 
