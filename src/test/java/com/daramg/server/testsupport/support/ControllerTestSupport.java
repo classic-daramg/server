@@ -3,7 +3,6 @@ package com.daramg.server.testsupport.support;
 import com.daramg.server.auth.filter.JwtAuthorizationFilter;
 import com.daramg.server.auth.resolver.AuthUserResolver;
 import com.daramg.server.auth.util.JwtUtil;
-import com.daramg.server.auth.util.JwtUtilTest;
 import com.daramg.server.common.config.ErrorCodeRegistryConfig;
 import com.daramg.server.common.exception.ErrorCodeRegistry;
 import com.daramg.server.common.exception.GlobalExceptionHandler;
