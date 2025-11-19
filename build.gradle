@@ -135,7 +135,7 @@ openapi3{
 	description = '클래식 듣는 다람쥐의 API 문서입니다.'
 	version = '0.1.0'
 	format = 'yaml'
-	outputDirectory = file('src/main/resources/static/swagger-ui')
+	outputDirectory = file('src/main/resources/static/docs')
 }
 
 tasks.named('bootJar') {
@@ -144,7 +144,7 @@ tasks.named('bootJar') {
 
 	layered {}
 	from(tasks.named('openapi3').map { it.outputDirectory }) {
-		into 'static/swagger-ui'
+		into 'static/docs'
 		rename { String fileName -> "openapi3.yaml" }
 	}
 }

@@ -1,8 +1,7 @@
 springdoc:
-  api-docs:
-    enabled: false
   swagger-ui:
-    url: /swagger-ui/openapi3.yaml
+    path: /swagger-ui.html
+    url: /docs/openapi3.yaml
 
 spring:
   profiles:

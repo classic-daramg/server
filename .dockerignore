@@ -7,6 +7,7 @@
 *.iws
 
 build/
+!build/libs/*.jar
 target/
 out/
 
@@ -28,7 +29,6 @@ application-secret.yml
 
 README.md
 *.md
-docs/
 
 node_modules/
 .npm

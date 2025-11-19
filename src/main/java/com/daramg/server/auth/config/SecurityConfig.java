@@ -36,6 +36,7 @@ public class SecurityConfig {
                         .requestMatchers("/composers").permitAll()
 
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/docs/**").permitAll()
 
                         /**
                          * 위에서 등록되지 않은 모든 경로는 인증 필요
