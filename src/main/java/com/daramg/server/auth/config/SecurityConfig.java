@@ -26,16 +26,21 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // 인증 없이 허용할 경로
+                        /**
+                         * 인증 없이 허용할 경로
+                         */
                         .requestMatchers("/auth/email-verifications").permitAll()
                         .requestMatchers("/auth/verify-email").permitAll()
                         .requestMatchers("/auth/signup").permitAll()
                         .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("/composers").permitAll()
 
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/docs/**").permitAll()
 
-                        // 위에서 등록되지 않은 모든 경로는 인증 필요
+                        /**
+                         * 위에서 등록되지 않은 모든 경로는 인증 필요
+                         */
                         .anyRequest().authenticated()
                 )
                 .httpBasic(basic -> basic.authenticationEntryPoint(authEntryPoint))

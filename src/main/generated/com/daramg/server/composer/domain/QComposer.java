@@ -21,6 +21,8 @@ public class QComposer extends EntityPathBase<Composer> {
 
     public final com.daramg.server.common.domain.QBaseEntity _super = new com.daramg.server.common.domain.QBaseEntity(this);
 
+    public final StringPath bio = createString("bio");
+
     public final NumberPath<Short> birthYear = createNumber("birthYear", Short.class);
 
     public final EnumPath<Continent> continent = createEnum("continent", Continent.class);

@@ -25,10 +25,10 @@ public class JwtUtil {
     private String secretKey;
 
     @Value("${jwt.access-time}")
-    private long ACCESS_TIME_IN_SECONDS;
+    private long accessTokenLifetimeInMillis;
 
     @Value("${jwt.refresh-time}")
-    private long REFRESH_TIME_IN_SECONDS;
+    private long refreshTokenLifetimeInMillis;
 
     /**
      * DB 조회 안 해도 되도록 SecurityContext 에 클레임 등록,
@@ -44,7 +44,7 @@ public class JwtUtil {
         Date now = new Date();
         String refreshToken = JWT.create()
                 .withSubject(user.getEmail())
-                .withExpiresAt(new Date(now.getTime() + REFRESH_TIME_IN_SECONDS))
+                .withExpiresAt(new Date(now.getTime() + refreshTokenLifetimeInMillis))
                 .sign(Algorithm.HMAC512(secretKey));
 
         return new TokenResponseDto(accessToken, refreshToken);
@@ -54,7 +54,7 @@ public class JwtUtil {
         Date now = new Date();
         return JWT.create()
                 .withSubject(user.getEmail())
-                .withExpiresAt(new Date(now.getTime() + ACCESS_TIME_IN_SECONDS))
+                .withExpiresAt(new Date(now.getTime() + accessTokenLifetimeInMillis))
                 .withClaim(CLAIM_ID, user.getId())
                 .withClaim(CLAIM_EMAIL, user.getEmail())
                 //.withClaim(CLAIM_ROLE, user.getRole().name())

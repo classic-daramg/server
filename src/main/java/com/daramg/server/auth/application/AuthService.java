@@ -41,11 +41,12 @@ public class AuthService {
             throw new BusinessException("중복된 닉네임입니다.");
         }
         // TODO: bio, 닉네임에 금칙어 검사
+        String encodedPassword = passwordEncoder.encode(dto.getPassword());
         SignupVo vo = new SignupVo(
                 dto.getName(),
                 dto.getBirthdate(),
                 dto.getEmail(),
-                dto.getPassword(),
+                encodedPassword,
                 dto.getProfileImage(),
                 dto.getNickname(),
                 dto.getBio()
@@ -96,7 +97,8 @@ public class AuthService {
         User user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new BusinessException(AuthErrorStatus.USER_NOT_FOUND_EXCEPTION));
 
-        user.changePassword(dto.getPassword());
+        String encodedPassword = passwordEncoder.encode(dto.getPassword());
+        user.changePassword(encodedPassword);
         logout(user);
     }
 

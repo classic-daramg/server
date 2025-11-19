@@ -74,7 +74,7 @@ public class AuthServiceTest extends ServiceTestSupport {
             assertThat(savedUser.getName()).isEqualTo(signupDto.getName());
             assertThat(savedUser.getBirthDate()).isEqualTo(signupDto.getBirthdate());
             assertThat(savedUser.getEmail()).isEqualTo(signupDto.getEmail());
-            assertThat(savedUser.getPassword()).isEqualTo(signupDto.getPassword());
+            // 비밀번호 암호화 정책으로 인해 원문과 같지 않을 수 있음 (기존 테스트 유지)
             assertThat(savedUser.getProfileImage()).isEqualTo(signupDto.getProfileImage());
             assertThat(savedUser.getNickname()).isEqualTo(signupDto.getNickname());
             assertThat(savedUser.getBio()).isEqualTo(signupDto.getBio());
@@ -85,14 +85,14 @@ public class AuthServiceTest extends ServiceTestSupport {
     @Transactional
     @DisplayName("비밀번호를 잊었을 시 비밀번호 재설정 테스트")
     class ResetPasswordSuccess {
-        private User user;
+        private User localUser;
 
         @BeforeEach
         void setUp() {
-            user = new User("test@example.com", "OldPassword123!", "홍길동", 
+            localUser = new User("test@example.com", passwordEncoder.encode("OldPassword123!"), "홍길동", 
                     LocalDate.of(1990, 1, 1), "https://example.com/profile.jpg", 
                     "홍길동123", "안녕하세요", null);
-            userRepository.save(user);
+            userRepository.save(localUser);
         }
 
         @Test
@@ -106,8 +106,9 @@ public class AuthServiceTest extends ServiceTestSupport {
             authService.resetPassword(passwordDto);
 
             //then
-            User updatedUser = userRepository.findById(user.getId()).orElseThrow();
-            assertThat(updatedUser.getPassword()).isEqualTo(newPassword);
+            User updatedUser = userRepository.findById(localUser.getId()).orElseThrow();
+            // 암호화 검증은 별도 테스트에서 추가 테스트
+            assertThat(passwordEncoder.matches(newPassword, updatedUser.getPassword())).isTrue();
         }
     }
 
@@ -118,7 +119,7 @@ public class AuthServiceTest extends ServiceTestSupport {
 
         @BeforeEach
         void setUp() {
-            existingUser = new User("existing@example.com", "Password123!", "기존닉네임", 
+            existingUser = new User("existing@example.com", passwordEncoder.encode("Password123!"), "기존닉네임", 
                     LocalDate.of(1990, 1, 1), "https://example.com/profile.jpg", 
                     "기존닉네임", "안녕하세요", null);
             userRepository.save(existingUser);
@@ -288,4 +289,52 @@ public class AuthServiceTest extends ServiceTestSupport {
         }
     }
 
+    // 추가: 비밀번호 암호화 검사 전용 테스트
+    @Nested
+    @DisplayName("비밀번호 암호화 검사")
+    class PasswordEncoding {
+
+        @Test
+        @DisplayName("회원가입 시 저장된 비밀번호는 원문과 다르고, 매칭이 성공한다")
+        void signup_passwordIsEncodedAndMatches() {
+            // given
+            SignupRequestDto dto = new SignupRequestDto(
+                    "테스터",
+                    LocalDate.of(1995, 5, 5),
+                    "encode@example.com",
+                    "Encode123!",
+                    null,
+                    "encUser",
+                    "bio"
+            );
+
+            // when
+            authService.signup(dto);
+            User saved = userRepository.findByEmail("encode@example.com").orElseThrow();
+
+            // then
+            assertThat(saved.getPassword()).isNotEqualTo(dto.getPassword());
+            assertThat(passwordEncoder.matches(dto.getPassword(), saved.getPassword())).isTrue();
+        }
+
+        @Test
+        @DisplayName("비밀번호 재설정 시 저장된 비밀번호는 원문과 다르고, 매칭이 성공한다")
+        void reset_passwordIsEncodedAndMatches() {
+            // given
+            String email = "reset@example.com";
+            User u = new User(email, passwordEncoder.encode("Old123!"), "리셋",
+                    LocalDate.of(1991, 1, 2), null, "resetU", null, null);
+            userRepository.save(u);
+
+            PasswordRequestDto dto = new PasswordRequestDto(email, "NewPass123!");
+
+            // when
+            authService.resetPassword(dto);
+            User updated = userRepository.findByEmail(email).orElseThrow();
+
+            // then
+            assertThat(updated.getPassword()).isNotEqualTo("NewPass123!");
+            assertThat(passwordEncoder.matches("NewPass123!", updated.getPassword())).isTrue();
+        }
+    }
 }

@@ -200,6 +200,96 @@ paths:
       responses:
         "201":
           description: "201"
+  /composers:
+    get:
+      tags:
+      - Composer API
+      summary: 작곡가 목록 조회
+      description: "로그인 여부에 따라 isLiked 여부가 포함되며 era, continent 리스트로 필터링합니다."
+      operationId: composer-query-controller-test/작곡가_목록을_조회한다
+      parameters:
+      - name: eras
+        in: query
+        description: "필터링할 시대(Era) 목록: MEDIEVAL_RENAISSANCE, BAROQUE, CLASSICAL, ROMANTIC,\
+          \ MODERN_CONTEMPORARY"
+        required: false
+        schema:
+          type: string
+      - name: continents
+        in: query
+        description: "필터링할 대륙(Continent) 목록: ASIA, NORTH_AMERICA, EUROPE, SOUTH_AMERICA,\
+          \ AFRICA_OCEANIA"
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/composers-1875825918"
+              examples:
+                composer-query-controller-test/작곡가_목록을_조회한다:
+                  value: |-
+                    [ {
+                      "composerId" : 1,
+                      "koreanName" : "코렐리",
+                      "bio" : "“바이올린의 따스한 숨결이 서로를 감싸는 밤”",
+                      "isLiked" : true
+                    }, {
+                      "composerId" : 2,
+                      "koreanName" : "비탈리",
+                      "bio" : "“서정이 흐르는 현의 떨림, 조용히 마음을 울리는 음악”",
+                      "isLiked" : false
+                    }, {
+                      "composerId" : 3,
+                      "koreanName" : "A. 스카를라티",
+                      "bio" : "“수많은 이야기 속에 피어나는 이탈리아의 정열”",
+                      "isLiked" : true
+                    }, {
+                      "composerId" : 4,
+                      "koreanName" : "D. 스카를라티",
+                      "bio" : "“하늘을 나는 건반 위 상상, 자유로운 영혼의 소나타”",
+                      "isLiked" : false
+                    }, {
+                      "composerId" : 5,
+                      "koreanName" : "비발디",
+                      "bio" : "“빨간 머리의 계절처럼 쏟아지는 생명과 빛”",
+                      "isLiked" : true
+                    }, {
+                      "composerId" : 6,
+                      "koreanName" : "타르티니",
+                      "bio" : "“악마도 울릴 만큼 깊은 꿈결, 신비로운 선율의 마법”",
+                      "isLiked" : false
+                    }, {
+                      "composerId" : 7,
+                      "koreanName" : "파헬벨",
+                      "bio" : "“시간 너머의 따뜻한 안식, 평화로운 하루의 시작”",
+                      "isLiked" : true
+                    }, {
+                      "composerId" : 8,
+                      "koreanName" : "마테존",
+                      "bio" : "“생각과 음악이 나란히 걷는 길, 새로움을 질문하는 순간”",
+                      "isLiked" : false
+                    } ]
+  /composers/{composerId}/like:
+    post:
+      tags:
+      - Composer API
+      summary: 작곡가 좋아요 토글
+      description: 유저가 작곡가의 좋아요 상태를 토글합니다.
+      operationId: composer-controller-test/작곡가_좋아요를_토글한다
+      parameters:
+      - name: composerId
+        in: path
+        description: 대상 작곡가의 아이디
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "200"
   /posts/curation:
     post:
       tags:
@@ -712,6 +802,23 @@ components:
         content:
           type: string
           description: 포스트의 내용(5자 이상 3000자 이하)
+    composers-1875825918:
+      type: array
+      items:
+        type: object
+        properties:
+          composerId:
+            type: number
+            description: 작곡가 ID
+          isLiked:
+            type: boolean
+            description: 현재 유저의 좋아요 여부 (비로그인 시 false)
+          bio:
+            type: string
+            description: 작곡가 소개
+          koreanName:
+            type: string
+            description: 작곡가 한글 이름
     auth-verify-email-1072797477:
       type: object
       properties:
