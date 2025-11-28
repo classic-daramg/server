@@ -142,7 +142,7 @@ tasks.named('bootJar') {
 
 	layered {}
 	from(tasks.named('openapi3').map { it.outputDirectory }) {
-		into 'static/docs'
+		into 'BOOT-INF/classes/static/docs'
 		rename { String fileName -> "openapi3.yaml" }
 	}
 }
