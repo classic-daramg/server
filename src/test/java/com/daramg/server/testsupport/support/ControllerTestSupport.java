@@ -20,6 +20,7 @@ import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.mockmvc.RestDocumentationResultHandler;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -34,6 +35,9 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
         ErrorCodeRegistry.class,
         ErrorCodeRegistryConfig.class,
         GlobalExceptionHandler.class,
+})
+@TestPropertySource(properties = {
+        "cors.allowed-origins=http://localhost:3000,https://classic-daramg.vercel.app"
 })
 public abstract class ControllerTestSupport {
 
