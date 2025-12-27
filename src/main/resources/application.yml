@@ -42,3 +42,8 @@ cookie:
 jwt:
   access-time: 3600000 # 1시간
   refresh-time: 604800000 # 7일
+
+cors:
+  allowed-origins:
+    - "http://localhost:3000"
+    - "https://classic-daramg.vercel.app"
