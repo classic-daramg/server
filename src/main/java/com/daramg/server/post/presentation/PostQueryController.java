@@ -3,9 +3,7 @@ package com.daramg.server.post.presentation;
 import com.daramg.server.common.dto.PageRequestDto;
 import com.daramg.server.common.dto.PageResponseDto;
 import com.daramg.server.post.application.PostQueryService;
-import com.daramg.server.post.dto.CurationPostsResponseDto;
-import com.daramg.server.post.dto.FreePostsResponseDto;
-import com.daramg.server.post.dto.StoryPostsResponseDto;
+import com.daramg.server.post.dto.PostResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +17,7 @@ public class PostQueryController {
 
     @GetMapping("/free")
     @ResponseStatus(HttpStatus.OK)
-    public PageResponseDto<FreePostsResponseDto> getAllPublishedFreePosts(
+    public PageResponseDto<PostResponseDto> getAllPublishedFreePosts(
             @ModelAttribute PageRequestDto request
     ){
         return postQueryService.getAllPublishedFreePosts(request);
@@ -27,7 +25,7 @@ public class PostQueryController {
 
     @GetMapping("/curation")
     @ResponseStatus(HttpStatus.OK)
-    public PageResponseDto<CurationPostsResponseDto> getAllPublishedCurationPosts(
+    public PageResponseDto<PostResponseDto> getAllPublishedCurationPosts(
             @ModelAttribute PageRequestDto request
     ){
         return postQueryService.getAllPublishedCurationPosts(request);
@@ -35,7 +33,7 @@ public class PostQueryController {
 
     @GetMapping("/story")
     @ResponseStatus(HttpStatus.OK)
-    public PageResponseDto<StoryPostsResponseDto> getAllPublishedStoryPosts(
+    public PageResponseDto<PostResponseDto> getAllPublishedStoryPosts(
             @ModelAttribute PageRequestDto request
     ){
         return postQueryService.getAllPublishedStoryPosts(request);

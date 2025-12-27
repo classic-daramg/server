@@ -4,8 +4,11 @@ import com.daramg.server.common.dto.PageRequestDto;
 import com.daramg.server.common.util.PagingUtils;
 import com.daramg.server.post.domain.CurationPost;
 import com.daramg.server.post.domain.FreePost;
+import com.daramg.server.post.domain.Post;
 import com.daramg.server.post.domain.PostStatus;
+import com.daramg.server.post.domain.QPost;
 import com.daramg.server.post.domain.StoryPost;
+import com.querydsl.core.types.dsl.EntityPathBase;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -27,55 +30,37 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
 
     @Override
     public List<FreePost> getAllFreePostsWithPaging(PageRequestDto pageRequest) {
-        JPAQuery<FreePost> query = queryFactory
-                .selectFrom(freePost)
-                .leftJoin(freePost.user, user).fetchJoin()
-                .where(
-                        freePost.isBlocked.isFalse()
-                                .and(freePost.postStatus.eq(PostStatus.PUBLISHED))
-                );
-
-        return pagingUtils.applyCursorPagination(
-                query,
-                pageRequest,
-                freePost.createdAt,
-                freePost.id
-        );
+        return getAllPostsWithPaging(pageRequest, freePost, freePost._super);
     }
 
     @Override
     public List<CurationPost> getAllCurationPostsWithPaging(PageRequestDto pageRequest) {
-        JPAQuery<CurationPost> query = queryFactory
-                .selectFrom(curationPost)
-                .leftJoin(curationPost.user, user).fetchJoin()
-                .where(
-                        curationPost.isBlocked.isFalse()
-                                .and(curationPost.postStatus.eq(PostStatus.PUBLISHED))
-                );
-
-        return pagingUtils.applyCursorPagination(
-                query,
-                pageRequest,
-                curationPost.createdAt,
-                curationPost.id
-        );
+        return getAllPostsWithPaging(pageRequest, curationPost, curationPost._super);
     }
 
     @Override
     public List<StoryPost> getAllStoryPostsWithPaging(PageRequestDto pageRequest) {
-        JPAQuery<StoryPost> query = queryFactory
-                .selectFrom(storyPost)
-                .leftJoin(storyPost.user, user).fetchJoin()
+        return getAllPostsWithPaging(pageRequest, storyPost, storyPost._super);
+    }
+
+    private <T extends Post> List<T> getAllPostsWithPaging(
+            PageRequestDto pageRequest,
+            EntityPathBase<T> qEntity,
+            QPost qPost
+    ) {
+        JPAQuery<T> query = queryFactory
+                .selectFrom(qEntity)
+                .leftJoin(qPost.user, user).fetchJoin()
                 .where(
-                        storyPost.isBlocked.isFalse()
-                                .and(storyPost.postStatus.eq(PostStatus.PUBLISHED))
+                        qPost.isBlocked.isFalse()
+                                .and(qPost.postStatus.eq(PostStatus.PUBLISHED))
                 );
 
         return pagingUtils.applyCursorPagination(
                 query,
                 pageRequest,
-                storyPost.createdAt,
-                storyPost.id
+                qPost.createdAt,
+                qPost.id
         );
     }
 }

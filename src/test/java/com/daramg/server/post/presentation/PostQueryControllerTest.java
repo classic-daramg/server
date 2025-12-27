@@ -3,9 +3,7 @@ package com.daramg.server.post.presentation;
 import com.daramg.server.common.dto.PageRequestDto;
 import com.daramg.server.common.dto.PageResponseDto;
 import com.daramg.server.post.application.PostQueryService;
-import com.daramg.server.post.dto.CurationPostsResponseDto;
-import com.daramg.server.post.dto.FreePostsResponseDto;
-import com.daramg.server.post.dto.StoryPostsResponseDto;
+import com.daramg.server.post.dto.PostResponseDto;
 import com.daramg.server.testsupport.support.ControllerTestSupport;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import org.junit.jupiter.api.Test;
@@ -36,7 +34,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
     @Test
     void 자유_포스트_목록을_조회한다() throws Exception {
         // given
-        FreePostsResponseDto freePost1 = new FreePostsResponseDto(
+        PostResponseDto freePost1 = new PostResponseDto(
                 "자유 포스트 제목 1",
                 "자유 포스트 내용입니다",
                 List.of("#해시태그1", "#해시태그2"),
@@ -46,7 +44,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 5,
                 "https://example.com/image1.jpg"
         );
-        FreePostsResponseDto freePost2 = new FreePostsResponseDto(
+        PostResponseDto freePost2 = new PostResponseDto(
                 "자유 포스트 제목 2",
                 "자유 포스트 내용입니다",
                 List.of("#해시태그3"),
@@ -57,7 +55,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 null
         );
 
-        PageResponseDto<FreePostsResponseDto> response = new PageResponseDto<>(
+        PageResponseDto<PostResponseDto> response = new PageResponseDto<>(
                 List.of(freePost1, freePost2),
                 "MjAyNC0wMS0xNVEyMDozMDowMF8xMjM=", // Base64 인코딩된 커서 (예시: "2024-01-15T10:30:00_123")
                 true
@@ -106,7 +104,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
     @Test
     void 큐레이션_포스트_목록을_조회한다() throws Exception {
         // given
-        CurationPostsResponseDto curationPost1 = new CurationPostsResponseDto(
+        PostResponseDto curationPost1 = new PostResponseDto(
                 "큐레이션 포스트 제목 1",
                 "큐레이션 포스트 내용입니다",
                 List.of("#큐레이션1", "#음악"),
@@ -116,7 +114,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 15,
                 "https://example.com/curation1.jpg"
         );
-        CurationPostsResponseDto curationPost2 = new CurationPostsResponseDto(
+        PostResponseDto curationPost2 = new PostResponseDto(
                 "큐레이션 포스트 제목 2",
                 "큐레이션 포스트 내용입니다",
                 List.of("#큐레이션2"),
@@ -127,7 +125,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 null
         );
 
-        PageResponseDto<CurationPostsResponseDto> response = new PageResponseDto<>(
+        PageResponseDto<PostResponseDto> response = new PageResponseDto<>(
                 List.of(curationPost1, curationPost2),
                 "MjAyNC0wMS0xNVEyMjowMDowMF8xMjM=", // Base64 인코딩된 커서 (예시: "2024-01-15T12:00:00_123")
                 true
@@ -176,7 +174,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
     @Test
     void 스토리_포스트_목록을_조회한다() throws Exception {
         // given
-        StoryPostsResponseDto storyPost1 = new StoryPostsResponseDto(
+        PostResponseDto storyPost1 = new PostResponseDto(
                 "스토리 포스트 제목 1",
                 "스토리 포스트 내용입니다",
                 List.of("#스토리1", "#음악이야기"),
@@ -186,7 +184,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 25,
                 "https://example.com/story1.jpg"
         );
-        StoryPostsResponseDto storyPost2 = new StoryPostsResponseDto(
+        PostResponseDto storyPost2 = new PostResponseDto(
                 "스토리 포스트 제목 2",
                 "스토리 포스트 내용입니다",
                 List.of("#스토리2"),
@@ -197,7 +195,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 null
         );
 
-        PageResponseDto<StoryPostsResponseDto> response = new PageResponseDto<>(
+        PageResponseDto<PostResponseDto> response = new PageResponseDto<>(
                 List.of(storyPost1, storyPost2),
                 null,
                 false

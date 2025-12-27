@@ -7,7 +7,7 @@ import com.daramg.server.common.util.PagingUtils;
 import com.daramg.server.post.domain.FreePost;
 import com.daramg.server.post.domain.PostStatus;
 import com.daramg.server.post.domain.vo.PostCreateVo;
-import com.daramg.server.post.dto.FreePostsResponseDto;
+import com.daramg.server.post.dto.PostResponseDto;
 import com.daramg.server.post.repository.PostRepository;
 import com.daramg.server.testsupport.support.ServiceTestSupport;
 import com.daramg.server.user.domain.User;
@@ -103,18 +103,18 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             PageRequestDto pageRequest = new PageRequestDto(null, 100); // 모든 포스트 조회
 
             // when
-            PageResponseDto<FreePostsResponseDto> response = postQueryService.getAllPublishedFreePosts(pageRequest);
+            PageResponseDto<PostResponseDto> response = postQueryService.getAllPublishedFreePosts(pageRequest);
 
             // then
             // PUBLISHED 포스트 25개만 반환되어야 함 (DRAFT 2개는 제외)
             assertThat(response.getContent()).hasSize(25);
             // 모든 반환된 포스트가 PUBLISHED 상태인지 확인 (제목으로 확인)
             assertThat(response.getContent())
-                    .extracting(FreePostsResponseDto::title)
+                    .extracting(PostResponseDto::title)
                     .doesNotContain("DRAFT 제목 1", "DRAFT 제목 2");
             // PUBLISHED 포스트는 포함되어야 함
             assertThat(response.getContent())
-                    .extracting(FreePostsResponseDto::title)
+                    .extracting(PostResponseDto::title)
                     .contains("제목 0", "제목 24");
         }
         @Test
@@ -124,7 +124,7 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             PageRequestDto pageRequest = new PageRequestDto(null, 20);
 
             // when
-            PageResponseDto<FreePostsResponseDto> response = postQueryService.getAllPublishedFreePosts(pageRequest);
+            PageResponseDto<PostResponseDto> response = postQueryService.getAllPublishedFreePosts(pageRequest);
 
             // then
             assertThat(response.getContent()).hasSize(20);
@@ -141,12 +141,12 @@ public class PostQueryServiceTest extends ServiceTestSupport {
         void getAllFreePosts_WithNullSizeAndValidCursor_Returns10Posts() {
             // given
             PageRequestDto firstRequest = new PageRequestDto(null, 10);
-            PageResponseDto<FreePostsResponseDto> firstResponse = postQueryService.getAllPublishedFreePosts(firstRequest);
+            PageResponseDto<PostResponseDto> firstResponse = postQueryService.getAllPublishedFreePosts(firstRequest);
             String nextCursor = firstResponse.getNextCursor();
 
             // when - size가 null이고 cursor가 있는 두 번째 요청
             PageRequestDto secondRequest = new PageRequestDto(nextCursor, null);
-            PageResponseDto<FreePostsResponseDto> secondResponse = postQueryService.getAllPublishedFreePosts(secondRequest);
+            PageResponseDto<PostResponseDto> secondResponse = postQueryService.getAllPublishedFreePosts(secondRequest);
 
             // then
             assertThat(secondResponse.getContent()).hasSize(10); // default size 10이 적용됨
@@ -167,7 +167,7 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             PageRequestDto pageRequest = new PageRequestDto(null, -5);
 
             // when
-            PageResponseDto<FreePostsResponseDto> response = postQueryService.getAllPublishedFreePosts(pageRequest);
+            PageResponseDto<PostResponseDto> response = postQueryService.getAllPublishedFreePosts(pageRequest);
 
             // then
             assertThat(response.getContent()).hasSize(10); // 음수는 default 10으로 처리됨
@@ -181,7 +181,7 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             PageRequestDto pageRequest = new PageRequestDto(null, 0);
 
             // when
-            PageResponseDto<FreePostsResponseDto> response = postQueryService.getAllPublishedFreePosts(pageRequest);
+            PageResponseDto<PostResponseDto> response = postQueryService.getAllPublishedFreePosts(pageRequest);
 
             // then
             assertThat(response.getContent()).hasSize(10); // 0은 default 10으로 처리됨
@@ -195,7 +195,7 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             PageRequestDto pageRequest = new PageRequestDto(null, 100); // 25개보다 큰 값
 
             // when
-            PageResponseDto<FreePostsResponseDto> response = postQueryService.getAllPublishedFreePosts(pageRequest);
+            PageResponseDto<PostResponseDto> response = postQueryService.getAllPublishedFreePosts(pageRequest);
 
             // then
             assertThat(response.getContent()).hasSize(25); // 모든 포스트 반환
@@ -253,7 +253,7 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             PageRequestDto pageRequest = new PageRequestDto(validFormatCursor, 10);
 
             // when
-            PageResponseDto<FreePostsResponseDto> response = postQueryService.getAllPublishedFreePosts(pageRequest);
+            PageResponseDto<PostResponseDto> response = postQueryService.getAllPublishedFreePosts(pageRequest);
 
             // then
             assertThat(response.getContent()).isEmpty();
