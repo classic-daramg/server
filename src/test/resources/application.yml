@@ -1,3 +1,39 @@
 # 테스트 환경용 설정 - CI/CD에서 사용
+spring:
+  profiles:
+    active: local
+  config:
+    import: ""  # application-secret.yml 임포트 비활성화
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+  flyway:
+    enabled: false
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: test@test.com
+    password: testpassword
+
 jwt:
-  secret-key: test-secret-key-for-ci-cd-environment-only-do-not-use-in-production
+  secret-key: test-secret-key-for-ci-cd-environment-only-do-not-use-in-production-1234567890
+  access-time: 3600000
+  refresh-time: 604800000
+
+cookie:
+  access-name: "access_token"
+  refresh-name: "refresh_token"
+
+cors:
+  allowed-origins:
+    - "http://localhost:3000"
