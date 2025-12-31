@@ -1,0 +1,3 @@
+# 테스트 환경용 설정 - CI/CD에서 사용
+jwt:
+  secret-key: test-secret-key-for-ci-cd-environment-only-do-not-use-in-production
