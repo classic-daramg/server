@@ -136,6 +136,12 @@ openapi3{
 	outputDirectory = file("build/api-spec")
 }
 
+afterEvaluate {
+	tasks.named('openapi3') {
+		dependsOn tasks.named('test')
+	}
+}
+
 tasks.named('bootJar') {
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 	dependsOn tasks.named('openapi3')
