@@ -13,6 +13,7 @@ import com.daramg.server.user.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
@@ -58,7 +59,7 @@ public class MailVerificationServiceImpl implements MailVerificationService{
             );
 
             javaMailSender.send(mimeMessage);
-        } catch (MessagingException e) {
+        } catch (MessagingException | MailException e) {
             throw new BusinessException(AuthErrorStatus.SEND_VERIFICATION_EMAIL_FAILED);
         }
     }
