@@ -5,10 +5,12 @@ import com.daramg.server.post.application.PostService;
 import com.daramg.server.user.domain.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/posts")
@@ -19,7 +21,15 @@ public class PostController {
     @PostMapping("/free")
     @ResponseStatus(HttpStatus.CREATED)
     public void createFreePost(@Valid @RequestBody PostCreateDto.CreateFree request, User user) {
-        postService.createFree(request, user);
+        try {
+            postService.createFree(request, user);
+        } catch (Exception e) {
+            log.error("[자유 포스트 생성 실패] 사용자 ID: {}, 제목: {}, 에러: {}", 
+                    user != null ? user.getId() : "null",
+                    request.getTitle(),
+                    e.getMessage(), e);
+            throw e;
+        }
     }
 
     @PostMapping("/curation")

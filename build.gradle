@@ -155,3 +155,27 @@ tasks.named('bootJar') {
 		rename { String fileName -> "openapi3.yaml" }
 	}
 }
+
+tasks.withType(com.epages.restdocs.apispec.gradle.OpenApi3Task).configureEach {
+	doLast {
+		def openApiFile = file("build/api-spec/openapi3.yaml")
+		if (openApiFile.exists()) {
+			def content = openApiFile.text
+
+			def securitySchemes = """
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: access_token
+  schemas:"""
+
+			if (content.contains("components:\n  schemas:")) {
+				content = content.replace("components:\n  schemas:", securitySchemes)
+				content = content + "\nsecurity:\n  - cookieAuth: []"
+				openApiFile.text = content
+			}
+		}
+	}
+}
