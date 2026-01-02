@@ -1,5 +1,6 @@
 package com.daramg.server.post.domain;
 
+import com.daramg.server.common.converter.JsonArrayConverter;
 import com.daramg.server.common.domain.BaseEntity;
 import com.daramg.server.post.domain.vo.PostUpdateVo;
 import com.daramg.server.user.domain.User;
@@ -28,17 +29,15 @@ public abstract class Post extends BaseEntity<Post> {
     @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @ElementCollection
-    @CollectionTable(name = "post_images", joinColumns = @JoinColumn(name = "post_id"))
-    @Column(name = "image_url")
+    @Convert(converter = JsonArrayConverter.class)
+    @Column(name = "images", columnDefinition = "JSON")
     private List<String> images = new ArrayList<>();
 
     @Column(name = "video_url")
     private String videoUrl;
 
-    @ElementCollection
-    @CollectionTable(name = "post_hashtags", joinColumns = @JoinColumn(name = "post_id"))
-    @Column(name = "hashtag")
+    @Convert(converter = JsonArrayConverter.class)
+    @Column(name = "hashtags", columnDefinition = "JSON")
     private List<String> hashtags = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)

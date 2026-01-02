@@ -58,7 +58,9 @@ CREATE TABLE posts (
     user_id BIGINT,
     title TEXT NOT NULL,
     content TEXT NOT NULL,
+    images JSON DEFAULT (JSON_ARRAY()),
     video_url VARCHAR(255),
+    hashtags JSON DEFAULT (JSON_ARRAY()),
     post_status VARCHAR(255) NOT NULL,
     like_count INT NOT NULL DEFAULT 0,
     comment_count INT NOT NULL DEFAULT 0,
@@ -70,22 +72,6 @@ CREATE TABLE posts (
 
 ALTER TABLE posts ADD CONSTRAINT fk_posts_user_id FOREIGN KEY (user_id) REFERENCES users (id);
 ALTER TABLE posts ADD CONSTRAINT fk_posts_composer_id FOREIGN KEY (composer_id) REFERENCES composers (id);
-
-CREATE TABLE post_images (
-    post_id BIGINT NOT NULL,
-    image_url VARCHAR(255),
-    PRIMARY KEY (post_id, image_url)
-);
-
-ALTER TABLE post_images ADD CONSTRAINT fk_post_images_post_id FOREIGN KEY (post_id) REFERENCES posts (id);
-
-CREATE TABLE post_hashtags (
-    post_id BIGINT NOT NULL,
-    hashtag VARCHAR(255),
-    PRIMARY KEY (post_id, hashtag)
-);
-
-ALTER TABLE post_hashtags ADD CONSTRAINT fk_post_hashtags_post_id FOREIGN KEY (post_id) REFERENCES posts (id);
 
 CREATE TABLE composer_posts (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
