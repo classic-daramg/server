@@ -66,6 +66,7 @@ dependencies {
 
 	// 코틀린
 	testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
+	implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
 
 	// jwt
 	implementation 'com.auth0:java-jwt:4.4.0'

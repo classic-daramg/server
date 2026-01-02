@@ -21,15 +21,7 @@ public class PostController {
     @PostMapping("/free")
     @ResponseStatus(HttpStatus.CREATED)
     public void createFreePost(@Valid @RequestBody PostCreateDto.CreateFree request, User user) {
-        try {
-            postService.createFree(request, user);
-        } catch (Exception e) {
-            log.error("[자유 포스트 생성 실패] 사용자 ID: {}, 제목: {}, 에러: {}", 
-                    user != null ? user.getId() : "null",
-                    request.getTitle(),
-                    e.getMessage(), e);
-            throw e;
-        }
+        postService.createFree(request, user);
     }
 
     @PostMapping("/curation")
