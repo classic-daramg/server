@@ -19,17 +19,8 @@ spring:
     enabled: true
     baseline-on-migrate: true
   mail:
-    host: smtp.gmail.com
-    port: 587
     username: ${SPRING_MAIL_USERNAME}
     password: ${SPRING_MAIL_PASSWORD}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          timeout: 5000
-          starttls:
-            enable: true
   cloud:
     aws:
       s3:
