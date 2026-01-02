@@ -41,3 +41,4 @@ cors:
   allowed-origins:
     - "http://localhost:3000"
     - "https://classic-daramg.vercel.app"
+    - "https://classic-daramg.duckdns.org"
