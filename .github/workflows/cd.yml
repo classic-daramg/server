@@ -8,16 +8,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    services:
-      redis:
-        image: redis:7
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -55,16 +45,31 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         env:
           ECR_URI: ${{ secrets.ECR_URI }}
+          SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
+          SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
+          SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+          SPRING_MAIL_USERNAME: ${{ secrets.SPRING_MAIL_USERNAME }}
+          SPRING_MAIL_PASSWORD: ${{ secrets.SPRING_MAIL_PASSWORD }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: ECR_URI
+          envs: ECR_URI,SPRING_DATASOURCE_URL,SPRING_DATASOURCE_USERNAME,SPRING_DATASOURCE_PASSWORD,JWT_SECRET_KEY,SPRING_MAIL_USERNAME,SPRING_MAIL_PASSWORD
           script: |
             cd ~/server
+            
+            echo "ECR_URI=$ECR_URI" > .env
+            echo "SPRING_DATASOURCE_URL=$SPRING_DATASOURCE_URL" >> .env
+            echo "SPRING_DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME" >> .env
+            echo "SPRING_DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD" >> .env
+            echo "JWT_SECRET_KEY=$JWT_SECRET_KEY" >> .env
+            echo "SPRING_MAIL_USERNAME=$SPRING_MAIL_USERNAME" >> .env
+            echo "SPRING_MAIL_PASSWORD=$SPRING_MAIL_PASSWORD" >> .env
+            
             git pull
             docker-compose down
-            docker rmi ${{ env.ECR_URI }}:latest || true
+            docker rmi $ECR_URI:latest || true
             docker-compose pull
             docker-compose up -d
             docker image prune -f
