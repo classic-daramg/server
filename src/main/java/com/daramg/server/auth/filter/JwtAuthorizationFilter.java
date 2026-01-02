@@ -17,12 +17,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -68,7 +70,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         String email = jwtTokenProvider.getUserEmail(accessToken);
 
         User user = authService.loadUserByEmail(email);
-        return new UsernamePasswordAuthenticationToken(user, null);
+        return new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
 
         //TODO: role
 //        String role = jwtTokenProvider.getRole(accessToken);
