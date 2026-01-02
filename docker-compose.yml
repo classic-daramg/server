@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   backend:
-    image: ${ECR_PUBLIC_URI}/kldd-server:latest
+    image: ${ECR_URI}:latest
     ports:
       - "8080:8080"
     container_name: spring-app
