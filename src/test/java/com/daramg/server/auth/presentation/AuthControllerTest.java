@@ -77,7 +77,7 @@ public class AuthControllerTest extends ControllerTestSupport {
     }
 
     @Test
-    void 비밀번호_초기화를_위한_인증코드_메일_발송() throws Exception {
+    void 인증코드_메일_발송() throws Exception {
         // given
         EmailVerificationRequestDto request = new EmailVerificationRequestDto("daramg123@gmail.com", EmailPurpose.PASSWORD_RESET);
 
@@ -90,11 +90,11 @@ public class AuthControllerTest extends ControllerTestSupport {
 
         //then
         result.andExpect(status().isOk())
-                .andDo(document("비밀번호_초기화를_위한_인증코드_메일_발송",
+                .andDo(document("인증코드_메일_발송",
                         resource(ResourceSnippetParameters.builder()
                                 .tag("Auth API")
-                                .summary("비밀번호 초기화 시 인증코드 이메일 발송")
-                                .description("비밀번호 초기화를 위해 이메일 주소로 인증코드를 발송합니다.")
+                                .summary("인증코드 이메일 발송")
+                                .description("이메일 주소로 인증코드를 발송합니다. 인증 목적을 입력해야 합니다.")
                                 .requestFields(
                                         fieldWithPath("email").type(JsonFieldType.STRING).description("이메일"),
                                         fieldWithPath("emailPurpose").type(JsonFieldType.STRING).description("이메일 인증코드 전송 목적(SIGNUP, PASSWORD_RESET)")
