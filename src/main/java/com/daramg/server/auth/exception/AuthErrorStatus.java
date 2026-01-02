@@ -24,7 +24,8 @@ public enum AuthErrorStatus implements BaseErrorCode {
 
     USER_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, ErrorCategory.AUTH.generate(404_1), "존재하지 않는 사용자입니다."),
 
-    SEND_VERIFICATION_EMAIL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCategory.AUTH.generate(500), "이메일 전송에 실패했습니다.");
+    SEND_VERIFICATION_EMAIL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCategory.AUTH.generate(500), "이메일 전송에 실패했습니다."),
+    REDIS_CONNECTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCategory.AUTH.generate(500_1), "Redis 연결에 실패했습니다. 서버 관리자에게 문의 바랍니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

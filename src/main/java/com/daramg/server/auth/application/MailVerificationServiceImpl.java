@@ -13,10 +13,13 @@ import com.daramg.server.user.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MailVerificationServiceImpl implements MailVerificationService{
@@ -48,7 +51,10 @@ public class MailVerificationServiceImpl implements MailVerificationService{
 
     private void sendVerificationCode(EmailVerificationRequestDto request) {
         String verificationCode = VerificationCodeGenerator.generate();
-        verificationCodeRepository.save(request.getEmail(), verificationCode);
+        
+        executeRedisOperationVoid(() -> {
+            verificationCodeRepository.save(request.getEmail(), verificationCode);
+        });
         
         try {
             String htmlContent = mailContentBuilder.buildVerificationEmail(verificationCode);
@@ -65,12 +71,41 @@ public class MailVerificationServiceImpl implements MailVerificationService{
     }
 
     public void verifyEmailWithCode(CodeVerificationRequestDto request) {
-        String storedCode = verificationCodeRepository.findByEmail(request.getEmail())
-                .orElse(null);
+        String storedCode = executeRedisOperation(() -> 
+            verificationCodeRepository.findByEmail(request.getEmail()).orElse(null)
+        );
 
         if (storedCode == null || !storedCode.equals(request.getVerificationCode())) {
             throw new BusinessException(AuthErrorStatus.CODE_VERIFICATION_FAILED);
         }
-        verificationCodeRepository.deleteByEmail(request.getEmail());
+        
+        executeRedisOperationVoid(() -> {
+            verificationCodeRepository.deleteByEmail(request.getEmail());
+        });
+    }
+
+    private <T> T executeRedisOperation(java.util.function.Supplier<T> operation) {
+        try {
+            return operation.get();
+        } catch (RedisConnectionFailureException e) {
+            log.error("Redis 연결 실패: ", e);
+            throw new BusinessException(AuthErrorStatus.REDIS_CONNECTION_FAILED);
+        } catch (Exception e) {
+            // Redis 관련 기타 예외 처리 (RedisSystemException, ConnectException 등)
+            if (e.getCause() instanceof java.net.ConnectException || 
+                e.getMessage() != null && e.getMessage().contains("Redis") ||
+                e.getClass().getName().contains("Redis")) {
+                log.error("Redis 연결 오류: ", e);
+                throw new BusinessException(AuthErrorStatus.REDIS_CONNECTION_FAILED);
+            }
+            throw e;
+        }
+    }
+
+    private void executeRedisOperationVoid(Runnable operation) {
+        executeRedisOperation(() -> {
+            operation.run();
+            return null;
+        });
     }
 }
