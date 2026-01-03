@@ -43,6 +43,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/login").permitAll()
                         .requestMatchers("/composers").permitAll()
                         .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
+                        .requestMatchers("/users/check-nickname").permitAll()
 
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/docs/**").permitAll()
