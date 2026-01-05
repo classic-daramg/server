@@ -42,10 +42,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .map(error -> {
                     String code = error.getDefaultMessage();
                     BaseErrorCode baseErrorCode = errorCodeRegistry.get(code);
+                    String message = baseErrorCode != null 
+                            ? baseErrorCode.getMessage() 
+                            : error.getDefaultMessage();
                     return new ErrorResponse.FieldErrorResponse(
                             error.getField(),
                             error.getRejectedValue() == null ? "" : error.getRejectedValue().toString(),
-                            baseErrorCode.getMessage()
+                            message
                     );
                 })
                 .collect(Collectors.toList());
