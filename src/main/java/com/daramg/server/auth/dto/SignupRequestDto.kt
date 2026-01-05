@@ -20,13 +20,6 @@ class SignupRequestDto(
     )
     val password: String,
 
-    @get:Pattern(
-        regexp = "^(https?://).+\\.(jpg|jpeg|png|gif|svg)$",
-        flags = [Pattern.Flag.CASE_INSENSITIVE],
-        message = "올바른 이미지 URL 형식이 아닙니다"
-    )
-    val profileImage: String?,
-
     @get:NotBlank(message = "닉네임은 필수입니다")
     @get:Pattern(
         regexp = "^[a-zA-Z0-9가-힣._]{2,8}$",

@@ -49,7 +49,6 @@ class AuthServicePasswordEncodingTest {
                 LocalDate.of(1990, 1, 1),
                 "user@example.com",
                 rawPassword,
-                null,
                 "nickname",
                 "hello"
         );
@@ -57,7 +56,7 @@ class AuthServicePasswordEncodingTest {
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
 
         // when
-        authService.signup(dto);
+        authService.signup(dto, null);
 
         // then
         verify(userRepository).save(userCaptor.capture());

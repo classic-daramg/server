@@ -3,6 +3,7 @@ package com.daramg.server.auth.application;
 import com.daramg.server.auth.dto.TokenResponseDto;
 import com.daramg.server.auth.exception.AuthErrorStatus;
 import com.daramg.server.auth.util.JwtUtil;
+import com.daramg.server.common.application.S3ImageService;
 import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.user.domain.User;
 import com.daramg.server.auth.domain.SignupVo;
@@ -17,6 +18,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.concurrent.TimeUnit;
 
@@ -32,8 +34,9 @@ public class AuthService {
     private final JwtUtil jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final RedisTemplate<String, String> redisTemplate;
+    private final S3ImageService s3ImageService;
 
-    public void signup(SignupRequestDto dto){
+    public void signup(SignupRequestDto dto, MultipartFile image){
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new BusinessException("중복된 이메일입니다.");
         }
@@ -42,12 +45,19 @@ public class AuthService {
         }
         // TODO: bio, 닉네임에 금칙어 검사
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
+        
+        // 이미지가 있으면 S3에 업로드하고 URL을 받아옴, 없으면 null (기본 이미지 사용)
+        String profileImageUrl = null;
+        if (image != null && !image.isEmpty()) {
+            profileImageUrl = s3ImageService.uploadImage(image);
+        }
+        
         SignupVo vo = new SignupVo(
                 dto.getName(),
                 dto.getBirthdate(),
                 dto.getEmail(),
                 encodedPassword,
-                dto.getProfileImage(),
+                profileImageUrl,
                 dto.getNickname(),
                 dto.getBio()
         );

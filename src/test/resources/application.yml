@@ -28,6 +28,17 @@ spring:
     username: test@test.com
     password: testpassword
 
+aws:
+  s3:
+    bucket: test-bucket
+  credentials:
+    access-key: test-access-key
+    secret-key: test-secret-key
+  region:
+    static: ap-northeast-2
+  stack:
+    auto: false
+
 jwt:
   secret-key: test-secret-key-for-ci-cd-environment-only-do-not-use-in-production-1234567890
   access-time: 3600000

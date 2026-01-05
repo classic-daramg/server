@@ -5,7 +5,8 @@ public enum ErrorCategory {
     COMMON("COMMON_"),
     AUTH("AUTH_"),
     USER("USER_"),
-    POST("POST_");
+    POST("POST_"),
+    IMAGE("IMAGE_");
 
     private final String prefix;
 

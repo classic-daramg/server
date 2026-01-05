@@ -77,6 +77,7 @@ dependencies {
 	annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
 
 	// aws s3
+	implementation platform('software.amazon.awssdk:bom:2.25.35')
 	implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.1.1'
 }
 
