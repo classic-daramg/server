@@ -14,8 +14,6 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,7 +22,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class S3ImageService {
 
-    private static final List<String> ALLOWED_CONTENT_TYPES = Arrays.asList(
+    private static final java.util.Set<String> ALLOWED_CONTENT_TYPES = java.util.Set.of(
             "image/jpeg", "image/jpg", "image/png", "image/gif"
     );
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -39,14 +37,9 @@ public class S3ImageService {
     private String region;
 
     public List<String> uploadImages(List<MultipartFile> images) {
-        List<String> uploadedUrls = new ArrayList<>();
-
-        for (MultipartFile image : images) {
-            String url = uploadImage(image);
-            uploadedUrls.add(url);
-        }
-
-        return uploadedUrls;
+        return images.stream()
+                .map(this::uploadImage)
+                .toList();
     }
 
     public String uploadImage(MultipartFile file) {
