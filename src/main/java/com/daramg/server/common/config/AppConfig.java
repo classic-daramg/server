@@ -22,10 +22,10 @@ public class AppConfig implements WebMvcConfigurer {
 
     private final AuthUserResolver authUserResolver;
 
-    @Value("${aws.credentials.access-key}")
+    @Value("${aws.s3.credentials.access-key}")
     private String accessKey;
 
-    @Value("${aws.credentials.secret-key}")
+    @Value("${aws.s3.credentials.secret-key}")
     private String secretKey;
 
     @Value("${aws.region.static:ap-northeast-2}")
