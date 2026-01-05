@@ -60,13 +60,12 @@ public class AuthServiceTest extends ServiceTestSupport {
                     LocalDate.of(1990, 1, 1),
                     "test@example.com",
                     "Password123!",
-                    "https://example.com/profile.jpg",
                     "홍길동123",
                     "안녕하세요"
             );
 
             //when
-            authService.signup(signupDto);
+            authService.signup(signupDto, null);
 
             //then
             User savedUser = userRepository.findAll().get(1);
@@ -75,7 +74,8 @@ public class AuthServiceTest extends ServiceTestSupport {
             assertThat(savedUser.getBirthDate()).isEqualTo(signupDto.getBirthdate());
             assertThat(savedUser.getEmail()).isEqualTo(signupDto.getEmail());
             // 비밀번호 암호화 정책으로 인해 원문과 같지 않을 수 있음 (기존 테스트 유지)
-            assertThat(savedUser.getProfileImage()).isEqualTo(signupDto.getProfileImage());
+            // 이미지가 없으면 기본 이미지가 사용됨
+            assertThat(savedUser.getProfileImage()).isNotNull();
             assertThat(savedUser.getNickname()).isEqualTo(signupDto.getNickname());
             assertThat(savedUser.getBio()).isEqualTo(signupDto.getBio());
         }
@@ -133,13 +133,12 @@ public class AuthServiceTest extends ServiceTestSupport {
                     LocalDate.of(1990, 1, 1),
                     "existing@example.com", // 중복된 이메일
                     "Password123!",
-                    "https://example.com/profile.jpg",
                     "새로운닉네임",
                     "안녕하세요"
             );
 
             //when & then
-            assertThatThrownBy(() -> authService.signup(signupDto))
+            assertThatThrownBy(() -> authService.signup(signupDto, null))
                     .isInstanceOf(BusinessException.class)
                     .hasMessage("중복된 이메일입니다.");
         }
@@ -152,13 +151,12 @@ public class AuthServiceTest extends ServiceTestSupport {
                     LocalDate.of(1990, 1, 1),
                     "new@example.com",
                     "Password123!",
-                    "https://example.com/profile.jpg",
                     "기존닉네임", // 중복된 닉네임
                     "안녕하세요"
             );
 
             //when & then
-            assertThatThrownBy(() -> authService.signup(signupDto))
+            assertThatThrownBy(() -> authService.signup(signupDto, null))
                     .isInstanceOf(BusinessException.class)
                     .hasMessage("중복된 닉네임입니다.");
         }
@@ -171,13 +169,12 @@ public class AuthServiceTest extends ServiceTestSupport {
                     LocalDate.of(1990, 1, 1),
                     "existing@example.com", // 중복된 이메일
                     "Password123!",
-                    "https://example.com/profile.jpg",
                     "기존닉네임", // 중복된 닉네임
                     "안녕하세요"
             );
 
             //when & then
-            assertThatThrownBy(() -> authService.signup(signupDto))
+            assertThatThrownBy(() -> authService.signup(signupDto, null))
                     .isInstanceOf(BusinessException.class)
                     .hasMessage("중복된 이메일입니다.");
         }
@@ -303,13 +300,12 @@ public class AuthServiceTest extends ServiceTestSupport {
                     LocalDate.of(1995, 5, 5),
                     "encode@example.com",
                     "Encode123!",
-                    null,
                     "encUser",
                     "bio"
             );
 
             // when
-            authService.signup(dto);
+            authService.signup(dto, null);
             User saved = userRepository.findByEmail("encode@example.com").orElseThrow();
 
             // then

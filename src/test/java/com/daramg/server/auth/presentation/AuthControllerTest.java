@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.ResultActions;
@@ -25,10 +26,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.cookies.CookieDocumentation.cookieWithName;
 import static org.springframework.restdocs.cookies.CookieDocumentation.responseCookies;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.multipart;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.request.RequestDocumentation.partWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParts;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -141,17 +145,31 @@ public class AuthControllerTest extends ControllerTestSupport {
                 LocalDate.of(1996, 6, 15),
                 "hamster@gmail.com",
                 "Password123!",
-                "https://example.com/profile.jpg",
                 "햄쥑이",
                 "나라 지키는 중"
         );
 
-        doNothing().when(authService).signup(any(SignupRequestDto.class));
+        MockMultipartFile signupRequestPart = new MockMultipartFile(
+                "signupRequest",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                objectMapper.writeValueAsBytes(request)
+        );
+
+        MockMultipartFile imageFile = new MockMultipartFile(
+                "image",
+                "test-image.jpg",
+                MediaType.IMAGE_JPEG_VALUE,
+                "test image content".getBytes()
+        );
+
+        doNothing().when(authService).signup(any(SignupRequestDto.class), any());
 
         // when
-        ResultActions result = mockMvc.perform(post("/auth/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)));
+        ResultActions result = mockMvc.perform(multipart("/auth/signup")
+                .file(signupRequestPart)
+                .file(imageFile)
+                .contentType(MediaType.MULTIPART_FORM_DATA));
 
         // then
         result.andExpect(status().isCreated())
@@ -159,17 +177,24 @@ public class AuthControllerTest extends ControllerTestSupport {
                         resource(ResourceSnippetParameters.builder()
                                 .tag("Auth API")
                                 .summary("회원가입")
-                                .description("새로운 유저를 생성합니다.")
-                                .requestFields(
-                                        fieldWithPath("name").type(JsonFieldType.STRING).description("이름"),
-                                        fieldWithPath("birthdate").type(JsonFieldType.STRING).description("생년월일 (YYYY-MM-DD)"),
-                                        fieldWithPath("email").type(JsonFieldType.STRING).description("이메일"),
-                                        fieldWithPath("password").type(JsonFieldType.STRING).description("비밀번호 (영어 대/소문자, 숫자, 특수문자 포함 10자 이상)"),
-                                        fieldWithPath("profileImage").type(JsonFieldType.STRING).description("프로필 이미지 URL").optional(),
-                                        fieldWithPath("nickname").type(JsonFieldType.STRING).description("닉네임 (2~8자)"),
-                                        fieldWithPath("bio").type(JsonFieldType.STRING).description("bio (12자 이하)").optional()
-                                )
+                                .description("새로운 유저를 생성합니다. 프로필 이미지는 선택사항이며, 제공하지 않으면 기본 이미지가 사용됩니다.")
                                 .build()
+                        ),
+                        requestParts(
+                                partWithName("signupRequest").description("회원가입 정보 (JSON)\n\n" +
+                                        "**Content-Type:** application/json\n\n" +
+                                        "**JSON 필드:**\n" +
+                                        "- `name` (String, 필수): 이름\n" +
+                                        "- `birthdate` (String, 필수): 생년월일 (YYYY-MM-DD)\n" +
+                                        "- `email` (String, 필수): 이메일\n" +
+                                        "- `password` (String, 필수): 비밀번호 (영어 대/소문자, 숫자, 특수문자 포함 10자 이상)\n" +
+                                        "- `nickname` (String, 필수): 닉네임 (2~8자)\n" +
+                                        "- `bio` (String, 선택): bio (12자 이하)"),
+                                partWithName("image").description("프로필 이미지 파일 (선택사항)\n\n" +
+                                        "**제약조건:**\n" +
+                                        "- 지원 형식: JPEG, JPG, PNG, GIF\n" +
+                                        "- 최대 파일 크기: 10MB\n" +
+                                        "- 제공하지 않으면 기본 이미지가 사용됩니다").optional()
                         )
                 ));
     }

@@ -36,7 +36,6 @@ class AuthTest {
                     LocalDate.of(1990, 1, 1),
                     "", // 빈 이메일
                     "Password123!",
-                    "https://example.com/profile.jpg",
                     "홍길동123",
                     "안녕하세요"
             );
@@ -58,7 +57,6 @@ class AuthTest {
                     LocalDate.of(1990, 1, 1),
                     "invalid-email", // 잘못된 이메일 형식
                     "Password123!",
-                    "https://example.com/profile.jpg",
                     "홍길동123",
                     "안녕하세요"
             );
@@ -80,7 +78,6 @@ class AuthTest {
                     LocalDate.of(1990, 1, 1),
                     "test@example.com", // 올바른 이메일 형식
                     "Password123!",
-                    "https://example.com/profile.jpg",
                     "홍길동123",
                     "안녕하세요"
             );
@@ -106,7 +103,6 @@ class AuthTest {
                     LocalDate.of(1990, 1, 1),
                     "test@example.com",
                     "", // 빈 비밀번호
-                    "https://example.com/profile.jpg",
                     "홍길동123",
                     "안녕하세요"
             );
@@ -128,7 +124,6 @@ class AuthTest {
                     LocalDate.of(1990, 1, 1),
                     "test@example.com",
                     "Pass123!", // 9자리 비밀번호
-                    "https://example.com/profile.jpg",
                     "홍길동123",
                     "안녕하세요"
             );
@@ -150,7 +145,6 @@ class AuthTest {
                     LocalDate.of(1990, 1, 1),
                     "test@example.com",
                     "password123!", // 대문자 없음
-                    "https://example.com/profile.jpg",
                     "홍길동123",
                     "안녕하세요"
             );
@@ -172,7 +166,6 @@ class AuthTest {
                     LocalDate.of(1990, 1, 1),
                     "test@example.com",
                     "PASSWORD123!", // 소문자 없음
-                    "https://example.com/profile.jpg",
                     "홍길동123",
                     "안녕하세요"
             );
@@ -194,7 +187,6 @@ class AuthTest {
                     LocalDate.of(1990, 1, 1),
                     "test@example.com",
                     "Password!", // 숫자 없음
-                    "https://example.com/profile.jpg",
                     "홍길동123",
                     "안녕하세요"
             );
@@ -216,7 +208,6 @@ class AuthTest {
                     LocalDate.of(1990, 1, 1),
                     "test@example.com",
                     "Password123", // 특수문자 없음
-                    "https://example.com/profile.jpg",
                     "홍길동123",
                     "안녕하세요"
             );
@@ -238,7 +229,6 @@ class AuthTest {
                     LocalDate.of(1990, 1, 1),
                     "test@example.com",
                     "Password123!", // 올바른 비밀번호 형식
-                    "https://example.com/profile.jpg",
                     "홍길동123",
                     "안녕하세요"
             );
