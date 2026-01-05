@@ -15,8 +15,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/auth")
@@ -50,10 +52,13 @@ public class AuthController {
         mailVerificationService.verifyEmailWithCode(request);
     }
 
-    @PostMapping("/signup")
+    @PostMapping(value = "/signup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public void signup(@Valid @RequestBody SignupRequestDto request) {
-        authService.signup(request);
+    public void signup(
+            @RequestPart("signupRequest") @Valid SignupRequestDto request,
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) {
+        authService.signup(request, image);
     }
 
     @PostMapping("/login")
