@@ -71,6 +71,7 @@ public class AuthControllerTest extends ControllerTestSupport {
                                 .summary("인증코드 이메일 발송")
                                 .description("이메일 주소로 인증코드를 발송합니다.")
                                 .requestFields(
+                                        fieldWithPath("originalEmail").optional().description("null로 설정"),
                                         fieldWithPath("email").type(JsonFieldType.STRING).description("이메일"),
                                         fieldWithPath("emailPurpose").type(JsonFieldType.STRING).description("이메일 인증코드 전송 목적(SIGNUP, PASSWORD_RESET)")
                                 )
@@ -100,6 +101,7 @@ public class AuthControllerTest extends ControllerTestSupport {
                                 .summary("인증코드 이메일 발송")
                                 .description("이메일 주소로 인증코드를 발송합니다.")
                                 .requestFields(
+                                        fieldWithPath("originalEmail").optional().description("null로 설정"),
                                         fieldWithPath("email").type(JsonFieldType.STRING).description("이메일"),
                                         fieldWithPath("emailPurpose").type(JsonFieldType.STRING).description("이메일 인증코드 전송 목적(SIGNUP, PASSWORD_RESET)")
                                 )

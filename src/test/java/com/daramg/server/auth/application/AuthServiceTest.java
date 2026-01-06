@@ -7,6 +7,7 @@ import com.daramg.server.auth.dto.TokenResponseDto;
 import com.daramg.server.auth.exception.AuthErrorStatus;
 import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.user.domain.User;
+import com.daramg.server.user.domain.UserStatus;
 import com.daramg.server.user.repository.UserRepository;
 import com.daramg.server.testsupport.support.ServiceTestSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -75,11 +76,9 @@ public class AuthServiceTest extends ServiceTestSupport {
             assertThat(savedUser.getName()).isEqualTo(signupDto.getName());
             assertThat(savedUser.getBirthDate()).isEqualTo(signupDto.getBirthdate());
             assertThat(savedUser.getEmail()).isEqualTo(signupDto.getEmail());
-            // 비밀번호 암호화 정책으로 인해 원문과 같지 않을 수 있음 (기존 테스트 유지)
-            // 이미지가 없으면 기본 이미지가 사용됨
-            assertThat(savedUser.getProfileImage()).isNotNull();
             assertThat(savedUser.getNickname()).isEqualTo(signupDto.getNickname());
             assertThat(savedUser.getBio()).isEqualTo(signupDto.getBio());
+            assertThat(savedUser.getUserStatus()).isEqualTo(UserStatus.ACTIVE);
         }
     }
 
@@ -109,7 +108,6 @@ public class AuthServiceTest extends ServiceTestSupport {
 
             //then
             User updatedUser = userRepository.findById(localUser.getId()).orElseThrow();
-            // 암호화 검증은 별도 테스트에서 추가 테스트
             assertThat(passwordEncoder.matches(newPassword, updatedUser.getPassword())).isTrue();
         }
     }
