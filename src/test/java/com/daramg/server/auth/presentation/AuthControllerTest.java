@@ -238,6 +238,7 @@ public class AuthControllerTest extends ControllerTestSupport {
                 "hamster@gmail.com", "Hoshi0615!");
 
         TokenResponseDto tokens = new TokenResponseDto(
+                1L,
                 "access-token-123",
                 "refresh-token-456"
         );
@@ -265,6 +266,11 @@ public class AuthControllerTest extends ControllerTestSupport {
                                         fieldWithPath("email").type(JsonFieldType.STRING).description("이메일"),
                                         fieldWithPath("password").type(JsonFieldType.STRING).description("비밀번호 (영어 대/소문자, 숫자, 특수문자 포함 10자 이상)")
                                 )
+                                .responseFields(
+                                        fieldWithPath("userId").type(JsonFieldType.NUMBER).description("유저 ID"),
+                                        fieldWithPath("accessToken").type(JsonFieldType.STRING).description("액세스 토큰 (JWT)"),
+                                        fieldWithPath("refreshToken").type(JsonFieldType.STRING).description("리프레시 토큰 (JWT)")
+                                )
                                 .build()
                         ),
                         responseCookies(
@@ -278,6 +284,7 @@ public class AuthControllerTest extends ControllerTestSupport {
     void 토큰_갱신() throws Exception {
         // given
         TokenResponseDto tokens = new TokenResponseDto(
+                1L,
                 "new-access-token-789",
                 "refresh-token-456"
         );

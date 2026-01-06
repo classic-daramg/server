@@ -99,7 +99,7 @@ public class AuthService {
                 .orElseThrow(() -> new BusinessException(AuthErrorStatus.USER_NOT_FOUND_EXCEPTION));
 
         String newAccessToken = jwtTokenProvider.createAccessToken(user);
-        return new TokenResponseDto(newAccessToken, refreshToken);
+        return new TokenResponseDto(user.getId(), newAccessToken, refreshToken);
     }
 
     public void logout(User user){

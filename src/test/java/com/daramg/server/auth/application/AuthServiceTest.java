@@ -192,6 +192,7 @@ public class AuthServiceTest extends ServiceTestSupport {
             TokenResponseDto result = authService.login(loginDto);
 
             //then
+            assertThat(result.getUserId()).isEqualTo(user.getId());
             assertThat(result.getAccessToken()).isNotNull();
             assertThat(result.getRefreshToken()).isNotNull();
         }
@@ -284,6 +285,7 @@ public class AuthServiceTest extends ServiceTestSupport {
             TokenResponseDto result = authService.refreshAccessToken(validRefreshToken);
 
             //then
+            assertThat(result.getUserId()).isEqualTo(user.getId());
             assertThat(result.getAccessToken()).isNotNull();
             assertThat(result.getRefreshToken()).isEqualTo(validRefreshToken);
         }
