@@ -3,7 +3,10 @@ package com.daramg.server.user.presentation;
 import com.daramg.server.user.application.UserService;
 import com.daramg.server.testsupport.support.ControllerTestSupport;
 import com.daramg.server.user.domain.User;
+import com.daramg.server.user.dto.EmailChangeRequestDto;
+import com.daramg.server.user.dto.PasswordRequestDto;
 import com.daramg.server.user.dto.UserProfileResponseDto;
+import com.daramg.server.user.dto.UserProfileUpdateRequestDto;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
@@ -24,6 +27,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWit
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -191,6 +195,111 @@ public class UserControllerTest extends ControllerTestSupport {
                                 )
                                 .responseFields(
                                         fieldWithPath("유저 이메일 일치 여부 ").type(JsonFieldType.BOOLEAN).description("이메일 일치 여부 (true: 일치, false: 불일치)")
+                                )
+                                .build()
+                        ),
+                        requestCookies(
+                                cookieWithName(COOKIE_NAME).description("유저의 토큰")
+                        )
+                ));
+    }
+
+    @Test
+    void 유저_프로필을_수정한다() throws Exception {
+        // given
+        UserProfileUpdateRequestDto requestDto = new UserProfileUpdateRequestDto(
+                "https://example.com/new-profile.jpg",
+                "새닉네임",
+                "새로운 소개글"
+        );
+        willDoNothing().given(userService).updateUserProfile(any(User.class), any(UserProfileUpdateRequestDto.class));
+
+        Cookie cookie = new Cookie(COOKIE_NAME, "access_token");
+
+        // when
+        ResultActions result = mockMvc.perform(put("/users/profile")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto))
+                .cookie(cookie)
+        );
+
+        // then
+        result.andExpect(status().isOk())
+                .andDo(restDocsHandler.document(
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("User API")
+                                .summary("유저 프로필 수정")
+                                .description("현재 로그인한 유저의 프로필 정보(프로필 이미지, 닉네임, 자기소개)를 수정합니다.")
+                                .requestFields(
+                                        fieldWithPath("profileImageUrl").type(JsonFieldType.STRING).description("프로필 이미지 URL").optional(),
+                                        fieldWithPath("nickname").type(JsonFieldType.STRING).description("닉네임 (2~8자의 한글, 영문, 숫자와 일부 특수문자(_, .)만 사용 가능)"),
+                                        fieldWithPath("bio").type(JsonFieldType.STRING).description("자기소개 (12자 이하)").optional()
+                                )
+                                .build()
+                        ),
+                        requestCookies(
+                                cookieWithName(COOKIE_NAME).description("유저의 토큰")
+                        )
+                ));
+    }
+
+    @Test
+    void 유저_이메일을_변경한다() throws Exception {
+        // given
+        EmailChangeRequestDto requestDto = new EmailChangeRequestDto("newemail@example.com");
+        willDoNothing().given(userService).changeUserEmail(any(User.class), any(EmailChangeRequestDto.class));
+
+        Cookie cookie = new Cookie(COOKIE_NAME, "access_token");
+
+        // when
+        ResultActions result = mockMvc.perform(post("/users/change-email")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto))
+                .cookie(cookie)
+        );
+
+        // then
+        result.andExpect(status().isOk())
+                .andDo(restDocsHandler.document(
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("User API")
+                                .summary("유저 이메일 변경")
+                                .description("현재 로그인한 유저의 이메일 주소를 변경합니다.")
+                                .requestFields(
+                                        fieldWithPath("email").type(JsonFieldType.STRING).description("변경할 이메일 주소")
+                                )
+                                .build()
+                        ),
+                        requestCookies(
+                                cookieWithName(COOKIE_NAME).description("유저의 토큰")
+                        )
+                ));
+    }
+
+    @Test
+    void 유저_비밀번호를_변경한다() throws Exception {
+        // given
+        PasswordRequestDto requestDto = new PasswordRequestDto("NewPassword123!");
+        willDoNothing().given(userService).changeUserPassword(any(User.class), any(PasswordRequestDto.class));
+
+        Cookie cookie = new Cookie(COOKIE_NAME, "access_token");
+
+        // when
+        ResultActions result = mockMvc.perform(post("/users/change-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto))
+                .cookie(cookie)
+        );
+
+        // then
+        result.andExpect(status().isOk())
+                .andDo(restDocsHandler.document(
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("User API")
+                                .summary("유저 비밀번호 변경")
+                                .description("현재 로그인한 유저의 비밀번호를 변경합니다. 비밀번호는 영어 대문자와 소문자, 숫자, 특수문자를 모두 포함하여 10자 이상이어야 합니다.")
+                                .requestFields(
+                                        fieldWithPath("password").type(JsonFieldType.STRING).description("변경할 비밀번호 (영어 대문자, 소문자, 숫자, 특수문자 포함, 10자 이상)")
                                 )
                                 .build()
                         ),
