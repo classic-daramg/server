@@ -87,6 +87,12 @@ public class User extends BaseEntity<User> {
                 .build();
     }
 
+    public void update(UpdateVo vo){
+        this.nickname = vo.getNickname();
+        this.bio = vo.getBio();
+        this.profileImage = vo.getProfileImage();
+    }
+
     public void changePassword(String password){
         this.password = password;
     }
@@ -112,11 +118,15 @@ public class User extends BaseEntity<User> {
     }
 
     public void withdraw(){
-        deletedAt = LocalDateTime.now();
-        userStatus = UserStatus.DELETED;
+        this.deletedAt = LocalDateTime.now();
+        this.userStatus = UserStatus.DELETED;
     }
 
     public boolean isActive() {
         return userStatus == UserStatus.ACTIVE;
+    }
+
+    public void changeEmail(String email) {
+        this.email = email;
     }
 }

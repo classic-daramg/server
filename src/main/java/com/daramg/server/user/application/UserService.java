@@ -2,12 +2,17 @@ package com.daramg.server.user.application;
 
 import com.daramg.server.common.application.EntityUtils;
 import com.daramg.server.common.exception.BusinessException;
+import com.daramg.server.user.domain.UpdateVo;
 import com.daramg.server.user.domain.User;
 import com.daramg.server.user.domain.UserFollow;
+import com.daramg.server.user.dto.EmailChangeRequestDto;
+import com.daramg.server.user.dto.PasswordRequestDto;
 import com.daramg.server.user.dto.UserProfileResponseDto;
+import com.daramg.server.user.dto.UserProfileUpdateRequestDto;
 import com.daramg.server.user.repository.UserRepository;
 import com.daramg.server.user.repository.UserFollowRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +23,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserFollowRepository userFollowRepository;
     private final EntityUtils entityUtils;
+    private final PasswordEncoder passwordEncoder;
 
     public boolean isNicknameAvailable(String nickName) {
         return !userRepository.existsByNickname(nickName);
@@ -29,6 +35,37 @@ public class UserService {
 
     public boolean verifyUserEmail(User user, String email) {
         return user.getEmail().equals(email);
+    }
+
+    public boolean verifyUserPassword(User user, PasswordRequestDto request) {
+        return passwordEncoder.matches(request.getPassword(), user.getPassword());
+    }
+
+    @Transactional
+    public void changeUserEmail(User user, EmailChangeRequestDto request) {
+        if (user.getEmail().equals(request.getEmail())){
+            throw new BusinessException("기존 이메일과 동일한 이메일로 변경할 수 없습니다.");
+        }
+        if (userRepository.existsByEmail(request.getEmail())){
+            throw new BusinessException("이미 가입되어 있는 이메일입니다.");
+        }
+        user.changeEmail(request.getEmail());
+    }
+
+    @Transactional
+    public void changeUserPassword(User user, PasswordRequestDto request) {
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+        user.changePassword(encodedPassword);
+    }
+
+    @Transactional
+    public void updateUserProfile(User user, UserProfileUpdateRequestDto request){
+        UpdateVo vo = new UpdateVo(
+                request.getProfileImageUrl(),
+                request.getNickname(),
+                request.getBio()
+        );
+        user.update(vo);
     }
 
     @Transactional

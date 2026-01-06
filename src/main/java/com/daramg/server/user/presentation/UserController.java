@@ -2,7 +2,11 @@ package com.daramg.server.user.presentation;
 
 import com.daramg.server.user.application.UserService;
 import com.daramg.server.user.domain.User;
+import com.daramg.server.user.dto.EmailChangeRequestDto;
+import com.daramg.server.user.dto.PasswordRequestDto;
 import com.daramg.server.user.dto.UserProfileResponseDto;
+import com.daramg.server.user.dto.UserProfileUpdateRequestDto;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -43,6 +47,31 @@ public class UserController {
             @RequestParam String email, User user) {
         boolean isValid = userService.verifyUserEmail(user, email);
         return ResponseEntity.ok(Map.of("유저 이메일 일치 여부 ", isValid));
+    }
+
+    @GetMapping("/verify-user-password")
+    public ResponseEntity<Map<String, Boolean>> verifyUserPassword(
+            @RequestBody @Valid PasswordRequestDto request, User user) {
+        boolean isValid = userService.verifyUserPassword(user, request);
+        return ResponseEntity.ok(Map.of("유저 비밀번호 일치 여부 ", isValid));
+    }
+
+    @PutMapping("/profile")
+    @ResponseStatus(HttpStatus.OK)
+    public void updateUserProfile(User user, @RequestBody @Valid UserProfileUpdateRequestDto request) {
+        userService.updateUserProfile(user, request);
+    }
+
+    @PostMapping("/change-email")
+    @ResponseStatus(HttpStatus.OK)
+    public void changeUserEmail(User user, @RequestBody @Valid EmailChangeRequestDto request) {
+        userService.changeUserEmail(user, request);
+    }
+
+    @PostMapping("/change-password")
+    @ResponseStatus(HttpStatus.OK)
+    public void changeUserPassword(User user, @RequestBody @Valid PasswordRequestDto request) {
+        userService.changeUserPassword(user, request);
     }
 
     @PostMapping("/following/{followedId}")
