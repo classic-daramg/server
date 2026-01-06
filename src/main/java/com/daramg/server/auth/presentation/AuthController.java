@@ -7,6 +7,7 @@ import com.daramg.server.auth.exception.AuthErrorStatus;
 import com.daramg.server.auth.util.CookieUtil;
 import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.user.domain.User;
+import com.daramg.server.user.dto.PasswordRequestDto;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -79,8 +80,8 @@ public class AuthController {
 
     @DeleteMapping("/signout")
     @ResponseStatus(HttpStatus.OK)
-    public void signOut(HttpServletResponse response, User user) {
-        authService.signOut(user);
+    public void signOut(@RequestBody @Valid PasswordRequestDto request, HttpServletResponse response, User user) {
+        authService.signOut(user, request);
         clearAuthCookies(response);
     }
 
@@ -101,7 +102,7 @@ public class AuthController {
      */
     @PutMapping("/password-reset")
     @ResponseStatus(HttpStatus.OK)
-    public void resetPassword(@Valid @RequestBody PasswordRequestDto request, HttpServletResponse response){
+    public void resetPassword(@Valid @RequestBody com.daramg.server.auth.dto.PasswordRequestDto request, HttpServletResponse response){
         authService.resetPassword(request);
         clearAuthCookies(response);
     }

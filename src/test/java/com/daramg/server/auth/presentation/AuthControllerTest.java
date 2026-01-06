@@ -346,10 +346,18 @@ public class AuthControllerTest extends ControllerTestSupport {
     @Test
     void 회원탈퇴() throws Exception {
         // given
-        doNothing().when(authService).signOut(any(User.class));
+        doNothing().when(authService).signOut(
+                any(User.class),
+                any(com.daramg.server.user.dto.PasswordRequestDto.class)
+        );
+
+        com.daramg.server.user.dto.PasswordRequestDto request =
+                new com.daramg.server.user.dto.PasswordRequestDto("Password123!");
 
         // when
         ResultActions result = mockMvc.perform(delete("/auth/signout")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
                 .cookie(new Cookie(COOKIE_NAME, "access_token")));
 
         // then

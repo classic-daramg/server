@@ -106,7 +106,10 @@ public class AuthService {
         redisTemplate.delete(user.getEmail());
     }
 
-    public void signOut(User user){
+    public void signOut(User user, com.daramg.server.user.dto.PasswordRequestDto request){
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new BusinessException("비밀번호가 일치하지 않습니다.");
+        }
         redisTemplate.delete(user.getEmail());
         user.withdraw();
     }

@@ -362,8 +362,11 @@ public class AuthServiceTest extends ServiceTestSupport {
                     "withdrawUser", "안녕하세요", null);
             userRepository.save(testUser);
 
+            com.daramg.server.user.dto.PasswordRequestDto request =
+                    new com.daramg.server.user.dto.PasswordRequestDto("Password123!");
+
             //when
-            authService.signOut(testUser);
+            authService.signOut(testUser, request);
 
             //then
             User withdrawnUser = userRepository.findById(testUser.getId()).orElseThrow();
@@ -380,8 +383,11 @@ public class AuthServiceTest extends ServiceTestSupport {
                     "inactiveUser", "안녕하세요", null);
             userRepository.save(testUser);
 
+            com.daramg.server.user.dto.PasswordRequestDto request =
+                    new com.daramg.server.user.dto.PasswordRequestDto("Password123!");
+
             //when
-            authService.signOut(testUser);
+            authService.signOut(testUser, request);
 
             //then
             User withdrawnUser = userRepository.findById(testUser.getId()).orElseThrow();
