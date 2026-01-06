@@ -3,6 +3,7 @@ package com.daramg.server.user.application;
 import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.common.exception.NotFoundException;
 import com.daramg.server.user.domain.User;
+import com.daramg.server.user.dto.UserProfileResponseDto;
 import com.daramg.server.user.repository.UserRepository;
 import com.daramg.server.user.repository.UserFollowRepository;
 import com.daramg.server.testsupport.support.ServiceTestSupport;
@@ -39,6 +40,44 @@ public class UserServiceTest extends ServiceTestSupport {
         
         userRepository.save(follower);
         userRepository.save(followed);
+    }
+
+    @Nested
+    @DisplayName("프로필 조회 테스트")
+    class ProfileTest {
+        @Test
+        void 유저_프로필을_정상적으로_조회한다() {
+            //given
+            String profileImage = "https://example.com/profile.jpg";
+            String nickname = "테스트닉네임";
+            String bio = "테스트 소개글";
+            User user = new User("test@email.com", "password", "테스트", LocalDate.now(), profileImage, nickname, bio, null);
+            userRepository.save(user);
+
+            //when
+            UserProfileResponseDto result = userService.getProfile(user);
+
+            //then
+            assertThat(result.profileImage()).isEqualTo(profileImage);
+            assertThat(result.nickname()).isEqualTo(nickname);
+            assertThat(result.bio()).isEqualTo(bio);
+        }
+
+        @Test
+        void 프로필_이미지와_소개글이_null인_유저의_프로필을_조회한다() {
+            //given
+            String nickname = "테스트닉네임";
+            User user = new User("test@email.com", "password", "테스트", LocalDate.now(), null, nickname, null, null);
+            userRepository.save(user);
+
+            //when
+            UserProfileResponseDto result = userService.getProfile(user);
+
+            //then
+            assertThat(result.profileImage()).isNull();
+            assertThat(result.nickname()).isEqualTo(nickname);
+            assertThat(result.bio()).isNull();
+        }
     }
 
     @Nested

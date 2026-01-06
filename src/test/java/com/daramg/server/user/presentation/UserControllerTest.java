@@ -3,6 +3,7 @@ package com.daramg.server.user.presentation;
 import com.daramg.server.user.application.UserService;
 import com.daramg.server.testsupport.support.ControllerTestSupport;
 import com.daramg.server.user.domain.User;
+import com.daramg.server.user.dto.UserProfileResponseDto;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
@@ -58,6 +59,43 @@ public class UserControllerTest extends ControllerTestSupport {
                                         fieldWithPath("닉네임 사용 가능 유무: ").type(JsonFieldType.BOOLEAN).description("닉네임 사용 가능 여부 (true: 사용 가능, false: 사용 불가능)")
                                 )
                                 .build()
+                        )
+                ));
+    }
+
+    @Test
+    void 유저_프로필을_조회한다() throws Exception {
+        // given
+        String profileImage = "https://example.com/profile.jpg";
+        String nickname = "테스트닉네임";
+        String bio = "테스트 소개글";
+        UserProfileResponseDto responseDto = new UserProfileResponseDto(profileImage, nickname, bio);
+        given(userService.getProfile(any(User.class))).willReturn(responseDto);
+
+        Cookie cookie = new Cookie(COOKIE_NAME, "access_token");
+
+        // when
+        ResultActions result = mockMvc.perform(get("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .cookie(cookie)
+        );
+
+        // then
+        result.andExpect(status().isOk())
+                .andDo(restDocsHandler.document(
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("User API")
+                                .summary("유저 프로필 조회")
+                                .description("현재 로그인한 유저의 프로필 정보를 조회합니다.")
+                                .responseFields(
+                                        fieldWithPath("profileImage").type(JsonFieldType.STRING).description("프로필 이미지 URL").optional(),
+                                        fieldWithPath("nickname").type(JsonFieldType.STRING).description("닉네임"),
+                                        fieldWithPath("bio").type(JsonFieldType.STRING).description("자기소개").optional()
+                                )
+                                .build()
+                        ),
+                        requestCookies(
+                                cookieWithName(COOKIE_NAME).description("유저의 토큰")
                         )
                 ));
     }
