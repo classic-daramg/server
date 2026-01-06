@@ -27,6 +27,10 @@ public class UserService {
         return UserProfileResponseDto.from(user);
     }
 
+    public boolean verifyUserEmail(User user, String email) {
+        return user.getEmail().equals(email);
+    }
+
     @Transactional
     public void follow(User follower, Long followedId) {
         if (follower.getId().equals(followedId)) {

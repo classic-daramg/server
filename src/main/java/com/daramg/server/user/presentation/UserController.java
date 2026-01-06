@@ -38,6 +38,13 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/verify-user-email")
+    public ResponseEntity<Map<String, Boolean>> verifyUserEmail(
+            @RequestParam String email, User user) {
+        boolean isValid = userService.verifyUserEmail(user, email);
+        return ResponseEntity.ok(Map.of("유저 이메일 일치 여부 ", isValid));
+    }
+
     @PostMapping("/following/{followedId}")
     @ResponseStatus(HttpStatus.OK)
     public void follow(@PathVariable Long followedId, User follower) {
