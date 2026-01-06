@@ -54,7 +54,7 @@ public class AuthControllerTest extends ControllerTestSupport {
     @Test
     void 회원가입을_위한_인증코드_메일_발송() throws Exception {
         // given
-        EmailVerificationRequestDto request = new EmailVerificationRequestDto("daramg123@gmail.com", EmailPurpose.SIGNUP);
+        EmailVerificationRequestDto request = new EmailVerificationRequestDto(null, "daramg123@gmail.com", EmailPurpose.SIGNUP);
 
         doNothing().when(mailVerificationService).sendVerificationEmail(any(EmailVerificationRequestDto.class));
 
@@ -83,7 +83,7 @@ public class AuthControllerTest extends ControllerTestSupport {
     @Test
     void 비밀번호_초기화를_위한_인증코드_메일_발송() throws Exception {
         // given
-        EmailVerificationRequestDto request = new EmailVerificationRequestDto("daramg123@gmail.com", EmailPurpose.PASSWORD_RESET);
+        EmailVerificationRequestDto request = new EmailVerificationRequestDto(null, "daramg123@gmail.com", EmailPurpose.PASSWORD_RESET);
 
         doNothing().when(mailVerificationService).sendVerificationEmail(any(EmailVerificationRequestDto.class));
 

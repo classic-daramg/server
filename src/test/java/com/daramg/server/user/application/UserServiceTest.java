@@ -109,6 +109,34 @@ public class UserServiceTest extends ServiceTestSupport {
     }
 
     @Nested
+    @DisplayName("유저 이메일 검증 테스트")
+    class VerifyUserEmailTest {
+        @Test
+        void 유저의_이메일과_입력한_이메일이_일치하면_true를_반환한다() {
+            //given
+            String userEmail = follower.getEmail();
+
+            //when
+            boolean result = userService.verifyUserEmail(follower, userEmail);
+
+            //then
+            assertThat(result).isTrue();
+        }
+
+        @Test
+        void 유저의_이메일과_입력한_이메일이_일치하지_않으면_false를_반환한다() {
+            //given
+            String differentEmail = "different@email.com";
+
+            //when
+            boolean result = userService.verifyUserEmail(follower, differentEmail);
+
+            //then
+            assertThat(result).isFalse();
+        }
+    }
+
+    @Nested
     @DisplayName("팔로우 정상 테스트")
     class FollowSuccessTest {
         @Test

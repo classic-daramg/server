@@ -163,4 +163,40 @@ public class UserControllerTest extends ControllerTestSupport {
                         )
                 ));
     }
+
+    @Test
+    void 유저_이메일을_검증한다() throws Exception {
+        // given
+        String email = "test@email.com";
+        given(userService.verifyUserEmail(any(User.class), eq(email))).willReturn(true);
+
+        Cookie cookie = new Cookie(COOKIE_NAME, "access_token");
+
+        // when
+        ResultActions result = mockMvc.perform(get("/users/verify-user-email")
+                .param("email", email)
+                .contentType(MediaType.APPLICATION_JSON)
+                .cookie(cookie)
+        );
+
+        // then
+        result.andExpect(status().isOk())
+                .andDo(restDocsHandler.document(
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("User API")
+                                .summary("유저 이메일 검증")
+                                .description("현재 로그인한 유저의 이메일과 입력한 이메일이 일치하는지 확인합니다.")
+                                .queryParameters(
+                                        parameterWithName("email").description("검증할 이메일 주소")
+                                )
+                                .responseFields(
+                                        fieldWithPath("유저 이메일 일치 여부 ").type(JsonFieldType.BOOLEAN).description("이메일 일치 여부 (true: 일치, false: 불일치)")
+                                )
+                                .build()
+                        ),
+                        requestCookies(
+                                cookieWithName(COOKIE_NAME).description("유저의 토큰")
+                        )
+                ));
+    }
 }
