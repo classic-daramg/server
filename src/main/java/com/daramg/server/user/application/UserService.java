@@ -4,6 +4,7 @@ import com.daramg.server.common.application.EntityUtils;
 import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.user.domain.User;
 import com.daramg.server.user.domain.UserFollow;
+import com.daramg.server.user.dto.UserProfileResponseDto;
 import com.daramg.server.user.repository.UserRepository;
 import com.daramg.server.user.repository.UserFollowRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,10 @@ public class UserService {
 
     public boolean isNicknameAvailable(String nickName) {
         return !userRepository.existsByNickname(nickName);
+    }
+
+    public UserProfileResponseDto getProfile(User user) {
+        return UserProfileResponseDto.from(user);
     }
 
     @Transactional

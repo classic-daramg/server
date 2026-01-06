@@ -2,6 +2,7 @@ package com.daramg.server.user.presentation;
 
 import com.daramg.server.user.application.UserService;
 import com.daramg.server.user.domain.User;
+import com.daramg.server.user.dto.UserProfileResponseDto;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,12 @@ public class UserController {
             String nickname) {
         boolean isAvailable = userService.isNicknameAvailable(nickname);
         return ResponseEntity.ok(Map.of("닉네임 사용 가능 유무: ", isAvailable));
+    }
+
+    @GetMapping
+    public ResponseEntity<UserProfileResponseDto> getProfile(User user) {
+        UserProfileResponseDto response = userService.getProfile(user);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/following/{followedId}")
