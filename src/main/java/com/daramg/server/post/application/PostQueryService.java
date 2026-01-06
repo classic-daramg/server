@@ -58,4 +58,40 @@ public class PostQueryService {
                 Post::getId
         );
     }
+
+    public PageResponseDto<PostResponseDto> getUserPublishedPosts(Long userId, PageRequestDto pageRequest){
+        List<Post> posts = postQueryRepository.getUserPublishedPostsWithPaging(userId, pageRequest);
+
+        return pagingUtils.createPageResponse(
+                posts,
+                pageRequest.getValidatedSize(),
+                PostResponseDto::from,
+                Post::getCreatedAt,
+                Post::getId
+        );
+    }
+
+    public PageResponseDto<PostResponseDto> getUserDraftPosts(Long userId, PageRequestDto pageRequest){
+        List<Post> posts = postQueryRepository.getUserDraftPostsWithPaging(userId, pageRequest);
+
+        return pagingUtils.createPageResponse(
+                posts,
+                pageRequest.getValidatedSize(),
+                PostResponseDto::from,
+                Post::getCreatedAt,
+                Post::getId
+        );
+    }
+
+    public PageResponseDto<PostResponseDto> getUserScrappedPosts(Long userId, PageRequestDto pageRequest){
+        List<Post> posts = postQueryRepository.getUserScrappedPostsWithPaging(userId, pageRequest);
+
+        return pagingUtils.createPageResponse(
+                posts,
+                pageRequest.getValidatedSize(),
+                PostResponseDto::from,
+                Post::getCreatedAt,
+                Post::getId
+        );
+    }
 }
