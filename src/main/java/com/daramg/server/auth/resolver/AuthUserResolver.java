@@ -1,5 +1,7 @@
 package com.daramg.server.auth.resolver;
 
+import com.daramg.server.auth.exception.AuthErrorStatus;
+import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -39,6 +41,9 @@ public class AuthUserResolver implements HandlerMethodArgumentResolver {
 
         Object principal = auth.getPrincipal();
         if (principal instanceof User user) {
+            if (!user.isActive()) {
+                throw new BusinessException(AuthErrorStatus.USER_NOT_ACTIVE);
+            }
             return user;
         }
         return null; // principal이 User가 아닌 경우 null 반환 (비로그인 사용자)
