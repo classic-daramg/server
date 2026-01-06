@@ -34,6 +34,7 @@ public class MailVerificationServiceImpl implements MailVerificationService{
         switch (request.getEmailPurpose()) {
             case SIGNUP -> sendForSignup(request);
             case PASSWORD_RESET -> sendForPasswordReset(request);
+            case EMAIL_CHANGE -> sendForEmailChange(request);
             default -> throw new BusinessException("지원하지 않는 이메일 발송 목적입니다.");
         }
     }
@@ -45,6 +46,14 @@ public class MailVerificationServiceImpl implements MailVerificationService{
     private void sendForPasswordReset(EmailVerificationRequestDto request) {
         if (!userRepository.existsByEmail(request.getEmail())){
             throw new BusinessException(AuthErrorStatus.EMAIL_NOT_REGISTERED);
+        }
+        sendVerificationCode(request);
+    }
+
+    private void sendForEmailChange(EmailVerificationRequestDto request) {
+        if (userRepository.existsByEmail(request.getEmail())
+                && !request.getEmail().equals(request.getOriginalEmail())) {
+            throw new BusinessException("이미 가입되어 있는 이메일입니다.");
         }
         sendVerificationCode(request);
     }
@@ -92,7 +101,7 @@ public class MailVerificationServiceImpl implements MailVerificationService{
             throw new BusinessException(AuthErrorStatus.REDIS_CONNECTION_FAILED);
         } catch (Exception e) {
             // Redis 관련 기타 예외 처리 (RedisSystemException, ConnectException 등)
-            if (e.getCause() instanceof java.net.ConnectException || 
+            if (e.getCause() instanceof java.net.ConnectException ||
                 e.getMessage() != null && e.getMessage().contains("Redis") ||
                 e.getClass().getName().contains("Redis")) {
                 log.error("Redis 연결 오류: ", e);

@@ -16,6 +16,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+import static com.daramg.server.post.domain.QPost.post;
+import static com.daramg.server.post.domain.QPostScrap.postScrap;
 import static com.daramg.server.post.domain.QCurationPost.curationPost;
 import static com.daramg.server.post.domain.QFreePost.freePost;
 import static com.daramg.server.post.domain.QStoryPost.storyPost;
@@ -41,6 +43,64 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
     @Override
     public List<StoryPost> getAllStoryPostsWithPaging(PageRequestDto pageRequest) {
         return getAllPostsWithPaging(pageRequest, storyPost, storyPost._super);
+    }
+
+    @Override
+    public List<Post> getUserPublishedPostsWithPaging(Long userId, PageRequestDto pageRequest) {
+        JPAQuery<Post> query = queryFactory
+                .selectFrom(post)
+                .leftJoin(post.user, user).fetchJoin()
+                .where(
+                        post.user.id.eq(userId)
+                                .and(post.postStatus.eq(PostStatus.PUBLISHED))
+                                .and(post.isBlocked.isFalse())
+                );
+
+        return pagingUtils.applyCursorPagination(
+                query,
+                pageRequest,
+                post.createdAt,
+                post.id
+        );
+    }
+
+    @Override
+    public List<Post> getUserDraftPostsWithPaging(Long userId, PageRequestDto pageRequest) {
+        JPAQuery<Post> query = queryFactory
+                .selectFrom(post)
+                .leftJoin(post.user, user).fetchJoin()
+                .where(
+                        post.user.id.eq(userId)
+                                .and(post.postStatus.eq(PostStatus.DRAFT))
+                                .and(post.isBlocked.isFalse())
+                );
+
+        return pagingUtils.applyCursorPagination(
+                query,
+                pageRequest,
+                post.createdAt,
+                post.id
+        );
+    }
+
+    @Override
+    public List<Post> getUserScrappedPostsWithPaging(Long userId, PageRequestDto pageRequest) {
+        JPAQuery<Post> query = queryFactory
+                .selectFrom(post)
+                .innerJoin(postScrap).on(postScrap.post.id.eq(post.id))
+                .leftJoin(post.user, user).fetchJoin()
+                .where(
+                        postScrap.user.id.eq(userId)
+                                .and(post.postStatus.eq(PostStatus.PUBLISHED))
+                                .and(post.isBlocked.isFalse())
+                );
+
+        return pagingUtils.applyCursorPagination(
+                query,
+                pageRequest,
+                post.createdAt,
+                post.id
+        );
     }
 
     private <T extends Post> List<T> getAllPostsWithPaging(

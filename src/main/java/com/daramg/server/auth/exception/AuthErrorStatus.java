@@ -21,6 +21,7 @@ public enum AuthErrorStatus implements BaseErrorCode {
     TOKEN_EXPIRED_EXCEPTION(HttpStatus.UNAUTHORIZED, ErrorCategory.AUTH.generate(401_1), "만료된 토큰입니다."),
     INVALID_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED, ErrorCategory.AUTH.generate(401_2), "유효하지 않은 토큰입니다."),
     INVALID_COOKIE_EXCEPTION(HttpStatus.UNAUTHORIZED, ErrorCategory.AUTH.generate(401_3), "유효하지 않은 쿠키입니다."),
+    USER_NOT_ACTIVE(HttpStatus.UNAUTHORIZED, ErrorCategory.AUTH.generate(401_4), "비활성화된 사용자입니다."),
 
     USER_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, ErrorCategory.AUTH.generate(404_1), "존재하지 않는 사용자입니다."),
 

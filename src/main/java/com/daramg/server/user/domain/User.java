@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.lang.NonNull;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,8 +52,11 @@ public class User extends BaseEntity<User> {
     @Column(name = "follower_count", nullable = false)
     private int followerCount = 0;
 
-    //TODO: 기본 이미지 저장
-    private static final String DEFAULT_PROFILE_IMAGE_URL = "https://default-image.png";
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_status", nullable = false)
+    private UserStatus userStatus;
+
+    private LocalDateTime deletedAt;
 
     @Builder
     public User(@NonNull String email, @NonNull String password, @NonNull String name,
@@ -66,12 +70,11 @@ public class User extends BaseEntity<User> {
         this.nickname = nickname;
         this.bio = bio;
         this.achievements = achievements != null ? achievements : new ArrayList<>();
+        this.userStatus = UserStatus.ACTIVE;
     }
 
     public static User from(SignupVo vo){
-        String profileImage = (vo.getProfileImage() == null || vo.getProfileImage().isBlank())
-                ? DEFAULT_PROFILE_IMAGE_URL
-                : vo.getProfileImage();
+        String profileImage = vo.getProfileImage();
 
         return User.builder()
                 .email(vo.getEmail())
@@ -82,6 +85,12 @@ public class User extends BaseEntity<User> {
                 .nickname(vo.getNickname())
                 .bio(vo.getBio())
                 .build();
+    }
+
+    public void update(UpdateVo vo){
+        this.nickname = vo.getNickname();
+        this.bio = vo.getBio();
+        this.profileImage = vo.getProfileImage();
     }
 
     public void changePassword(String password){
@@ -106,5 +115,18 @@ public class User extends BaseEntity<User> {
         if (followerCount > 0) {
             followerCount--;
         }
+    }
+
+    public void withdraw(){
+        this.deletedAt = LocalDateTime.now();
+        this.userStatus = UserStatus.DELETED;
+    }
+
+    public boolean isActive() {
+        return userStatus == UserStatus.ACTIVE;
+    }
+
+    public void changeEmail(String email) {
+        this.email = email;
     }
 }

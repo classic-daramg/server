@@ -54,7 +54,7 @@ public class AuthControllerTest extends ControllerTestSupport {
     @Test
     void 회원가입을_위한_인증코드_메일_발송() throws Exception {
         // given
-        EmailVerificationRequestDto request = new EmailVerificationRequestDto("daramg123@gmail.com", EmailPurpose.SIGNUP);
+        EmailVerificationRequestDto request = new EmailVerificationRequestDto(null, "daramg123@gmail.com", EmailPurpose.SIGNUP);
 
         doNothing().when(mailVerificationService).sendVerificationEmail(any(EmailVerificationRequestDto.class));
 
@@ -71,6 +71,7 @@ public class AuthControllerTest extends ControllerTestSupport {
                                 .summary("인증코드 이메일 발송")
                                 .description("이메일 주소로 인증코드를 발송합니다.")
                                 .requestFields(
+                                        fieldWithPath("originalEmail").optional().description("null로 설정"),
                                         fieldWithPath("email").type(JsonFieldType.STRING).description("이메일"),
                                         fieldWithPath("emailPurpose").type(JsonFieldType.STRING).description("이메일 인증코드 전송 목적(SIGNUP, PASSWORD_RESET)")
                                 )
@@ -83,7 +84,7 @@ public class AuthControllerTest extends ControllerTestSupport {
     @Test
     void 비밀번호_초기화를_위한_인증코드_메일_발송() throws Exception {
         // given
-        EmailVerificationRequestDto request = new EmailVerificationRequestDto("daramg123@gmail.com", EmailPurpose.PASSWORD_RESET);
+        EmailVerificationRequestDto request = new EmailVerificationRequestDto(null, "daramg123@gmail.com", EmailPurpose.PASSWORD_RESET);
 
         doNothing().when(mailVerificationService).sendVerificationEmail(any(EmailVerificationRequestDto.class));
 
@@ -100,6 +101,7 @@ public class AuthControllerTest extends ControllerTestSupport {
                                 .summary("인증코드 이메일 발송")
                                 .description("이메일 주소로 인증코드를 발송합니다.")
                                 .requestFields(
+                                        fieldWithPath("originalEmail").optional().description("null로 설정"),
                                         fieldWithPath("email").type(JsonFieldType.STRING).description("이메일"),
                                         fieldWithPath("emailPurpose").type(JsonFieldType.STRING).description("이메일 인증코드 전송 목적(SIGNUP, PASSWORD_RESET)")
                                 )
@@ -236,6 +238,7 @@ public class AuthControllerTest extends ControllerTestSupport {
                 "hamster@gmail.com", "Hoshi0615!");
 
         TokenResponseDto tokens = new TokenResponseDto(
+                1L,
                 "access-token-123",
                 "refresh-token-456"
         );
@@ -263,6 +266,11 @@ public class AuthControllerTest extends ControllerTestSupport {
                                         fieldWithPath("email").type(JsonFieldType.STRING).description("이메일"),
                                         fieldWithPath("password").type(JsonFieldType.STRING).description("비밀번호 (영어 대/소문자, 숫자, 특수문자 포함 10자 이상)")
                                 )
+                                .responseFields(
+                                        fieldWithPath("userId").type(JsonFieldType.NUMBER).description("유저 ID"),
+                                        fieldWithPath("accessToken").type(JsonFieldType.STRING).description("액세스 토큰 (JWT)"),
+                                        fieldWithPath("refreshToken").type(JsonFieldType.STRING).description("리프레시 토큰 (JWT)")
+                                )
                                 .build()
                         ),
                         responseCookies(
@@ -276,6 +284,7 @@ public class AuthControllerTest extends ControllerTestSupport {
     void 토큰_갱신() throws Exception {
         // given
         TokenResponseDto tokens = new TokenResponseDto(
+                1L,
                 "new-access-token-789",
                 "refresh-token-456"
         );
@@ -325,6 +334,36 @@ public class AuthControllerTest extends ControllerTestSupport {
                                 .tag("Auth API")
                                 .summary("로그아웃")
                                 .description("사용자를 로그아웃하고 인증 쿠키를 삭제합니다.")
+                                .build()
+                        ),
+                        responseCookies(
+                                cookieWithName(ACCESS_COOKIE_NAME).description("삭제된 액세스 토큰 쿠키"),
+                                cookieWithName(REFRESH_COOKIE_NAME).description("삭제된 리프레시 토큰 쿠키")
+                        )
+                ));
+    }
+
+    @Test
+    void 회원탈퇴() throws Exception {
+        // given
+        doNothing().when(authService).signOut(any(User.class));
+
+        // when
+        ResultActions result = mockMvc.perform(delete("/auth/signout")
+                .cookie(new Cookie(COOKIE_NAME, "access_token")));
+
+        // then
+        result
+                .andExpect(cookie().exists(ACCESS_COOKIE_NAME))
+                .andExpect(cookie().exists(REFRESH_COOKIE_NAME))
+                .andExpect(cookie().value(ACCESS_COOKIE_NAME, ""))
+                .andExpect(cookie().value(REFRESH_COOKIE_NAME, ""))
+                .andExpect(status().isOk())
+                .andDo(document("회원탈퇴",
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("Auth API")
+                                .summary("회원탈퇴")
+                                .description("사용자 계정을 탈퇴 처리하고 인증 쿠키를 삭제합니다. 탈퇴된 사용자는 로그인할 수 없습니다.")
                                 .build()
                         ),
                         responseCookies(

@@ -63,10 +63,25 @@ public class AuthController {
 
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
-    public void login(@RequestBody LoginRequestDto request, HttpServletResponse response) {
+    public TokenResponseDto login(@RequestBody LoginRequestDto request, HttpServletResponse response) {
         TokenResponseDto tokenResponse = authService.login(request);
         setAccessTokenCookie(response, tokenResponse.getAccessToken()); // AT 쿠키
         setRefreshTokenCookie(response, tokenResponse.getRefreshToken()); // RT 쿠키
+        return tokenResponse;
+    }
+
+    @DeleteMapping("/logout")
+    @ResponseStatus(HttpStatus.OK)
+    public void logout(HttpServletResponse response, User user) {
+        authService.logout(user);
+        clearAuthCookies(response);
+    }
+
+    @DeleteMapping("/signout")
+    @ResponseStatus(HttpStatus.OK)
+    public void signOut(HttpServletResponse response, User user) {
+        authService.signOut(user);
+        clearAuthCookies(response);
     }
 
     @PostMapping("/refresh")
@@ -79,13 +94,6 @@ public class AuthController {
         TokenResponseDto tokenResponse = authService.refreshAccessToken(refreshToken);
 
         setAccessTokenCookie(response, tokenResponse.getAccessToken()); // AT 쿠키
-    }
-
-    @DeleteMapping("/logout")
-    @ResponseStatus(HttpStatus.OK)
-    public void logout(HttpServletResponse response, User user) {
-        authService.logout(user);
-        clearAuthCookies(response);
     }
 
     /**

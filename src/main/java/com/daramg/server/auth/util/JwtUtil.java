@@ -47,7 +47,7 @@ public class JwtUtil {
                 .withExpiresAt(new Date(now.getTime() + refreshTokenLifetimeInMillis))
                 .sign(Algorithm.HMAC512(secretKey));
 
-        return new TokenResponseDto(accessToken, refreshToken);
+        return new TokenResponseDto(user.getId(), accessToken, refreshToken);
     }
 
     public String createAccessToken(User user) {

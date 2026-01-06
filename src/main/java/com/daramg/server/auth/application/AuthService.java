@@ -70,6 +70,9 @@ public class AuthService {
                 .filter(u -> passwordEncoder.matches(dto.getPassword(), u.getPassword()))
                 .orElseThrow(() -> new BusinessException(AuthErrorStatus.USER_NOT_FOUND_EXCEPTION));
 
+        if (!user.isActive()){
+            throw new BusinessException(AuthErrorStatus.USER_NOT_ACTIVE);
+        }
         TokenResponseDto tokens = jwtTokenProvider.generateTokens(user);
         redisTemplate.opsForValue().set(
                 user.getEmail(),
@@ -96,11 +99,16 @@ public class AuthService {
                 .orElseThrow(() -> new BusinessException(AuthErrorStatus.USER_NOT_FOUND_EXCEPTION));
 
         String newAccessToken = jwtTokenProvider.createAccessToken(user);
-        return new TokenResponseDto(newAccessToken, refreshToken);
+        return new TokenResponseDto(user.getId(), newAccessToken, refreshToken);
     }
 
     public void logout(User user){
         redisTemplate.delete(user.getEmail());
+    }
+
+    public void signOut(User user){
+        redisTemplate.delete(user.getEmail());
+        user.withdraw();
     }
 
     public void resetPassword(PasswordRequestDto dto){

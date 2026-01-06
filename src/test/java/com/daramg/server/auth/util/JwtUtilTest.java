@@ -78,6 +78,7 @@ public class JwtUtilTest extends ServiceTestSupport {
 
             // then
             assertThat(tokens).isNotNull();
+            assertThat(tokens.getUserId()).isEqualTo(testUser.getId());
             assertThat(tokens.getAccessToken()).isNotNull();
             assertThat(tokens.getRefreshToken()).isNotNull();
             assertThat(tokens.getAccessToken()).isNotEmpty();

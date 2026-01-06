@@ -6,6 +6,9 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 
 data class EmailVerificationRequestDto(
+    @field:Email(message = "AUTH_400_3")
+    val originalEmail:String?,
+
     @field:NotBlank(message = "AUTH_400_2")
     @field:Email(message = "AUTH_400_3")
     val email: String,
