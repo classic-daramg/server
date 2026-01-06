@@ -39,6 +39,8 @@ public class AuthServiceTest extends ServiceTestSupport {
 
     private User user;
 
+    private User deletedUser;
+
     @BeforeEach
     void setUp() {
         String encodedPassword = passwordEncoder.encode("Password123!");
@@ -221,6 +223,20 @@ public class AuthServiceTest extends ServiceTestSupport {
                     .isInstanceOf(BusinessException.class)
                     .hasMessage(AuthErrorStatus.USER_NOT_FOUND_EXCEPTION.getMessage());
         }
+
+        @Test
+        @Transactional
+        void 회원탈퇴한_유저는_로그인이_불가하다() {
+            //given
+            user.withdraw();
+            userRepository.save(user);
+            LoginRequestDto loginDto = new LoginRequestDto("svt@pledis.com", "Password123!");
+
+            //when & then
+            assertThatThrownBy(() -> authService.login(loginDto))
+                    .isInstanceOf(BusinessException.class)
+                    .hasMessage(AuthErrorStatus.USER_NOT_ACTIVE.getMessage());
+        }
     }
 
     @Nested
@@ -331,6 +347,45 @@ public class AuthServiceTest extends ServiceTestSupport {
             // then
             assertThat(updated.getPassword()).isNotEqualTo("NewPass123!");
             assertThat(passwordEncoder.matches("NewPass123!", updated.getPassword())).isTrue();
+        }
+    }
+
+    @Nested
+    @DisplayName("회원탈퇴 테스트")
+    class SignOutTest {
+        @Test
+        @Transactional
+        void 회원탈퇴를_정상적으로_완료한다() {
+            //given
+            User testUser = new User("withdraw@example.com", passwordEncoder.encode("Password123!"), "탈퇴유저",
+                    LocalDate.of(1990, 1, 1), "https://example.com/profile.jpg",
+                    "withdrawUser", "안녕하세요", null);
+            userRepository.save(testUser);
+
+            //when
+            authService.signOut(testUser);
+
+            //then
+            User withdrawnUser = userRepository.findById(testUser.getId()).orElseThrow();
+            assertThat(withdrawnUser.getUserStatus()).isEqualTo(com.daramg.server.user.domain.UserStatus.DELETED);
+            assertThat(withdrawnUser.getDeletedAt()).isNotNull();
+        }
+
+        @Test
+        @Transactional
+        void 회원탈퇴_후_사용자는_비활성화_상태가_된다() {
+            //given
+            User testUser = new User("inactive@example.com", passwordEncoder.encode("Password123!"), "비활성유저",
+                    LocalDate.of(1990, 1, 1), "https://example.com/profile.jpg",
+                    "inactiveUser", "안녕하세요", null);
+            userRepository.save(testUser);
+
+            //when
+            authService.signOut(testUser);
+
+            //then
+            User withdrawnUser = userRepository.findById(testUser.getId()).orElseThrow();
+            assertThat(withdrawnUser.isActive()).isFalse();
         }
     }
 }

@@ -333,4 +333,34 @@ public class AuthControllerTest extends ControllerTestSupport {
                         )
                 ));
     }
+
+    @Test
+    void 회원탈퇴() throws Exception {
+        // given
+        doNothing().when(authService).signOut(any(User.class));
+
+        // when
+        ResultActions result = mockMvc.perform(delete("/auth/signout")
+                .cookie(new Cookie(COOKIE_NAME, "access_token")));
+
+        // then
+        result
+                .andExpect(cookie().exists(ACCESS_COOKIE_NAME))
+                .andExpect(cookie().exists(REFRESH_COOKIE_NAME))
+                .andExpect(cookie().value(ACCESS_COOKIE_NAME, ""))
+                .andExpect(cookie().value(REFRESH_COOKIE_NAME, ""))
+                .andExpect(status().isOk())
+                .andDo(document("회원탈퇴",
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("Auth API")
+                                .summary("회원탈퇴")
+                                .description("사용자 계정을 탈퇴 처리하고 인증 쿠키를 삭제합니다. 탈퇴된 사용자는 로그인할 수 없습니다.")
+                                .build()
+                        ),
+                        responseCookies(
+                                cookieWithName(ACCESS_COOKIE_NAME).description("삭제된 액세스 토큰 쿠키"),
+                                cookieWithName(REFRESH_COOKIE_NAME).description("삭제된 리프레시 토큰 쿠키")
+                        )
+                ));
+    }
 }
