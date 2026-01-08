@@ -29,9 +29,15 @@ public record PostDetailResponse(
         String writerNickname,
         PostType type,
         ComposerInfo primaryComposer,
-        List<ComposerInfo> additionalComposers
+        List<ComposerInfo> additionalComposers,
+        Boolean isLiked,
+        Boolean isScrapped
 ) {
     public static PostDetailResponse from(Post post) {
+        return from(post, null, null);
+    }
+
+    public static PostDetailResponse from(Post post, Boolean isLiked, Boolean isScrapped) {
         PostType type = getPostType(post);
         ComposerInfo primaryComposer = null;
         List<ComposerInfo> additionalComposers = null;
@@ -67,7 +73,9 @@ public record PostDetailResponse(
                 post.getUser().getNickname(),
                 type,
                 primaryComposer,
-                additionalComposers
+                additionalComposers,
+                isLiked,
+                isScrapped
         );
     }
 

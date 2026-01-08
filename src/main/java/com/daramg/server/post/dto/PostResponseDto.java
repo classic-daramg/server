@@ -20,9 +20,15 @@ public record PostResponseDto(
         int likeCount,
         int commentCount,
         String thumbnailImageUrl,
-        PostType type
+        PostType type,
+        Boolean isLiked,
+        Boolean isScrapped
 ) {
     public static PostResponseDto from(Post post) {
+        return from(post, null, null);
+    }
+
+    public static PostResponseDto from(Post post, Boolean isLiked, Boolean isScrapped) {
         List<String> imageUrls = post.getImages();
         PostType type = getPostType(post);
         return new PostResponseDto(
@@ -35,7 +41,9 @@ public record PostResponseDto(
                 post.getLikeCount(),
                 post.getCommentCount(),
                 imageUrls.isEmpty() ? null : imageUrls.getFirst(),
-                type
+                type,
+                isLiked,
+                isScrapped
         );
     }
 

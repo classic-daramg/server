@@ -8,6 +8,7 @@ import com.daramg.server.post.dto.PostResponseDto;
 import com.daramg.server.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,25 +21,28 @@ public class PostQueryController {
     @GetMapping("/free")
     @ResponseStatus(HttpStatus.OK)
     public PageResponseDto<PostResponseDto> getAllPublishedFreePosts(
+            @AuthenticationPrincipal User user, // 로그인 or 비로그인 유저
             @ModelAttribute PageRequestDto request
     ){
-        return postQueryService.getAllPublishedFreePosts(request);
+        return postQueryService.getAllPublishedFreePosts(request, user);
     }
 
     @GetMapping("/curation")
     @ResponseStatus(HttpStatus.OK)
     public PageResponseDto<PostResponseDto> getAllPublishedCurationPosts(
+            @AuthenticationPrincipal User user, // 로그인 or 비로그인 유저
             @ModelAttribute PageRequestDto request
     ){
-        return postQueryService.getAllPublishedCurationPosts(request);
+        return postQueryService.getAllPublishedCurationPosts(request, user);
     }
 
     @GetMapping("/story")
     @ResponseStatus(HttpStatus.OK)
     public PageResponseDto<PostResponseDto> getAllPublishedStoryPosts(
+            @AuthenticationPrincipal User user, // 로그인 or 비로그인 유저
             @ModelAttribute PageRequestDto request
     ){
-        return postQueryService.getAllPublishedStoryPosts(request);
+        return postQueryService.getAllPublishedStoryPosts(request, user);
     }
 
     @GetMapping("/{userId}/published")
@@ -74,9 +78,10 @@ public class PostQueryController {
     @GetMapping("/{postId}")
     @ResponseStatus(HttpStatus.OK)
     public PostDetailResponse getPostById(
+            @AuthenticationPrincipal User user, // 로그인 or 비로그인 유저
             @PathVariable Long postId
     ){
-        return postQueryService.getPostById(postId);
+        return postQueryService.getPostById(postId, user);
     }
 
 }
