@@ -3,6 +3,7 @@ package com.daramg.server.post.presentation;
 import com.daramg.server.common.dto.PageRequestDto;
 import com.daramg.server.common.dto.PageResponseDto;
 import com.daramg.server.post.application.PostQueryService;
+import com.daramg.server.post.dto.PostDetailResponse;
 import com.daramg.server.post.dto.PostResponseDto;
 import com.daramg.server.user.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -68,6 +69,14 @@ public class PostQueryController {
             User user
     ){
         return postQueryService.getUserScrappedPosts(userId, request);
+    }
+
+    @GetMapping("/{postId}")
+    @ResponseStatus(HttpStatus.OK)
+    public PostDetailResponse getPostById(
+            @PathVariable Long postId
+    ){
+        return postQueryService.getPostById(postId);
     }
 
 }

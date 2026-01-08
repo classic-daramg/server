@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record PostResponseDto(
+        Long id,
         String title,
         String content,
         List<String> hashtags,
@@ -25,6 +26,7 @@ public record PostResponseDto(
         List<String> imageUrls = post.getImages();
         PostType type = getPostType(post);
         return new PostResponseDto(
+                post.getId(),
                 post.getTitle(),
                 post.getContent(),
                 post.getHashtags(),
