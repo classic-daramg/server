@@ -12,6 +12,8 @@ import com.daramg.server.post.domain.PostStatus;
 import com.daramg.server.post.domain.vo.PostCreateVo;
 import com.daramg.server.post.dto.PostDetailResponse;
 import com.daramg.server.post.dto.PostResponseDto;
+import com.daramg.server.post.domain.PostLike;
+import com.daramg.server.post.repository.PostLikeRepository;
 import com.daramg.server.post.repository.PostRepository;
 import com.daramg.server.post.repository.PostScrapRepository;
 import com.daramg.server.testsupport.support.ServiceTestSupport;
@@ -47,6 +49,9 @@ public class PostQueryServiceTest extends ServiceTestSupport {
 
     @Autowired
     private PostScrapRepository postScrapRepository;
+
+    @Autowired
+    private PostLikeRepository postLikeRepository;
 
     private User user;
     private User otherUser;
@@ -116,7 +121,7 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             PageRequestDto pageRequest = new PageRequestDto(null, 100); // 모든 포스트 조회
 
             // when
-            PageResponseDto<PostResponseDto> response = postQueryService.getAllPublishedFreePosts(pageRequest);
+            PageResponseDto<PostResponseDto> response = postQueryService.getAllPublishedFreePosts(pageRequest, null);
 
             // then
             // PUBLISHED 포스트 25개만 반환되어야 함 (DRAFT 2개는 제외)
@@ -137,7 +142,7 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             PageRequestDto pageRequest = new PageRequestDto(null, 20);
 
             // when
-            PageResponseDto<PostResponseDto> response = postQueryService.getAllPublishedFreePosts(pageRequest);
+            PageResponseDto<PostResponseDto> response = postQueryService.getAllPublishedFreePosts(pageRequest, null);
 
             // then
             assertThat(response.getContent()).hasSize(20);
@@ -154,12 +159,12 @@ public class PostQueryServiceTest extends ServiceTestSupport {
         void getAllFreePosts_WithNullSizeAndValidCursor_Returns10Posts() {
             // given
             PageRequestDto firstRequest = new PageRequestDto(null, 10);
-            PageResponseDto<PostResponseDto> firstResponse = postQueryService.getAllPublishedFreePosts(firstRequest);
+            PageResponseDto<PostResponseDto> firstResponse = postQueryService.getAllPublishedFreePosts(firstRequest, null);
             String nextCursor = firstResponse.getNextCursor();
 
             // when - size가 null이고 cursor가 있는 두 번째 요청
             PageRequestDto secondRequest = new PageRequestDto(nextCursor, null);
-            PageResponseDto<PostResponseDto> secondResponse = postQueryService.getAllPublishedFreePosts(secondRequest);
+            PageResponseDto<PostResponseDto> secondResponse = postQueryService.getAllPublishedFreePosts(secondRequest, null);
 
             // then
             assertThat(secondResponse.getContent()).hasSize(10); // default size 10이 적용됨
@@ -180,7 +185,7 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             PageRequestDto pageRequest = new PageRequestDto(null, -5);
 
             // when
-            PageResponseDto<PostResponseDto> response = postQueryService.getAllPublishedFreePosts(pageRequest);
+            PageResponseDto<PostResponseDto> response = postQueryService.getAllPublishedFreePosts(pageRequest, null);
 
             // then
             assertThat(response.getContent()).hasSize(10); // 음수는 default 10으로 처리됨
@@ -194,7 +199,7 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             PageRequestDto pageRequest = new PageRequestDto(null, 0);
 
             // when
-            PageResponseDto<PostResponseDto> response = postQueryService.getAllPublishedFreePosts(pageRequest);
+            PageResponseDto<PostResponseDto> response = postQueryService.getAllPublishedFreePosts(pageRequest, null);
 
             // then
             assertThat(response.getContent()).hasSize(10); // 0은 default 10으로 처리됨
@@ -208,7 +213,7 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             PageRequestDto pageRequest = new PageRequestDto(null, 100); // 25개보다 큰 값
 
             // when
-            PageResponseDto<PostResponseDto> response = postQueryService.getAllPublishedFreePosts(pageRequest);
+            PageResponseDto<PostResponseDto> response = postQueryService.getAllPublishedFreePosts(pageRequest, null);
 
             // then
             assertThat(response.getContent()).hasSize(25); // 모든 포스트 반환
@@ -224,7 +229,7 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             PageRequestDto pageRequest = new PageRequestDto(invalidCursor, 10);
 
             // when & then
-            assertThatThrownBy(() -> postQueryService.getAllPublishedFreePosts(pageRequest))
+            assertThatThrownBy(() -> postQueryService.getAllPublishedFreePosts(pageRequest, null))
                     .isInstanceOf(BusinessException.class)
                     .hasMessage("유효하지 않은 커서 포맷입니다.");
         }
@@ -237,7 +242,7 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             PageRequestDto pageRequest = new PageRequestDto(malformedCursor, 10);
 
             // when & then
-            assertThatThrownBy(() -> postQueryService.getAllPublishedFreePosts(pageRequest))
+            assertThatThrownBy(() -> postQueryService.getAllPublishedFreePosts(pageRequest, null))
                     .isInstanceOf(BusinessException.class)
                     .hasMessage("유효하지 않은 커서 포맷입니다.");
         }
@@ -251,7 +256,7 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             PageRequestDto pageRequest = new PageRequestDto(invalidFormatCursor, 10);
 
             // when & then
-            assertThatThrownBy(() -> postQueryService.getAllPublishedFreePosts(pageRequest))
+            assertThatThrownBy(() -> postQueryService.getAllPublishedFreePosts(pageRequest, null))
                     .isInstanceOf(BusinessException.class)
                     .hasMessage("유효하지 않은 커서 포맷입니다.");
         }
@@ -266,7 +271,7 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             PageRequestDto pageRequest = new PageRequestDto(validFormatCursor, 10);
 
             // when
-            PageResponseDto<PostResponseDto> response = postQueryService.getAllPublishedFreePosts(pageRequest);
+            PageResponseDto<PostResponseDto> response = postQueryService.getAllPublishedFreePosts(pageRequest, null);
 
             // then
             assertThat(response.getContent()).isEmpty();
@@ -637,7 +642,7 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             Long postId = savedPost.getId();
 
             // when
-            PostDetailResponse response = postQueryService.getPostById(postId);
+            PostDetailResponse response = postQueryService.getPostById(postId, null);
 
             // then
             assertThat(response.id()).isEqualTo(postId);
@@ -656,6 +661,8 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             assertThat(response.type()).isEqualTo(com.daramg.server.post.domain.PostType.FREE);
             assertThat(response.primaryComposer()).isNull();
             assertThat(response.additionalComposers()).isNull();
+            assertThat(response.isLiked()).isNull(); // 비로그인 유저는 null
+            assertThat(response.isScrapped()).isNull(); // 비로그인 유저는 null
         }
 
         @Test
@@ -665,7 +672,7 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             Long nonExistentPostId = 999L;
 
             // when & then
-            assertThatThrownBy(() -> postQueryService.getPostById(nonExistentPostId))
+            assertThatThrownBy(() -> postQueryService.getPostById(nonExistentPostId, null))
                     .isInstanceOf(NotFoundException.class)
                     .hasMessageContaining("존재하지 않는 Post입니다");
         }
@@ -678,7 +685,7 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             Long postId = savedPost.getId();
 
             // when
-            PostDetailResponse response = postQueryService.getPostById(postId);
+            PostDetailResponse response = postQueryService.getPostById(postId, null);
 
             // then
             assertThat(response.id()).isNotNull();
@@ -692,6 +699,8 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             assertThat(response.updatedAt()).isNotNull();
             assertThat(response.writerNickname()).isNotNull();
             assertThat(response.type()).isNotNull();
+            assertThat(response.isLiked()).isNull();
+            assertThat(response.isScrapped()).isNull();
         }
     }
 }

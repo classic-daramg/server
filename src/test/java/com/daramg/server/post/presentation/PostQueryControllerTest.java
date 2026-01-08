@@ -48,7 +48,9 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 10,
                 5,
                 "https://example.com/image1.jpg",
-                PostType.FREE
+                PostType.FREE,
+                null,
+                null
         );
         PostResponseDto freePost2 = new PostResponseDto(
                 2L,
@@ -60,7 +62,9 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 20,
                 10,
                 null,
-                PostType.FREE
+                PostType.FREE,
+                null,
+                null
         );
 
         PageResponseDto<PostResponseDto> response = new PageResponseDto<>(
@@ -69,7 +73,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 true
         );
 
-        when(postQueryService.getAllPublishedFreePosts(any(PageRequestDto.class))).thenReturn(response);
+        when(postQueryService.getAllPublishedFreePosts(any(PageRequestDto.class), any())).thenReturn(response);
 
         // when
         ResultActions result = mockMvc.perform(get("/posts/free")
@@ -103,6 +107,8 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                                         fieldWithPath("content[].commentCount").type(JsonFieldType.NUMBER).description("댓글 개수"),
                                         fieldWithPath("content[].thumbnailImageUrl").type(JsonFieldType.STRING).description("썸네일 이미지 URL").optional(),
                                         fieldWithPath("content[].type").type(JsonFieldType.STRING).description("포스트 타입 (FREE, CURATION, STORY)"),
+                                        fieldWithPath("content[].isLiked").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 좋아요 여부 (비로그인 시 null)").optional(),
+                                        fieldWithPath("content[].isScrapped").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 스크랩 여부 (비로그인 시 null)").optional(),
                                         fieldWithPath("nextCursor").type(JsonFieldType.STRING).description("다음 페이지 조회를 위한 커서 (Base64 인코딩된 문자열). 마지막 페이지인 경우 null").optional(),
                                         fieldWithPath("hasNext").type(JsonFieldType.BOOLEAN).description("다음 페이지 존재 여부")
                                 )
@@ -124,7 +130,9 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 30,
                 15,
                 "https://example.com/curation1.jpg",
-                PostType.CURATION
+                PostType.CURATION,
+                null,
+                null
         );
         PostResponseDto curationPost2 = new PostResponseDto(
                 2L,
@@ -136,7 +144,9 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 25,
                 12,
                 null,
-                PostType.CURATION
+                PostType.CURATION,
+                null,
+                null
         );
 
         PageResponseDto<PostResponseDto> response = new PageResponseDto<>(
@@ -145,7 +155,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 true
         );
 
-        when(postQueryService.getAllPublishedCurationPosts(any(PageRequestDto.class))).thenReturn(response);
+        when(postQueryService.getAllPublishedCurationPosts(any(PageRequestDto.class), any())).thenReturn(response);
 
         // when
         ResultActions result = mockMvc.perform(get("/posts/curation")
@@ -179,6 +189,8 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                                         fieldWithPath("content[].commentCount").type(JsonFieldType.NUMBER).description("댓글 개수"),
                                         fieldWithPath("content[].thumbnailImageUrl").type(JsonFieldType.STRING).description("썸네일 이미지 URL").optional(),
                                         fieldWithPath("content[].type").type(JsonFieldType.STRING).description("포스트 타입 (FREE, CURATION, STORY)"),
+                                        fieldWithPath("content[].isLiked").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 좋아요 여부 (비로그인 시 null)").optional(),
+                                        fieldWithPath("content[].isScrapped").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 스크랩 여부 (비로그인 시 null)").optional(),
                                         fieldWithPath("nextCursor").type(JsonFieldType.STRING).description("다음 페이지 조회를 위한 커서 (Base64 인코딩된 문자열). 마지막 페이지인 경우 null").optional(),
                                         fieldWithPath("hasNext").type(JsonFieldType.BOOLEAN).description("다음 페이지 존재 여부")
                                 )
@@ -200,7 +212,9 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 50,
                 25,
                 "https://example.com/story1.jpg",
-                PostType.STORY
+                PostType.STORY,
+                null,
+                null
         );
         PostResponseDto storyPost2 = new PostResponseDto(
                 2L,
@@ -212,7 +226,9 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 40,
                 20,
                 null,
-                PostType.STORY
+                PostType.STORY,
+                null,
+                null
         );
 
         PageResponseDto<PostResponseDto> response = new PageResponseDto<>(
@@ -221,7 +237,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 false
         );
 
-        when(postQueryService.getAllPublishedStoryPosts(any(PageRequestDto.class))).thenReturn(response);
+        when(postQueryService.getAllPublishedStoryPosts(any(PageRequestDto.class), any())).thenReturn(response);
 
         // when
         ResultActions result = mockMvc.perform(get("/posts/story")
@@ -253,6 +269,8 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                                         fieldWithPath("content[].commentCount").type(JsonFieldType.NUMBER).description("댓글 개수"),
                                         fieldWithPath("content[].thumbnailImageUrl").type(JsonFieldType.STRING).description("썸네일 이미지 URL").optional(),
                                         fieldWithPath("content[].type").type(JsonFieldType.STRING).description("포스트 타입 (FREE, CURATION, STORY)"),
+                                        fieldWithPath("content[].isLiked").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 좋아요 여부 (비로그인 시 null)").optional(),
+                                        fieldWithPath("content[].isScrapped").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 스크랩 여부 (비로그인 시 null)").optional(),
                                         fieldWithPath("nextCursor").type(JsonFieldType.STRING).description("다음 페이지 조회를 위한 커서 (Base64 인코딩된 문자열). 마지막 페이지인 경우 null").optional(),
                                         fieldWithPath("hasNext").type(JsonFieldType.BOOLEAN).description("다음 페이지 존재 여부")
                                 )
@@ -275,7 +293,9 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 15,
                 8,
                 "https://example.com/published1.jpg",
-                PostType.FREE
+                PostType.FREE,
+                null,
+                null
         );
         PostResponseDto publishedPost2 = new PostResponseDto(
                 2L,
@@ -287,7 +307,9 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 20,
                 10,
                 null,
-                PostType.STORY
+                PostType.STORY,
+                null,
+                null
         );
 
         PageResponseDto<PostResponseDto> response = new PageResponseDto<>(
@@ -333,6 +355,8 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                                         fieldWithPath("content[].commentCount").type(JsonFieldType.NUMBER).description("댓글 개수"),
                                         fieldWithPath("content[].thumbnailImageUrl").type(JsonFieldType.STRING).description("썸네일 이미지 URL").optional(),
                                         fieldWithPath("content[].type").type(JsonFieldType.STRING).description("포스트 타입 (FREE, CURATION, STORY)"),
+                                        fieldWithPath("content[].isLiked").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 좋아요 여부 (비로그인 시 null)").optional(),
+                                        fieldWithPath("content[].isScrapped").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 스크랩 여부 (비로그인 시 null)").optional(),
                                         fieldWithPath("nextCursor").type(JsonFieldType.STRING).description("다음 페이지 조회를 위한 커서 (Base64 인코딩된 문자열). 마지막 페이지인 경우 null").optional(),
                                         fieldWithPath("hasNext").type(JsonFieldType.BOOLEAN).description("다음 페이지 존재 여부")
                                 )
@@ -355,7 +379,9 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 0,
                 0,
                 "https://example.com/draft1.jpg",
-                PostType.CURATION
+                PostType.CURATION,
+                null,
+                null
         );
         PostResponseDto draftPost2 = new PostResponseDto(
                 2L,
@@ -367,7 +393,9 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 0,
                 0,
                 null,
-                PostType.FREE
+                PostType.FREE,
+                null,
+                null
         );
 
         PageResponseDto<PostResponseDto> response = new PageResponseDto<>(
@@ -413,6 +441,8 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                                         fieldWithPath("content[].commentCount").type(JsonFieldType.NUMBER).description("댓글 개수"),
                                         fieldWithPath("content[].thumbnailImageUrl").type(JsonFieldType.STRING).description("썸네일 이미지 URL").optional(),
                                         fieldWithPath("content[].type").type(JsonFieldType.STRING).description("포스트 타입 (FREE, CURATION, STORY)"),
+                                        fieldWithPath("content[].isLiked").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 좋아요 여부 (비로그인 시 null)").optional(),
+                                        fieldWithPath("content[].isScrapped").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 스크랩 여부 (비로그인 시 null)").optional(),
                                         fieldWithPath("nextCursor").type(JsonFieldType.STRING).description("다음 페이지 조회를 위한 커서 (Base64 인코딩된 문자열). 마지막 페이지인 경우 null").optional(),
                                         fieldWithPath("hasNext").type(JsonFieldType.BOOLEAN).description("다음 페이지 존재 여부")
                                 )
@@ -435,7 +465,9 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 50,
                 25,
                 "https://example.com/scrap1.jpg",
-                PostType.STORY
+                PostType.STORY,
+                null,
+                null
         );
         PostResponseDto scrappedPost2 = new PostResponseDto(
                 2L,
@@ -447,7 +479,9 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 30,
                 15,
                 null,
-                PostType.CURATION
+                PostType.CURATION,
+                null,
+                null
         );
 
         PageResponseDto<PostResponseDto> response = new PageResponseDto<>(
@@ -491,6 +525,8 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                                         fieldWithPath("content[].commentCount").type(JsonFieldType.NUMBER).description("댓글 개수"),
                                         fieldWithPath("content[].thumbnailImageUrl").type(JsonFieldType.STRING).description("썸네일 이미지 URL").optional(),
                                         fieldWithPath("content[].type").type(JsonFieldType.STRING).description("포스트 타입 (FREE, CURATION, STORY)"),
+                                        fieldWithPath("content[].isLiked").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 좋아요 여부 (비로그인 시 null)").optional(),
+                                        fieldWithPath("content[].isScrapped").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 스크랩 여부 (비로그인 시 null)").optional(),
                                         fieldWithPath("nextCursor").type(JsonFieldType.STRING).description("다음 페이지 조회를 위한 커서 (Base64 인코딩된 문자열). 마지막 페이지인 경우 null").optional(),
                                         fieldWithPath("hasNext").type(JsonFieldType.BOOLEAN).description("다음 페이지 존재 여부")
                                 )
@@ -521,10 +557,12 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 "작성자",
                 PostType.FREE,
                 null,
+                null,
+                null,
                 null
         );
 
-        when(postQueryService.getPostById(eq(postId))).thenReturn(postResponse);
+        when(postQueryService.getPostById(eq(postId), any())).thenReturn(postResponse);
 
         // when
         ResultActions result = mockMvc.perform(get("/posts/{postId}", postId)
@@ -563,7 +601,9 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                                         fieldWithPath("additionalComposers").type(JsonFieldType.ARRAY).description("추가 작곡가 목록 (CURATION 타입인 경우)").optional(),
                                         fieldWithPath("additionalComposers[].id").type(JsonFieldType.NUMBER).description("추가 작곡가 ID").optional(),
                                         fieldWithPath("additionalComposers[].koreanName").type(JsonFieldType.STRING).description("추가 작곡가 한국어 이름").optional(),
-                                        fieldWithPath("additionalComposers[].englishName").type(JsonFieldType.STRING).description("추가 작곡가 영어 이름").optional()
+                                        fieldWithPath("additionalComposers[].englishName").type(JsonFieldType.STRING).description("추가 작곡가 영어 이름").optional(),
+                                        fieldWithPath("isLiked").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 좋아요 여부 (비로그인 시 null)").optional(),
+                                        fieldWithPath("isScrapped").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 스크랩 여부 (비로그인 시 null)").optional()
                                 )
                                 .build()
                         )
