@@ -37,7 +37,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
         GlobalExceptionHandler.class,
 })
 @TestPropertySource(properties = {
-        "cors.allowed-origins=http://localhost:3000,https://classic-daramg.vercel.app"
+        "cors.allowed-origins=http://localhost:3000,https://client-git-main-classicdaramgs-projects.vercel.app"
 })
 public abstract class ControllerTestSupport {
 
