@@ -3,12 +3,14 @@ package com.daramg.server.post.application;
 import com.daramg.server.common.dto.PageRequestDto;
 import com.daramg.server.common.dto.PageResponseDto;
 import com.daramg.server.common.exception.BusinessException;
+import com.daramg.server.common.exception.NotFoundException;
 import com.daramg.server.common.util.PagingUtils;
 import com.daramg.server.post.domain.FreePost;
 import com.daramg.server.post.domain.Post;
 import com.daramg.server.post.domain.PostScrap;
 import com.daramg.server.post.domain.PostStatus;
 import com.daramg.server.post.domain.vo.PostCreateVo;
+import com.daramg.server.post.dto.PostDetailResponse;
 import com.daramg.server.post.dto.PostResponseDto;
 import com.daramg.server.post.repository.PostRepository;
 import com.daramg.server.post.repository.PostScrapRepository;
@@ -621,6 +623,75 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             assertThat(response.getContent())
                     .extracting(PostResponseDto::title)
                     .doesNotContain("DRAFT 스크랩 포스트");
+        }
+    }
+
+    @Nested
+    @DisplayName("포스트 상세 조회 테스트")
+    class GetPostByIdTest {
+        @Test
+        @DisplayName("포스트 ID로 포스트 상세 정보를 조회한다")
+        void getPostById_ReturnsPostDetails() {
+            // given
+            FreePost savedPost = freePosts.get(0);
+            Long postId = savedPost.getId();
+
+            // when
+            PostDetailResponse response = postQueryService.getPostById(postId);
+
+            // then
+            assertThat(response.id()).isEqualTo(postId);
+            assertThat(response.title()).isEqualTo("제목 0");
+            assertThat(response.content()).isEqualTo("내용 0");
+            assertThat(response.images()).containsExactly("image0.jpg");
+            assertThat(response.videoUrl()).isNull();
+            assertThat(response.hashtags()).containsExactly("#tag0");
+            assertThat(response.postStatus()).isEqualTo(PostStatus.PUBLISHED);
+            assertThat(response.likeCount()).isEqualTo(0);
+            assertThat(response.commentCount()).isEqualTo(0);
+            assertThat(response.isBlocked()).isFalse();
+            assertThat(response.createdAt()).isNotNull();
+            assertThat(response.updatedAt()).isNotNull();
+            assertThat(response.writerNickname()).isEqualTo("닉네임");
+            assertThat(response.type()).isEqualTo(com.daramg.server.post.domain.PostType.FREE);
+            assertThat(response.primaryComposer()).isNull();
+            assertThat(response.additionalComposers()).isNull();
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 포스트 ID로 조회하면 NotFoundException이 발생한다")
+        void getPostById_WithNonExistentId_ThrowsNotFoundException() {
+            // given
+            Long nonExistentPostId = 999L;
+
+            // when & then
+            assertThatThrownBy(() -> postQueryService.getPostById(nonExistentPostId))
+                    .isInstanceOf(NotFoundException.class)
+                    .hasMessageContaining("존재하지 않는 Post입니다");
+        }
+
+        @Test
+        @DisplayName("포스트 상세 조회 시 Post의 모든 필드가 포함된다")
+        void getPostById_IncludesAllPostFields() {
+            // given
+            FreePost savedPost = freePosts.get(0);
+            Long postId = savedPost.getId();
+
+            // when
+            PostDetailResponse response = postQueryService.getPostById(postId);
+
+            // then
+            assertThat(response.id()).isNotNull();
+            assertThat(response.id()).isEqualTo(postId);
+            assertThat(response.title()).isNotNull();
+            assertThat(response.content()).isNotNull();
+            assertThat(response.images()).isNotNull();
+            assertThat(response.hashtags()).isNotNull();
+            assertThat(response.postStatus()).isNotNull();
+            assertThat(response.createdAt()).isNotNull();
+            assertThat(response.updatedAt()).isNotNull();
+            assertThat(response.writerNickname()).isNotNull();
+            assertThat(response.type()).isNotNull();
         }
     }
 }

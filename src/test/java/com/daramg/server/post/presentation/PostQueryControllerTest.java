@@ -3,7 +3,9 @@ package com.daramg.server.post.presentation;
 import com.daramg.server.common.dto.PageRequestDto;
 import com.daramg.server.common.dto.PageResponseDto;
 import com.daramg.server.post.application.PostQueryService;
+import com.daramg.server.post.domain.PostStatus;
 import com.daramg.server.post.domain.PostType;
+import com.daramg.server.post.dto.PostDetailResponse;
 import com.daramg.server.post.dto.PostResponseDto;
 import com.daramg.server.testsupport.support.ControllerTestSupport;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
@@ -37,6 +39,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
     void 자유_포스트_목록을_조회한다() throws Exception {
         // given
         PostResponseDto freePost1 = new PostResponseDto(
+                1L,
                 "자유 포스트 제목 1",
                 "자유 포스트 내용입니다",
                 List.of("#해시태그1", "#해시태그2"),
@@ -48,6 +51,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 PostType.FREE
         );
         PostResponseDto freePost2 = new PostResponseDto(
+                2L,
                 "자유 포스트 제목 2",
                 "자유 포스트 내용입니다",
                 List.of("#해시태그3"),
@@ -89,6 +93,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                                 )
                                 .responseFields(
                                         fieldWithPath("content").type(JsonFieldType.ARRAY).description("포스트 목록"),
+                                        fieldWithPath("content[].id").type(JsonFieldType.NUMBER).description("포스트 ID"),
                                         fieldWithPath("content[].title").type(JsonFieldType.STRING).description("포스트 제목"),
                                         fieldWithPath("content[].content").type(JsonFieldType.STRING).description("포스트 내용"),
                                         fieldWithPath("content[].hashtags").type(JsonFieldType.ARRAY).description("해시태그 목록"),
@@ -110,6 +115,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
     void 큐레이션_포스트_목록을_조회한다() throws Exception {
         // given
         PostResponseDto curationPost1 = new PostResponseDto(
+                1L,
                 "큐레이션 포스트 제목 1",
                 "큐레이션 포스트 내용입니다",
                 List.of("#큐레이션1", "#음악"),
@@ -121,6 +127,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 PostType.CURATION
         );
         PostResponseDto curationPost2 = new PostResponseDto(
+                2L,
                 "큐레이션 포스트 제목 2",
                 "큐레이션 포스트 내용입니다",
                 List.of("#큐레이션2"),
@@ -162,6 +169,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                                 )
                                 .responseFields(
                                         fieldWithPath("content").type(JsonFieldType.ARRAY).description("포스트 목록"),
+                                        fieldWithPath("content[].id").type(JsonFieldType.NUMBER).description("포스트 ID"),
                                         fieldWithPath("content[].title").type(JsonFieldType.STRING).description("포스트 제목"),
                                         fieldWithPath("content[].content").type(JsonFieldType.STRING).description("포스트 내용"),
                                         fieldWithPath("content[].hashtags").type(JsonFieldType.ARRAY).description("해시태그 목록"),
@@ -183,6 +191,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
     void 스토리_포스트_목록을_조회한다() throws Exception {
         // given
         PostResponseDto storyPost1 = new PostResponseDto(
+                1L,
                 "스토리 포스트 제목 1",
                 "스토리 포스트 내용입니다",
                 List.of("#스토리1", "#음악이야기"),
@@ -194,6 +203,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 PostType.STORY
         );
         PostResponseDto storyPost2 = new PostResponseDto(
+                2L,
                 "스토리 포스트 제목 2",
                 "스토리 포스트 내용입니다",
                 List.of("#스토리2"),
@@ -233,6 +243,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                                 )
                                 .responseFields(
                                         fieldWithPath("content").type(JsonFieldType.ARRAY).description("포스트 목록"),
+                                        fieldWithPath("content[].id").type(JsonFieldType.NUMBER).description("포스트 ID"),
                                         fieldWithPath("content[].title").type(JsonFieldType.STRING).description("포스트 제목"),
                                         fieldWithPath("content[].content").type(JsonFieldType.STRING).description("포스트 내용"),
                                         fieldWithPath("content[].hashtags").type(JsonFieldType.ARRAY).description("해시태그 목록"),
@@ -255,6 +266,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
         // given
         Long userId = 1L;
         PostResponseDto publishedPost1 = new PostResponseDto(
+                1L,
                 "발행된 포스트 제목 1",
                 "발행된 포스트 내용입니다",
                 List.of("#발행1", "#음악"),
@@ -266,6 +278,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 PostType.FREE
         );
         PostResponseDto publishedPost2 = new PostResponseDto(
+                2L,
                 "발행된 포스트 제목 2",
                 "발행된 포스트 내용입니다",
                 List.of("#발행2"),
@@ -310,6 +323,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                                 )
                                 .responseFields(
                                         fieldWithPath("content").type(JsonFieldType.ARRAY).description("포스트 목록"),
+                                        fieldWithPath("content[].id").type(JsonFieldType.NUMBER).description("포스트 ID"),
                                         fieldWithPath("content[].title").type(JsonFieldType.STRING).description("포스트 제목"),
                                         fieldWithPath("content[].content").type(JsonFieldType.STRING).description("포스트 내용"),
                                         fieldWithPath("content[].hashtags").type(JsonFieldType.ARRAY).description("해시태그 목록"),
@@ -332,6 +346,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
         // given
         Long userId = 1L;
         PostResponseDto draftPost1 = new PostResponseDto(
+                1L,
                 "임시저장 포스트 제목 1",
                 "임시저장 포스트 내용입니다",
                 List.of("#임시저장1", "#작업중"),
@@ -343,6 +358,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 PostType.CURATION
         );
         PostResponseDto draftPost2 = new PostResponseDto(
+                2L,
                 "임시저장 포스트 제목 2",
                 "임시저장 포스트 내용입니다",
                 List.of("#임시저장2"),
@@ -387,6 +403,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                                 )
                                 .responseFields(
                                         fieldWithPath("content").type(JsonFieldType.ARRAY).description("포스트 목록"),
+                                        fieldWithPath("content[].id").type(JsonFieldType.NUMBER).description("포스트 ID"),
                                         fieldWithPath("content[].title").type(JsonFieldType.STRING).description("포스트 제목"),
                                         fieldWithPath("content[].content").type(JsonFieldType.STRING).description("포스트 내용"),
                                         fieldWithPath("content[].hashtags").type(JsonFieldType.ARRAY).description("해시태그 목록"),
@@ -409,6 +426,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
         // given
         Long userId = 1L;
         PostResponseDto scrappedPost1 = new PostResponseDto(
+                1L,
                 "스크랩한 포스트 제목 1",
                 "스크랩한 포스트 내용입니다",
                 List.of("#스크랩1", "#좋은음악"),
@@ -420,6 +438,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 PostType.STORY
         );
         PostResponseDto scrappedPost2 = new PostResponseDto(
+                2L,
                 "스크랩한 포스트 제목 2",
                 "스크랩한 포스트 내용입니다",
                 List.of("#스크랩2"),
@@ -462,6 +481,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                                 )
                                 .responseFields(
                                         fieldWithPath("content").type(JsonFieldType.ARRAY).description("포스트 목록"),
+                                        fieldWithPath("content[].id").type(JsonFieldType.NUMBER).description("포스트 ID"),
                                         fieldWithPath("content[].title").type(JsonFieldType.STRING).description("포스트 제목"),
                                         fieldWithPath("content[].content").type(JsonFieldType.STRING).description("포스트 내용"),
                                         fieldWithPath("content[].hashtags").type(JsonFieldType.ARRAY).description("해시태그 목록"),
@@ -473,6 +493,77 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                                         fieldWithPath("content[].type").type(JsonFieldType.STRING).description("포스트 타입 (FREE, CURATION, STORY)"),
                                         fieldWithPath("nextCursor").type(JsonFieldType.STRING).description("다음 페이지 조회를 위한 커서 (Base64 인코딩된 문자열). 마지막 페이지인 경우 null").optional(),
                                         fieldWithPath("hasNext").type(JsonFieldType.BOOLEAN).description("다음 페이지 존재 여부")
+                                )
+                                .build()
+                        )
+                ));
+    }
+
+    @Test
+    void 포스트_상세를_조회한다() throws Exception {
+        // given
+        Long postId = 1L;
+        LocalDateTime createdAt = LocalDateTime.of(2024, 1, 15, 10, 30, 0);
+        LocalDateTime updatedAt = LocalDateTime.of(2024, 1, 15, 11, 0, 0);
+        PostDetailResponse postResponse = new PostDetailResponse(
+                postId,
+                "포스트 제목",
+                "포스트 내용입니다",
+                List.of("https://example.com/image1.jpg", "https://example.com/image2.jpg"),
+                "https://example.com/video.mp4",
+                List.of("#해시태그1", "#해시태그2"),
+                PostStatus.PUBLISHED,
+                10,
+                5,
+                false,
+                createdAt,
+                updatedAt,
+                "작성자",
+                PostType.FREE,
+                null,
+                null
+        );
+
+        when(postQueryService.getPostById(eq(postId))).thenReturn(postResponse);
+
+        // when
+        ResultActions result = mockMvc.perform(get("/posts/{postId}", postId)
+                .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        // then
+        result.andExpect(status().isOk())
+                .andDo(document("포스트_상세_조회",
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("Post Query API")
+                                .summary("포스트 상세 조회")
+                                .description("포스트 ID로 포스트 상세 정보를 조회합니다.")
+                                .pathParameters(
+                                        parameterWithName("postId").description("조회할 포스트 ID")
+                                )
+                                .responseFields(
+                                        fieldWithPath("id").type(JsonFieldType.NUMBER).description("포스트 ID"),
+                                        fieldWithPath("title").type(JsonFieldType.STRING).description("포스트 제목"),
+                                        fieldWithPath("content").type(JsonFieldType.STRING).description("포스트 내용"),
+                                        fieldWithPath("images").type(JsonFieldType.ARRAY).description("이미지 URL 목록"),
+                                        fieldWithPath("videoUrl").type(JsonFieldType.STRING).description("비디오 URL").optional(),
+                                        fieldWithPath("hashtags").type(JsonFieldType.ARRAY).description("해시태그 목록"),
+                                        fieldWithPath("postStatus").type(JsonFieldType.STRING).description("포스트 상태 (PUBLISHED, DRAFT)"),
+                                        fieldWithPath("likeCount").type(JsonFieldType.NUMBER).description("좋아요 개수"),
+                                        fieldWithPath("commentCount").type(JsonFieldType.NUMBER).description("댓글 개수"),
+                                        fieldWithPath("isBlocked").type(JsonFieldType.BOOLEAN).description("포스트 블락 여부"),
+                                        fieldWithPath("createdAt").type(JsonFieldType.STRING).description("생성일시 (ISO 8601 형식)"),
+                                        fieldWithPath("updatedAt").type(JsonFieldType.STRING).description("수정일시 (ISO 8601 형식)"),
+                                        fieldWithPath("writerNickname").type(JsonFieldType.STRING).description("작성자 닉네임"),
+                                        fieldWithPath("type").type(JsonFieldType.STRING).description("포스트 타입 (FREE, CURATION, STORY)"),
+                                        fieldWithPath("primaryComposer").type(JsonFieldType.OBJECT).description("주 작곡가 정보 (STORY, CURATION 타입인 경우)").optional(),
+                                        fieldWithPath("primaryComposer.id").type(JsonFieldType.NUMBER).description("주 작곡가 ID").optional(),
+                                        fieldWithPath("primaryComposer.koreanName").type(JsonFieldType.STRING).description("주 작곡가 한국어 이름").optional(),
+                                        fieldWithPath("primaryComposer.englishName").type(JsonFieldType.STRING).description("주 작곡가 영어 이름").optional(),
+                                        fieldWithPath("additionalComposers").type(JsonFieldType.ARRAY).description("추가 작곡가 목록 (CURATION 타입인 경우)").optional(),
+                                        fieldWithPath("additionalComposers[].id").type(JsonFieldType.NUMBER).description("추가 작곡가 ID").optional(),
+                                        fieldWithPath("additionalComposers[].koreanName").type(JsonFieldType.STRING).description("추가 작곡가 한국어 이름").optional(),
+                                        fieldWithPath("additionalComposers[].englishName").type(JsonFieldType.STRING).description("추가 작곡가 영어 이름").optional()
                                 )
                                 .build()
                         )
