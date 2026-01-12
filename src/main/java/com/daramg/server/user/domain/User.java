@@ -56,6 +56,7 @@ public class User extends BaseEntity<User> {
     @Column(name = "user_status", nullable = false)
     private UserStatus userStatus;
 
+    @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
     @Builder
@@ -118,8 +119,8 @@ public class User extends BaseEntity<User> {
     }
 
     public void withdraw(){
-        this.deletedAt = LocalDateTime.now();
-        this.userStatus = UserStatus.DELETED;
+        deletedAt = LocalDateTime.now();
+        userStatus = UserStatus.DELETED;
     }
 
     public boolean isActive() {

@@ -14,6 +14,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.daramg.server.post.domain.QPost.post;
@@ -100,6 +101,54 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                 pageRequest,
                 post.createdAt,
                 post.id
+        );
+    }
+
+    @Override
+    public List<Post> getPostsByComposerIdWithPaging(Long composerId, PageRequestDto pageRequest) {
+        // StoryPost와 CurationPost를 각각 조회
+        List<StoryPost> storyPosts = queryFactory
+                .selectFrom(storyPost)
+                .leftJoin(storyPost._super.user, user).fetchJoin()
+                .where(
+                        storyPost.primaryComposer.id.eq(composerId)
+                                .and(storyPost._super.isBlocked.isFalse())
+                                .and(storyPost._super.postStatus.eq(PostStatus.PUBLISHED))
+                )
+                .orderBy(storyPost._super.createdAt.desc(), storyPost._super.id.desc())
+                .fetch();
+
+        List<CurationPost> curationPosts = queryFactory
+                .selectFrom(curationPost)
+                .leftJoin(curationPost._super.user, user).fetchJoin()
+                .where(
+                        curationPost.primaryComposer.id.eq(composerId)
+                                .and(curationPost._super.isBlocked.isFalse())
+                                .and(curationPost._super.postStatus.eq(PostStatus.PUBLISHED))
+                )
+                .orderBy(curationPost._super.createdAt.desc(), curationPost._super.id.desc())
+                .fetch();
+
+        // 두 리스트를 합치고 정렬
+        List<Post> allPosts = new ArrayList<>();
+        allPosts.addAll(storyPosts);
+        allPosts.addAll(curationPosts);
+        
+        // 생성일시 내림차순, ID 내림차순으로 정렬
+        allPosts.sort((p1, p2) -> {
+            int dateCompare = p2.getCreatedAt().compareTo(p1.getCreatedAt());
+            if (dateCompare != 0) {
+                return dateCompare;
+            }
+            return Long.compare(p2.getId(), p1.getId());
+        });
+
+        // 페이징 적용
+        return pagingUtils.applyCursorPaginationToList(
+                allPosts,
+                pageRequest,
+                Post::getCreatedAt,
+                Post::getId
         );
     }
 

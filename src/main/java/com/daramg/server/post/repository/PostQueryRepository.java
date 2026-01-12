@@ -15,4 +15,5 @@ public interface PostQueryRepository {
     List<Post> getUserPublishedPostsWithPaging(Long userId, PageRequestDto pageRequest);
     List<Post> getUserDraftPostsWithPaging(Long userId, PageRequestDto pageRequest);
     List<Post> getUserScrappedPostsWithPaging(Long userId, PageRequestDto pageRequest);
+    List<Post> getPostsByComposerIdWithPaging(Long composerId, PageRequestDto pageRequest);
 }

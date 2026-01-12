@@ -4,6 +4,10 @@ import com.daramg.server.common.application.EntityUtils;
 import com.daramg.server.common.dto.PageRequestDto;
 import com.daramg.server.common.dto.PageResponseDto;
 import com.daramg.server.common.util.PagingUtils;
+import com.daramg.server.composer.domain.Composer;
+import com.daramg.server.composer.dto.ComposerResponseDto;
+import com.daramg.server.composer.dto.ComposerWithPostsResponseDto;
+import com.daramg.server.composer.repository.ComposerLikeRepository;
 import com.daramg.server.post.domain.CurationPost;
 import com.daramg.server.post.domain.FreePost;
 import com.daramg.server.post.domain.Post;
@@ -19,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +35,7 @@ public class PostQueryService {
     private final PostScrapRepository postScrapRepository;
     private final PagingUtils pagingUtils;
     private final EntityUtils entityUtils;
+    private final ComposerLikeRepository composerLikeRepository;
 
     public PageResponseDto<PostResponseDto> getAllPublishedFreePosts(PageRequestDto pageRequest, User user){
         List<FreePost> posts = postQueryRepository.getAllFreePostsWithPaging(pageRequest);
@@ -110,6 +116,28 @@ public class PostQueryService {
         return PostDetailResponse.from(post, isLiked, isScrapped);
     }
 
+    public ComposerWithPostsResponseDto getComposerWithPosts(Long composerId, PageRequestDto pageRequest, User user) {
+        Composer composer = entityUtils.getEntity(composerId, Composer.class);
+        boolean isLiked = user != null && composerLikeRepository.existsByComposerIdAndUserId(composerId, user.getId());
+        ComposerResponseDto composerDto = ComposerResponseDto.from(composer, isLiked);
+
+        List<Post> posts = postQueryRepository.getPostsByComposerIdWithPaging(composerId, pageRequest);
+        
+        // N+1 문제 해결: 배치로 좋아요/스크랩 여부 조회
+        Set<Long> likedPostIds = getLikedPostIds(posts, user);
+        Set<Long> scrappedPostIds = getScrappedPostIds(posts, user);
+        
+        PageResponseDto<PostResponseDto> postsPage = pagingUtils.createPageResponse(
+                posts,
+                pageRequest.getValidatedSize(),
+                post -> toPostResponseDto(post, user, likedPostIds, scrappedPostIds),
+                Post::getCreatedAt,
+                Post::getId
+        );
+
+        return new ComposerWithPostsResponseDto(composerDto, postsPage);
+    }
+
     private PostResponseDto toPostResponseDto(Post post, User user) {
         Boolean isLiked = null;
         Boolean isScrapped = null;
@@ -120,5 +148,33 @@ public class PostQueryService {
         }
         
         return PostResponseDto.from(post, isLiked, isScrapped);
+    }
+
+    private PostResponseDto toPostResponseDto(Post post, User user, Set<Long> likedPostIds, Set<Long> scrappedPostIds) {
+        Boolean isLiked = null;
+        Boolean isScrapped = null;
+        
+        if (user != null) {
+            isLiked = likedPostIds.contains(post.getId());
+            isScrapped = scrappedPostIds.contains(post.getId());
+        }
+        
+        return PostResponseDto.from(post, isLiked, isScrapped);
+    }
+
+    private Set<Long> getLikedPostIds(List<Post> posts, User user) {
+        if (user == null || posts.isEmpty()) {
+            return java.util.Collections.emptySet();
+        }
+        List<Long> postIds = posts.stream().map(Post::getId).toList();
+        return postLikeRepository.findPostIdsByPostIdsAndUserId(postIds, user.getId());
+    }
+
+    private Set<Long> getScrappedPostIds(List<Post> posts, User user) {
+        if (user == null || posts.isEmpty()) {
+            return java.util.Collections.emptySet();
+        }
+        List<Long> postIds = posts.stream().map(Post::getId).toList();
+        return postScrapRepository.findPostIdsByPostIdsAndUserId(postIds, user.getId());
     }
 }

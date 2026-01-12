@@ -61,6 +61,31 @@ public class PagingUtils {
         return new PageResponseDto<>(dtoList, nextCursor, hasNext);
     }
 
+    public <T> List<T> applyCursorPaginationToList(
+            List<T> content,
+            PageRequestDto request,
+            Function<T, LocalDateTime> createdAtExtractor,
+            Function<T, Long> idExtractor
+    ) {
+        Cursor cursor = decodeCursor(request.getCursor());
+        int size = request.getValidatedSize() + 1;
+
+        List<T> filtered = content.stream()
+                .filter(item -> {
+                    if (cursor == null) {
+                        return true;
+                    }
+                    LocalDateTime createdAt = createdAtExtractor.apply(item);
+                    Long id = idExtractor.apply(item);
+                    return createdAt.isBefore(cursor.createdAt())
+                            || (createdAt.equals(cursor.createdAt()) && id < cursor.id());
+                })
+                .limit(size)
+                .toList();
+
+        return filtered;
+    }
+
     private BooleanExpression getPaginationConditions(
             Cursor cursor,
             DateTimePath<LocalDateTime> createdAtPath,
