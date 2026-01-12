@@ -49,7 +49,11 @@ public class ComposerQueryServiceTest extends ServiceTestSupport {
         corelli = Composer.builder()
                 .koreanName("코렐리")
                 .englishName("Arcangelo Corelli")
+                .nativeName("Arcangelo Corelli")
+                .nationality("이탈리아")
                 .gender(Gender.MALE)
+                .birthYear((short) 1653)
+                .deathYear((short) 1713)
                 .era(Era.BAROQUE)
                 .continent(Continent.EUROPE)
                 .build();
@@ -57,7 +61,11 @@ public class ComposerQueryServiceTest extends ServiceTestSupport {
         vitali = Composer.builder()
                 .koreanName("비탈리")
                 .englishName("Tomaso Antonio Vitali")
+                .nativeName("Tomaso Antonio Vitali")
+                .nationality("이탈리아")
                 .gender(Gender.MALE)
+                .birthYear((short) 1663)
+                .deathYear((short) 1745)
                 .era(Era.BAROQUE)
                 .continent(Continent.EUROPE)
                 .build();
@@ -65,7 +73,11 @@ public class ComposerQueryServiceTest extends ServiceTestSupport {
         vivaldi = Composer.builder()
                 .koreanName("비발디")
                 .englishName("Antonio Vivaldi")
+                .nativeName("Antonio Vivaldi")
+                .nationality("이탈리아")
                 .gender(Gender.MALE)
+                .birthYear((short) 1678)
+                .deathYear((short) 1741)
                 .era(Era.BAROQUE)
                 .continent(Continent.EUROPE)
                 .build();
@@ -91,12 +103,30 @@ public class ComposerQueryServiceTest extends ServiceTestSupport {
         assertThat(result).hasSize(3);
         // 좋아요 그룹이 먼저 나오며, 같은 그룹 내에서는 한글명 정렬: 비발디 < 코렐리
         assertThat(result.get(0).koreanName()).isEqualTo("비발디");
+        assertThat(result.get(0).englishName()).isEqualTo("Antonio Vivaldi");
+        assertThat(result.get(0).nativeName()).isEqualTo("Antonio Vivaldi");
+        assertThat(result.get(0).nationality()).isEqualTo("이탈리아");
+        assertThat(result.get(0).gender()).isEqualTo("MALE");
+        assertThat(result.get(0).birthYear()).isEqualTo((short) 1678);
+        assertThat(result.get(0).deathYear()).isEqualTo((short) 1741);
         assertThat(result.get(0).isLiked()).isTrue();
 
         assertThat(result.get(1).koreanName()).isEqualTo("코렐리");
+        assertThat(result.get(1).englishName()).isEqualTo("Arcangelo Corelli");
+        assertThat(result.get(1).nativeName()).isEqualTo("Arcangelo Corelli");
+        assertThat(result.get(1).nationality()).isEqualTo("이탈리아");
+        assertThat(result.get(1).gender()).isEqualTo("MALE");
+        assertThat(result.get(1).birthYear()).isEqualTo((short) 1653);
+        assertThat(result.get(1).deathYear()).isEqualTo((short) 1713);
         assertThat(result.get(1).isLiked()).isTrue();
 
         assertThat(result.get(2).koreanName()).isEqualTo("비탈리");
+        assertThat(result.get(2).englishName()).isEqualTo("Tomaso Antonio Vitali");
+        assertThat(result.get(2).nativeName()).isEqualTo("Tomaso Antonio Vitali");
+        assertThat(result.get(2).nationality()).isEqualTo("이탈리아");
+        assertThat(result.get(2).gender()).isEqualTo("MALE");
+        assertThat(result.get(2).birthYear()).isEqualTo((short) 1663);
+        assertThat(result.get(2).deathYear()).isEqualTo((short) 1745);
         assertThat(result.get(2).isLiked()).isFalse();
     }
 
@@ -127,7 +157,11 @@ public class ComposerQueryServiceTest extends ServiceTestSupport {
         Composer haydn = Composer.builder()
                 .koreanName("하이든")
                 .englishName("Joseph Haydn")
+                .nativeName("Joseph Haydn")
+                .nationality("오스트리아")
                 .gender(Gender.MALE)
+                .birthYear((short) 1732)
+                .deathYear((short) 1809)
                 .era(Era.CLASSICAL)
                 .continent(Continent.EUROPE)
                 .build();
@@ -167,14 +201,22 @@ public class ComposerQueryServiceTest extends ServiceTestSupport {
         Composer mozart = Composer.builder()
                 .koreanName("모차르트")
                 .englishName("Wolfgang Amadeus Mozart")
+                .nativeName("Wolfgang Amadeus Mozart")
+                .nationality("오스트리아")
                 .gender(Gender.MALE)
+                .birthYear((short) 1756)
+                .deathYear((short) 1791)
                 .era(Era.CLASSICAL)
                 .continent(Continent.EUROPE)
                 .build();
         Composer doho = Composer.builder()
                 .koreanName("도호")
                 .englishName("Doho Example")
+                .nativeName("도호")
+                .nationality("한국")
                 .gender(Gender.MALE)
+                .birthYear((short) 1900)
+                .deathYear((short) 2000)
                 .era(Era.CLASSICAL)
                 .continent(Continent.ASIA)
                 .build();
@@ -182,14 +224,22 @@ public class ComposerQueryServiceTest extends ServiceTestSupport {
         Composer rach = Composer.builder()
                 .koreanName("라흐마니노프")
                 .englishName("Sergei Rachmaninoff")
+                .nativeName("Сергей Рахманинов")
+                .nationality("러시아")
                 .gender(Gender.MALE)
+                .birthYear((short) 1873)
+                .deathYear((short) 1943)
                 .era(Era.ROMANTIC)
                 .continent(Continent.EUROPE)
                 .build();
         Composer deva = Composer.builder()
                 .koreanName("데바")
                 .englishName("Deva Example")
+                .nativeName("데바")
+                .nationality("인도")
                 .gender(Gender.MALE)
+                .birthYear((short) 1950)
+                .deathYear((short) 2020)
                 .era(Era.MODERN_CONTEMPORARY)
                 .continent(Continent.ASIA)
                 .build();

@@ -5,10 +5,12 @@ import com.daramg.server.common.dto.PageResponseDto;
 import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.common.exception.NotFoundException;
 import com.daramg.server.common.util.PagingUtils;
+import com.daramg.server.post.domain.CurationPost;
 import com.daramg.server.post.domain.FreePost;
 import com.daramg.server.post.domain.Post;
 import com.daramg.server.post.domain.PostScrap;
 import com.daramg.server.post.domain.PostStatus;
+import com.daramg.server.post.domain.StoryPost;
 import com.daramg.server.post.domain.vo.PostCreateVo;
 import com.daramg.server.post.dto.PostDetailResponse;
 import com.daramg.server.post.dto.PostResponseDto;
@@ -701,6 +703,196 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             assertThat(response.type()).isNotNull();
             assertThat(response.isLiked()).isNull();
             assertThat(response.isScrapped()).isNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("작곡가 정보와 포스트 목록 조회 테스트")
+    class GetComposerWithPostsTest {
+        @Autowired
+        private com.daramg.server.composer.repository.ComposerRepository composerRepository;
+
+        @Autowired
+        private com.daramg.server.composer.repository.ComposerLikeRepository composerLikeRepository;
+
+        @Test
+        @DisplayName("작곡가 정보와 해당 작곡가의 STORY, CURATION 포스트 목록을 조회한다")
+        void getComposerWithPosts_ReturnsComposerAndPosts() {
+            // given
+            com.daramg.server.composer.domain.Composer composer = com.daramg.server.composer.domain.Composer.builder()
+                    .koreanName("베토벤")
+                    .englishName("Ludwig van Beethoven")
+                    .nativeName("Ludwig van Beethoven")
+                    .nationality("독일")
+                    .gender(com.daramg.server.composer.domain.Gender.MALE)
+                    .birthYear((short) 1770)
+                    .deathYear((short) 1827)
+                    .era(com.daramg.server.composer.domain.Era.CLASSICAL)
+                    .continent(com.daramg.server.composer.domain.Continent.EUROPE)
+                    .build();
+            composerRepository.save(composer);
+
+            // StoryPost 생성
+            StoryPost storyPost = StoryPost.from(
+                    new PostCreateVo.Story(
+                            user,
+                            "베토벤 스토리",
+                            "베토벤에 대한 스토리",
+                            PostStatus.PUBLISHED,
+                            List.of("story.jpg"),
+                            null,
+                            List.of("#베토벤", "#스토리"),
+                            composer
+                    )
+            );
+            postRepository.save(storyPost);
+
+            // CurationPost 생성
+            CurationPost curationPost = CurationPost.from(
+                    new PostCreateVo.Curation(
+                            user,
+                            "베토벤 큐레이션",
+                            "베토벤에 대한 큐레이션",
+                            PostStatus.PUBLISHED,
+                            List.of("curation.jpg"),
+                            null,
+                            List.of("#베토벤", "#큐레이션"),
+                            composer,
+                            List.of()
+                    )
+            );
+            postRepository.save(curationPost);
+
+            // FreePost 생성 (제외되어야 함)
+            FreePost freePost = FreePost.from(
+                    new PostCreateVo.Free(
+                            user,
+                            "자유 포스트",
+                            "자유 포스트 내용",
+                            PostStatus.PUBLISHED,
+                            List.of("free.jpg"),
+                            null,
+                            List.of("#자유")
+                    )
+            );
+            postRepository.save(freePost);
+
+            PageRequestDto pageRequest = new PageRequestDto(null, 100);
+
+            // when
+            com.daramg.server.composer.dto.ComposerWithPostsResponseDto response =
+                    postQueryService.getComposerWithPosts(composer.getId(), pageRequest, null);
+
+            // then
+            assertThat(response.composer().composerId()).isEqualTo(composer.getId());
+            assertThat(response.composer().koreanName()).isEqualTo("베토벤");
+            assertThat(response.composer().englishName()).isEqualTo("Ludwig van Beethoven");
+            assertThat(response.composer().isLiked()).isFalse(); // 비로그인 유저
+
+            // STORY와 CURATION 포스트만 포함되어야 함
+            assertThat(response.posts().getContent()).hasSize(2);
+            assertThat(response.posts().getContent())
+                    .extracting(PostResponseDto::title)
+                    .containsExactlyInAnyOrder("베토벤 스토리", "베토벤 큐레이션");
+            assertThat(response.posts().getContent())
+                    .extracting(PostResponseDto::title)
+                    .doesNotContain("자유 포스트");
+        }
+
+        @Test
+        @DisplayName("로그인한 유저가 좋아요한 작곡가의 경우 isLiked가 true로 반환된다")
+        void getComposerWithPosts_WithLikedComposer_ReturnsIsLikedTrue() {
+            // given
+            com.daramg.server.composer.domain.Composer composer = com.daramg.server.composer.domain.Composer.builder()
+                    .koreanName("베토벤")
+                    .englishName("Ludwig van Beethoven")
+                    .gender(com.daramg.server.composer.domain.Gender.MALE)
+                    .era(com.daramg.server.composer.domain.Era.CLASSICAL)
+                    .continent(com.daramg.server.composer.domain.Continent.EUROPE)
+                    .build();
+            composerRepository.save(composer);
+
+            // 유저가 작곡가를 좋아요
+            composerLikeRepository.save(com.daramg.server.composer.domain.ComposerLike.of(composer, user));
+
+            PageRequestDto pageRequest = new PageRequestDto(null, 10);
+
+            // when
+            com.daramg.server.composer.dto.ComposerWithPostsResponseDto response =
+                    postQueryService.getComposerWithPosts(composer.getId(), pageRequest, user);
+
+            // then
+            assertThat(response.composer().isLiked()).isTrue();
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 작곡가 ID로 조회하면 NotFoundException이 발생한다")
+        void getComposerWithPosts_WithNonExistentId_ThrowsNotFoundException() {
+            // given
+            Long nonExistentComposerId = 999L;
+            PageRequestDto pageRequest = new PageRequestDto(null, 10);
+
+            // when & then
+            assertThatThrownBy(() -> postQueryService.getComposerWithPosts(nonExistentComposerId, pageRequest, null))
+                    .isInstanceOf(NotFoundException.class)
+                    .hasMessageContaining("존재하지 않는 Composer입니다");
+        }
+
+        @Test
+        @DisplayName("PUBLISHED 상태인 포스트만 반환된다")
+        void getComposerWithPosts_ReturnsOnlyPublishedPosts() {
+            // given
+            com.daramg.server.composer.domain.Composer composer = com.daramg.server.composer.domain.Composer.builder()
+                    .koreanName("베토벤")
+                    .englishName("Ludwig van Beethoven")
+                    .gender(com.daramg.server.composer.domain.Gender.MALE)
+                    .era(com.daramg.server.composer.domain.Era.CLASSICAL)
+                    .continent(com.daramg.server.composer.domain.Continent.EUROPE)
+                    .build();
+            composerRepository.save(composer);
+
+            // PUBLISHED StoryPost
+            StoryPost publishedPost = StoryPost.from(
+                    new PostCreateVo.Story(
+                            user,
+                            "PUBLISHED 스토리",
+                            "PUBLISHED 내용",
+                            PostStatus.PUBLISHED,
+                            List.of(),
+                            null,
+                            List.of(),
+                            composer
+                    )
+            );
+            postRepository.save(publishedPost);
+
+            // DRAFT StoryPost (제외되어야 함)
+            StoryPost draftPost = StoryPost.from(
+                    new PostCreateVo.Story(
+                            user,
+                            "DRAFT 스토리",
+                            "DRAFT 내용",
+                            PostStatus.DRAFT,
+                            List.of(),
+                            null,
+                            List.of(),
+                            composer
+                    )
+            );
+            postRepository.save(draftPost);
+
+            PageRequestDto pageRequest = new PageRequestDto(null, 100);
+
+            // when
+            com.daramg.server.composer.dto.ComposerWithPostsResponseDto response =
+                    postQueryService.getComposerWithPosts(composer.getId(), pageRequest, null);
+
+            // then
+            assertThat(response.posts().getContent()).hasSize(1);
+            assertThat(response.posts().getContent().getFirst().title()).isEqualTo("PUBLISHED 스토리");
+            assertThat(response.posts().getContent())
+                    .extracting(PostResponseDto::title)
+                    .doesNotContain("DRAFT 스토리");
         }
     }
 }
