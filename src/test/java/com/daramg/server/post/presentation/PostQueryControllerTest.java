@@ -2,6 +2,7 @@ package com.daramg.server.post.presentation;
 
 import com.daramg.server.common.dto.PageRequestDto;
 import com.daramg.server.common.dto.PageResponseDto;
+import com.daramg.server.comment.dto.CommentResponseDto;
 import com.daramg.server.post.application.PostQueryService;
 import com.daramg.server.post.domain.PostStatus;
 import com.daramg.server.post.domain.PostType;
@@ -541,8 +542,32 @@ public class PostQueryControllerTest extends ControllerTestSupport {
         Long postId = 1L;
         LocalDateTime createdAt = LocalDateTime.of(2024, 1, 15, 10, 30, 0);
         LocalDateTime updatedAt = LocalDateTime.of(2024, 1, 15, 11, 0, 0);
+        CommentResponseDto.ChildCommentResponseDto childComment = new CommentResponseDto.ChildCommentResponseDto(
+                2L,
+                "대댓글 내용",
+                false,
+                1,
+                createdAt.plusMinutes(5),
+                "대댓글작성자",
+                "https://example.com/child-profile.jpg",
+                true
+        );
+        CommentResponseDto parentComment = new CommentResponseDto(
+                1L,
+                "댓글 내용",
+                false,
+                3,
+                1,
+                createdAt.plusMinutes(1),
+                "댓글작성자",
+                "https://example.com/comment-profile.jpg",
+                false,
+                List.of(childComment)
+        );
         PostDetailResponse postResponse = new PostDetailResponse(
                 postId,
+                "작성자",
+                "https://example.com/writer-profile.jpg",
                 "포스트 제목",
                 "포스트 내용입니다",
                 List.of("https://example.com/image1.jpg", "https://example.com/image2.jpg"),
@@ -554,12 +579,12 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 false,
                 createdAt,
                 updatedAt,
-                "작성자",
                 PostType.FREE,
                 null,
                 null,
                 null,
-                null
+                null,
+                List.of(parentComment)
         );
 
         when(postQueryService.getPostById(eq(postId), any())).thenReturn(postResponse);
@@ -581,6 +606,8 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                                 )
                                 .responseFields(
                                         fieldWithPath("id").type(JsonFieldType.NUMBER).description("포스트 ID"),
+                                        fieldWithPath("writerNickname").type(JsonFieldType.STRING).description("작성자 닉네임"),
+                                        fieldWithPath("writerProfileImage").type(JsonFieldType.STRING).description("작성자 프로필 이미지 URL").optional(),
                                         fieldWithPath("title").type(JsonFieldType.STRING).description("포스트 제목"),
                                         fieldWithPath("content").type(JsonFieldType.STRING).description("포스트 내용"),
                                         fieldWithPath("images").type(JsonFieldType.ARRAY).description("이미지 URL 목록"),
@@ -592,7 +619,6 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                                         fieldWithPath("isBlocked").type(JsonFieldType.BOOLEAN).description("포스트 블락 여부"),
                                         fieldWithPath("createdAt").type(JsonFieldType.STRING).description("생성일시 (ISO 8601 형식)"),
                                         fieldWithPath("updatedAt").type(JsonFieldType.STRING).description("수정일시 (ISO 8601 형식)"),
-                                        fieldWithPath("writerNickname").type(JsonFieldType.STRING).description("작성자 닉네임"),
                                         fieldWithPath("type").type(JsonFieldType.STRING).description("포스트 타입 (FREE, CURATION, STORY)"),
                                         fieldWithPath("primaryComposer").type(JsonFieldType.OBJECT).description("주 작곡가 정보 (STORY, CURATION 타입인 경우)").optional(),
                                         fieldWithPath("primaryComposer.id").type(JsonFieldType.NUMBER).description("주 작곡가 ID").optional(),
@@ -603,7 +629,26 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                                         fieldWithPath("additionalComposers[].koreanName").type(JsonFieldType.STRING).description("추가 작곡가 한국어 이름").optional(),
                                         fieldWithPath("additionalComposers[].englishName").type(JsonFieldType.STRING).description("추가 작곡가 영어 이름").optional(),
                                         fieldWithPath("isLiked").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 좋아요 여부 (비로그인 시 null)").optional(),
-                                        fieldWithPath("isScrapped").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 스크랩 여부 (비로그인 시 null)").optional()
+                                        fieldWithPath("isScrapped").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 스크랩 여부 (비로그인 시 null)").optional(),
+                                        fieldWithPath("comments").type(JsonFieldType.ARRAY).description("댓글 목록 (부모 댓글 기준)"),
+                                        fieldWithPath("comments[].id").type(JsonFieldType.NUMBER).description("댓글 ID"),
+                                        fieldWithPath("comments[].content").type(JsonFieldType.STRING).description("댓글 내용"),
+                                        fieldWithPath("comments[].isDeleted").type(JsonFieldType.BOOLEAN).description("댓글 삭제 여부"),
+                                        fieldWithPath("comments[].likeCount").type(JsonFieldType.NUMBER).description("댓글 좋아요 개수"),
+                                        fieldWithPath("comments[].childCommentCount").type(JsonFieldType.NUMBER).description("대댓글 개수"),
+                                        fieldWithPath("comments[].createdAt").type(JsonFieldType.STRING).description("댓글 작성 시각"),
+                                        fieldWithPath("comments[].writerNickname").type(JsonFieldType.STRING).description("댓글 작성자 닉네임"),
+                                        fieldWithPath("comments[].writerProfileImage").type(JsonFieldType.STRING).description("댓글 작성자 프로필 이미지 URL").optional(),
+                                        fieldWithPath("comments[].isLiked").type(JsonFieldType.BOOLEAN).description("현재 로그인 유저의 댓글 좋아요 여부 (비로그인 시 null)").optional(),
+                                        fieldWithPath("comments[].childComments").type(JsonFieldType.ARRAY).description("대댓글 목록"),
+                                        fieldWithPath("comments[].childComments[].id").type(JsonFieldType.NUMBER).description("대댓글 ID"),
+                                        fieldWithPath("comments[].childComments[].content").type(JsonFieldType.STRING).description("대댓글 내용"),
+                                        fieldWithPath("comments[].childComments[].isDeleted").type(JsonFieldType.BOOLEAN).description("대댓글 삭제 여부"),
+                                        fieldWithPath("comments[].childComments[].likeCount").type(JsonFieldType.NUMBER).description("대댓글 좋아요 개수"),
+                                        fieldWithPath("comments[].childComments[].createdAt").type(JsonFieldType.STRING).description("대댓글 작성 시각"),
+                                        fieldWithPath("comments[].childComments[].writerNickname").type(JsonFieldType.STRING).description("대댓글 작성자 닉네임"),
+                                        fieldWithPath("comments[].childComments[].writerProfileImage").type(JsonFieldType.STRING).description("대댓글 작성자 프로필 이미지 URL").optional(),
+                                        fieldWithPath("comments[].childComments[].isLiked").type(JsonFieldType.BOOLEAN).description("현재 로그인 유저의 대댓글 좋아요 여부 (비로그인 시 null)").optional()
                                 )
                                 .build()
                         )

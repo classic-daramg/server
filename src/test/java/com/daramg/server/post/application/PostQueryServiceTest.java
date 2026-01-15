@@ -1,20 +1,26 @@
 package com.daramg.server.post.application;
 
+import com.daramg.server.comment.domain.Comment;
+import com.daramg.server.comment.domain.CommentLike;
+import com.daramg.server.comment.repository.CommentLikeRepository;
+import com.daramg.server.comment.repository.CommentRepository;
 import com.daramg.server.common.dto.PageRequestDto;
 import com.daramg.server.common.dto.PageResponseDto;
 import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.common.exception.NotFoundException;
 import com.daramg.server.common.util.PagingUtils;
+import com.daramg.server.composer.repository.ComposerLikeRepository;
+import com.daramg.server.composer.repository.ComposerRepository;
 import com.daramg.server.post.domain.CurationPost;
 import com.daramg.server.post.domain.FreePost;
 import com.daramg.server.post.domain.Post;
+import com.daramg.server.post.domain.PostLike;
 import com.daramg.server.post.domain.PostScrap;
 import com.daramg.server.post.domain.PostStatus;
 import com.daramg.server.post.domain.StoryPost;
 import com.daramg.server.post.domain.vo.PostCreateVo;
 import com.daramg.server.post.dto.PostDetailResponse;
 import com.daramg.server.post.dto.PostResponseDto;
-import com.daramg.server.post.domain.PostLike;
 import com.daramg.server.post.repository.PostLikeRepository;
 import com.daramg.server.post.repository.PostRepository;
 import com.daramg.server.post.repository.PostScrapRepository;
@@ -26,6 +32,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -54,6 +61,18 @@ public class PostQueryServiceTest extends ServiceTestSupport {
 
     @Autowired
     private PostLikeRepository postLikeRepository;
+
+    @Autowired
+    private ComposerRepository composerRepository;
+
+    @Autowired
+    private ComposerLikeRepository composerLikeRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
+
+    @Autowired
+    private CommentLikeRepository commentLikeRepository;
 
     private User user;
     private User otherUser;
@@ -648,6 +667,8 @@ public class PostQueryServiceTest extends ServiceTestSupport {
 
             // then
             assertThat(response.id()).isEqualTo(postId);
+            assertThat(response.writerNickname()).isEqualTo("닉네임");
+            assertThat(response.writerProfileImage()).isEqualTo("profile");
             assertThat(response.title()).isEqualTo("제목 0");
             assertThat(response.content()).isEqualTo("내용 0");
             assertThat(response.images()).containsExactly("image0.jpg");
@@ -659,12 +680,12 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             assertThat(response.isBlocked()).isFalse();
             assertThat(response.createdAt()).isNotNull();
             assertThat(response.updatedAt()).isNotNull();
-            assertThat(response.writerNickname()).isEqualTo("닉네임");
             assertThat(response.type()).isEqualTo(com.daramg.server.post.domain.PostType.FREE);
             assertThat(response.primaryComposer()).isNull();
             assertThat(response.additionalComposers()).isNull();
             assertThat(response.isLiked()).isNull(); // 비로그인 유저는 null
             assertThat(response.isScrapped()).isNull(); // 비로그인 유저는 null
+            assertThat(response.comments()).isEmpty();
         }
 
         @Test
@@ -692,6 +713,8 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             // then
             assertThat(response.id()).isNotNull();
             assertThat(response.id()).isEqualTo(postId);
+            assertThat(response.writerNickname()).isNotNull();
+            assertThat(response.writerProfileImage()).isNotNull();
             assertThat(response.title()).isNotNull();
             assertThat(response.content()).isNotNull();
             assertThat(response.images()).isNotNull();
@@ -699,21 +722,78 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             assertThat(response.postStatus()).isNotNull();
             assertThat(response.createdAt()).isNotNull();
             assertThat(response.updatedAt()).isNotNull();
-            assertThat(response.writerNickname()).isNotNull();
             assertThat(response.type()).isNotNull();
             assertThat(response.isLiked()).isNull();
             assertThat(response.isScrapped()).isNull();
+            assertThat(response.comments()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("포스트 상세 조회 시 댓글과 대댓글이 작성시간 오름차순으로 정렬된다")
+        void getPostById_CommentsAndRepliesAreSortedByCreatedAtAsc() {
+            // given
+            FreePost savedPost = freePosts.get(0);
+            Long postId = savedPost.getId();
+
+            LocalDateTime baseTime = LocalDateTime.now().minusHours(1);
+
+            Comment parent1 = commentRepository.save(Comment.of(savedPost, user, "부모1", null));
+            Comment parent2 = commentRepository.save(Comment.of(savedPost, user, "부모2", null));
+            Comment parent3 = commentRepository.save(Comment.of(savedPost, user, "부모3", null));
+
+            ReflectionTestUtils.setField(parent1, "createdAt", baseTime);
+            ReflectionTestUtils.setField(parent2, "createdAt", baseTime.plusMinutes(10));
+            ReflectionTestUtils.setField(parent3, "createdAt", baseTime.plusMinutes(20));
+
+            commentRepository.saveAll(List.of(parent1, parent2, parent3));
+
+            Comment child1 = commentRepository.save(Comment.of(savedPost, user, "자식1", parent1));
+            Comment child2 = commentRepository.save(Comment.of(savedPost, user, "자식2", parent2));
+            Comment child3 = commentRepository.save(Comment.of(savedPost, user, "자식3", parent3));
+
+            ReflectionTestUtils.setField(child1, "createdAt", baseTime.plusMinutes(1));
+            ReflectionTestUtils.setField(child2, "createdAt", baseTime.plusMinutes(11));
+            ReflectionTestUtils.setField(child3, "createdAt", baseTime.plusMinutes(21));
+
+            commentRepository.saveAll(List.of(child1, child2, child3));
+
+            // 좋아요: 부모2와 자식3에만 좋아요 추가
+            commentLikeRepository.save(CommentLike.of(parent2, user));
+            commentLikeRepository.save(CommentLike.of(child3, user));
+
+            // when
+            PostDetailResponse response = postQueryService.getPostById(postId, user);
+
+            // then - 부모 댓글 정렬 확인
+            assertThat(response.comments()).hasSize(3);
+            assertThat(response.comments().get(0).content()).isEqualTo("부모1");
+            assertThat(response.comments().get(1).content()).isEqualTo("부모2");
+            assertThat(response.comments().get(2).content()).isEqualTo("부모3");
+
+            // 각 부모의 대댓글 정렬 및 내용 확인
+            assertThat(response.comments().get(0).childComments()).hasSize(1);
+            assertThat(response.comments().get(0).childComments().get(0).content()).isEqualTo("자식1");
+
+            assertThat(response.comments().get(1).childComments()).hasSize(1);
+            assertThat(response.comments().get(1).childComments().get(0).content()).isEqualTo("자식2");
+
+            assertThat(response.comments().get(2).childComments()).hasSize(1);
+            assertThat(response.comments().get(2).childComments().get(0).content()).isEqualTo("자식3");
+
+            // 좋아요 여부 확인
+            assertThat(response.comments().get(0).isLiked()).isFalse();
+            assertThat(response.comments().get(1).isLiked()).isTrue();
+            assertThat(response.comments().get(2).isLiked()).isFalse();
+
+            assertThat(response.comments().get(0).childComments().get(0).isLiked()).isFalse();
+            assertThat(response.comments().get(1).childComments().get(0).isLiked()).isFalse();
+            assertThat(response.comments().get(2).childComments().get(0).isLiked()).isTrue();
         }
     }
 
     @Nested
     @DisplayName("작곡가 정보와 포스트 목록 조회 테스트")
     class GetComposerWithPostsTest {
-        @Autowired
-        private com.daramg.server.composer.repository.ComposerRepository composerRepository;
-
-        @Autowired
-        private com.daramg.server.composer.repository.ComposerLikeRepository composerLikeRepository;
 
         @Test
         @DisplayName("작곡가 정보와 해당 작곡가의 STORY, CURATION 포스트 목록을 조회한다")
