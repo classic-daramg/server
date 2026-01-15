@@ -1,6 +1,12 @@
 package com.daramg.server.post.application;
 
+import com.daramg.server.comment.domain.Comment;
+import com.daramg.server.comment.domain.CommentLike;
+import com.daramg.server.comment.dto.CommentResponseDto;
+import com.daramg.server.comment.repository.CommentLikeRepository;
+import com.daramg.server.comment.repository.CommentRepository;
 import com.daramg.server.common.application.EntityUtils;
+import com.daramg.server.common.domain.BaseEntity;
 import com.daramg.server.common.dto.PageRequestDto;
 import com.daramg.server.common.dto.PageResponseDto;
 import com.daramg.server.common.util.PagingUtils;
@@ -22,8 +28,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +42,8 @@ public class PostQueryService {
     private final PagingUtils pagingUtils;
     private final EntityUtils entityUtils;
     private final ComposerLikeRepository composerLikeRepository;
+    private final CommentRepository commentRepository;
+    private final CommentLikeRepository commentLikeRepository;
 
     public PageResponseDto<PostResponseDto> getAllPublishedFreePosts(PageRequestDto pageRequest, User user){
         List<FreePost> posts = postQueryRepository.getAllFreePostsWithPaging(pageRequest);
@@ -113,7 +121,11 @@ public class PostQueryService {
         Post post = entityUtils.getEntity(postId, Post.class);
         Boolean isLiked = user != null ? postLikeRepository.existsByPostIdAndUserId(postId, user.getId()) : null;
         Boolean isScrapped = user != null ? postScrapRepository.existsByPostIdAndUserId(postId, user.getId()) : null;
-        return PostDetailResponse.from(post, isLiked, isScrapped);
+        List<Comment> comments = commentRepository.findByPostIdAndIsBlockedFalseOrderByCreatedAtAsc(postId);
+
+        List<CommentResponseDto> commentDtos = mapCommentsWithChildren(comments, user);
+
+        return PostDetailResponse.from(post, isLiked, isScrapped, commentDtos);
     }
 
     public ComposerWithPostsResponseDto getComposerWithPosts(Long composerId, PageRequestDto pageRequest, User user) {
@@ -164,7 +176,7 @@ public class PostQueryService {
 
     private Set<Long> getLikedPostIds(List<Post> posts, User user) {
         if (user == null || posts.isEmpty()) {
-            return java.util.Collections.emptySet();
+            return Collections.emptySet();
         }
         List<Long> postIds = posts.stream().map(Post::getId).toList();
         return postLikeRepository.findPostIdsByPostIdsAndUserId(postIds, user.getId());
@@ -172,9 +184,64 @@ public class PostQueryService {
 
     private Set<Long> getScrappedPostIds(List<Post> posts, User user) {
         if (user == null || posts.isEmpty()) {
-            return java.util.Collections.emptySet();
+            return Collections.emptySet();
         }
         List<Long> postIds = posts.stream().map(Post::getId).toList();
         return postScrapRepository.findPostIdsByPostIdsAndUserId(postIds, user.getId());
+    }
+
+    private List<CommentResponseDto> mapCommentsWithChildren(List<Comment> allComments, User user) {
+        if (allComments.isEmpty()) {
+            return List.of();
+        }
+
+        // 부모/자식 댓글 분리 (작성시간 오름차순 정렬)
+        List<Comment> parentComments = allComments.stream()
+                .filter(comment -> comment.getParentComment() == null)
+                .sorted(Comparator.comparing((Comment c) -> c.getCreatedAt()).thenComparingLong(BaseEntity::getId))
+                .toList();
+
+        Map<Long, List<Comment>> childrenByParentId = allComments.stream()
+                .filter(comment -> comment.getParentComment() != null)
+                .collect(Collectors.groupingBy(comment -> comment.getParentComment().getId()));
+
+        // 현재 로그인 유저가 좋아요한 댓글 ID 모음
+        Set<Long> likedCommentIds = getLikedCommentIds(allComments, user);
+
+        return parentComments.stream()
+                .map(parent -> {
+                    List<Comment> children = childrenByParentId.getOrDefault(parent.getId(), List.of())
+                            .stream()
+                            .sorted(Comparator.comparing((Comment c) -> c.getCreatedAt()).thenComparingLong(BaseEntity::getId))
+                            .toList();
+
+                    List<CommentResponseDto.ChildCommentResponseDto> childDtos = children.stream()
+                            .map(child -> CommentResponseDto.ChildCommentResponseDto.from(
+                                    child,
+                                    user != null && likedCommentIds.contains(child.getId())
+                            ))
+                            .toList();
+
+                    Boolean isParentLiked = user != null ? likedCommentIds.contains(parent.getId()) : null;
+
+                    return CommentResponseDto.from(parent, isParentLiked, childDtos);
+                })
+                .toList();
+    }
+
+    private Set<Long> getLikedCommentIds(List<Comment> comments, User user) {
+        if (user == null || comments.isEmpty()) {
+            return Collections.emptySet();
+        }
+
+        List<Long> commentIds = comments.stream()
+                .map(Comment::getId)
+                .toList();
+
+        List<CommentLike> likes = commentLikeRepository.findByCommentIdInAndUserId(commentIds, user.getId());
+
+        return likes.stream()
+                .map(like -> like.getComment().getId())
+                .collect(Collectors.toSet());
     }
 }

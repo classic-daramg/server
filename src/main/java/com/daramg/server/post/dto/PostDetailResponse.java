@@ -2,6 +2,7 @@ package com.daramg.server.post.dto;
 
 import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.composer.domain.Composer;
+import com.daramg.server.comment.dto.CommentResponseDto;
 import com.daramg.server.post.domain.CurationPost;
 import com.daramg.server.post.domain.FreePost;
 import com.daramg.server.post.domain.Post;
@@ -15,6 +16,8 @@ import java.util.stream.Collectors;
 
 public record PostDetailResponse(
         Long id,
+        String writerNickname,
+        String writerProfileImage,
         String title,
         String content,
         List<String> images,
@@ -26,18 +29,22 @@ public record PostDetailResponse(
         boolean isBlocked,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        String writerNickname,
         PostType type,
         ComposerInfo primaryComposer,
         List<ComposerInfo> additionalComposers,
         Boolean isLiked,
-        Boolean isScrapped
+        Boolean isScrapped,
+        List<CommentResponseDto> comments
 ) {
     public static PostDetailResponse from(Post post) {
-        return from(post, null, null);
+        return from(post, null, null, List.of());
     }
 
     public static PostDetailResponse from(Post post, Boolean isLiked, Boolean isScrapped) {
+        return from(post, isLiked, isScrapped, List.of());
+    }
+
+    public static PostDetailResponse from(Post post, Boolean isLiked, Boolean isScrapped, List<CommentResponseDto> comments) {
         PostType type = getPostType(post);
         ComposerInfo primaryComposer = null;
         List<ComposerInfo> additionalComposers = null;
@@ -59,6 +66,8 @@ public record PostDetailResponse(
 
         return new PostDetailResponse(
                 post.getId(),
+                post.getUser().getNickname(),
+                post.getUser().getProfileImage(),
                 post.getTitle(),
                 post.getContent(),
                 post.getImages(),
@@ -70,12 +79,12 @@ public record PostDetailResponse(
                 post.isBlocked(),
                 post.getCreatedAt(),
                 post.getUpdatedAt(),
-                post.getUser().getNickname(),
                 type,
                 primaryComposer,
                 additionalComposers,
                 isLiked,
-                isScrapped
+                isScrapped,
+                comments
         );
     }
 
