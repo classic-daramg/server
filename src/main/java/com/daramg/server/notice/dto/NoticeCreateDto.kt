@@ -14,7 +14,7 @@ class NoticeCreateDto (
     @get:Size(min = 5, max = 3000, message ="5자 이상 3000자 이내로 입력해주세요")
     val content: String,
 
-    val image: List<String> = emptyList(),
+    val images: List<String> = emptyList(),
 
     val videoUrl: String? = null,
 
@@ -23,7 +23,7 @@ class NoticeCreateDto (
         Notice(
             title,
             content,
-            image,
+            images,
             videoUrl
         )
 }
