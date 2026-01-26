@@ -18,12 +18,4 @@ class NoticeCreateDto (
 
     val videoUrl: String? = null,
 
-) {
-    fun toEntity() : Notice =
-        Notice(
-            title,
-            content,
-            images,
-            videoUrl
-        )
-}
+) {}

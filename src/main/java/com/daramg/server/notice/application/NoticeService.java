@@ -2,12 +2,11 @@ package com.daramg.server.notice.application;
 
 import com.daramg.server.common.application.EntityUtils;
 import com.daramg.server.notice.domain.Notice;
+import com.daramg.server.notice.domain.vo.NoticeCreateVo;
 import com.daramg.server.notice.domain.vo.NoticeUpdateVo;
 import com.daramg.server.notice.dto.NoticeCreateDto;
 import com.daramg.server.notice.dto.NoticeUpdateDto;
 import com.daramg.server.notice.repository.NoticeRepository;
-import com.daramg.server.post.domain.Post;
-import com.daramg.server.post.utils.PostUserValidator;
 import com.daramg.server.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -27,11 +26,18 @@ public class NoticeService {
     @Transactional
     public void create(NoticeCreateDto dto, User user) {
 
-        Notice notice = dto.toEntity();
-        log.info(notice.toString());
+//        Notice notice = dto.toEntity();
+//        Notice saved = noticeRepository.save(notice);
 
-        Notice saved = noticeRepository.save(notice);
-        log.info(saved.toString());
+        NoticeCreateVo vo = new NoticeCreateVo(
+                user,
+                dto.getTitle(),
+                dto.getContent(),
+                dto.getImages(),
+                dto.getVideoUrl()
+        );
+        Notice notice = Notice.from(vo);
+        noticeRepository.save(notice);
     }
 
     @Transactional
