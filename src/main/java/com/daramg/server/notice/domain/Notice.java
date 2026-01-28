@@ -5,11 +5,11 @@ import com.daramg.server.common.domain.BaseEntity;
 import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.notice.domain.vo.NoticeCreateVo;
 import com.daramg.server.notice.domain.vo.NoticeUpdateVo;
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
+import com.daramg.server.user.domain.User;
+import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -21,17 +21,21 @@ public class Notice extends BaseEntity<Notice> {
     protected Notice() {
     }
 
-    @Column
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @Column(name = "title", nullable = false, columnDefinition = "TEXT")
     private String title;
 
-    @Column
+    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
     @Convert(converter = JsonArrayConverter.class)
     @Column(name = "images", columnDefinition = "JSON")
-    private List<String> images;
+    private List<String> images = new ArrayList<>();
 
-    @Column
+    @Column(name = "video_url")
     private String videoUrl;
 
     public void update(NoticeUpdateVo vo) {
@@ -59,11 +63,12 @@ public class Notice extends BaseEntity<Notice> {
     }
 
     @Builder
-    private Notice(String title, String content, List<String> images, String videoUrl){
+    private Notice(String title, String content, List<String> images, String videoUrl, User user){
         this.title = title;
         this.content = content;
         this.images = images;
         this.videoUrl = videoUrl;
+        this.user = user;
     }
 
     public static Notice from(NoticeCreateVo vo) {
@@ -72,6 +77,7 @@ public class Notice extends BaseEntity<Notice> {
                 .content(vo.getContent())
                 .images(vo.getImages())
                 .videoUrl(vo.getVideoUrl())
+                .user(vo.getUser())
                 .build();
     }
 
