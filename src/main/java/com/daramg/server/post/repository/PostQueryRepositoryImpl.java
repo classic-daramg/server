@@ -2,12 +2,15 @@ package com.daramg.server.post.repository;
 
 import com.daramg.server.common.dto.PageRequestDto;
 import com.daramg.server.common.util.PagingUtils;
+import com.daramg.server.composer.domain.Continent;
+import com.daramg.server.composer.domain.Era;
 import com.daramg.server.post.domain.CurationPost;
 import com.daramg.server.post.domain.FreePost;
 import com.daramg.server.post.domain.Post;
 import com.daramg.server.post.domain.PostStatus;
 import com.daramg.server.post.domain.QPost;
 import com.daramg.server.post.domain.StoryPost;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.EntityPathBase;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -37,8 +40,29 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
     }
 
     @Override
-    public List<CurationPost> getAllCurationPostsWithPaging(PageRequestDto pageRequest) {
-        return getAllPostsWithPaging(pageRequest, curationPost, curationPost._super);
+    public List<CurationPost> getAllCurationPostsWithPaging(PageRequestDto pageRequest, List<Era> eras, List<Continent> continents) {
+        BooleanBuilder whereClause = new BooleanBuilder()
+                .and(curationPost._super.isBlocked.isFalse())
+                .and(curationPost._super.postStatus.eq(PostStatus.PUBLISHED));
+        if (eras != null && !eras.isEmpty()) {
+            whereClause.and(curationPost.primaryComposer.era.in(eras));
+        }
+        if (continents != null && !continents.isEmpty()) {
+            whereClause.and(curationPost.primaryComposer.continent.in(continents));
+        }
+
+        JPAQuery<CurationPost> query = queryFactory
+                .selectFrom(curationPost)
+                .leftJoin(curationPost._super.user, user).fetchJoin()
+                .leftJoin(curationPost.primaryComposer).fetchJoin()
+                .where(whereClause);
+
+        return pagingUtils.applyCursorPagination(
+                query,
+                pageRequest,
+                curationPost._super.createdAt,
+                curationPost._super.id
+        );
     }
 
     @Override

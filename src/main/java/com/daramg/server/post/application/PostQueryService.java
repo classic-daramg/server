@@ -11,6 +11,8 @@ import com.daramg.server.common.dto.PageRequestDto;
 import com.daramg.server.common.dto.PageResponseDto;
 import com.daramg.server.common.util.PagingUtils;
 import com.daramg.server.composer.domain.Composer;
+import com.daramg.server.composer.domain.Continent;
+import com.daramg.server.composer.domain.Era;
 import com.daramg.server.composer.dto.ComposerResponseDto;
 import com.daramg.server.composer.dto.ComposerWithPostsResponseDto;
 import com.daramg.server.composer.repository.ComposerLikeRepository;
@@ -57,13 +59,19 @@ public class PostQueryService {
         );
     }
 
-    public PageResponseDto<PostResponseDto> getAllPublishedCurationPosts(PageRequestDto pageRequest, User user){
-        List<CurationPost> posts = postQueryRepository.getAllCurationPostsWithPaging(pageRequest);
+    public PageResponseDto<PostResponseDto> getAllPublishedCurationPosts(PageRequestDto pageRequest, User user,
+                                                                        List<Era> eras, List<Continent> continents) {
+        List<CurationPost> posts = postQueryRepository.getAllCurationPostsWithPaging(pageRequest, eras, continents);
+
+        // N+1 방지: 좋아요/스크랩 여부 배치 조회
+        List<Post> postsAsPost = new ArrayList<>(posts);
+        Set<Long> likedPostIds = getLikedPostIds(postsAsPost, user);
+        Set<Long> scrappedPostIds = getScrappedPostIds(postsAsPost, user);
 
         return pagingUtils.createPageResponse(
                 posts,
                 pageRequest.getValidatedSize(),
-                post -> toPostResponseDto(post, user),
+                post -> toPostResponseDto(post, user, likedPostIds, scrappedPostIds),
                 Post::getCreatedAt,
                 Post::getId
         );
