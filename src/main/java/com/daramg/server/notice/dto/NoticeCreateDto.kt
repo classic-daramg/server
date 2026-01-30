@@ -1,10 +1,9 @@
 package com.daramg.server.notice.dto
 
-import com.daramg.server.notice.domain.Notice
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 
-class NoticeCreateDto (
+data class NoticeCreateDto (
 
     @get:NotBlank(message = "제목 입력은 필수입니다")
     @get:Size(max = 15, message = "15자 이내로 입력해주세요")
@@ -17,5 +16,4 @@ class NoticeCreateDto (
     val images: List<String> = emptyList(),
 
     val videoUrl: String? = null,
-
-) {}
+)

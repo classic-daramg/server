@@ -59,11 +59,10 @@ public class Notice extends BaseEntity<Notice> {
         if (vo.getVideoUrl() != null) {
             updateVideoUrl(vo.getVideoUrl());
         }
-
     }
 
     @Builder
-    private Notice(String title, String content, List<String> images, String videoUrl, User user){
+    private Notice(String title, String content, List<String> images, String videoUrl, User user) {
         this.title = title;
         this.content = content;
         this.images = images;
@@ -81,11 +80,19 @@ public class Notice extends BaseEntity<Notice> {
                 .build();
     }
 
-    protected void updateTitle(String title) { this.title = title; }
+    protected void updateTitle(String title) {
+        this.title = title;
+    }
 
-    protected void updateContent(String content) { this.content = content; }
+    protected void updateContent(String content) {
+        this.content = content;
+    }
 
-    protected void updateImages(List<String> images) { this.images = images; }
+    protected void updateImages(List<String> images) {
+        this.images = images;
+    }
 
-    protected void updateVideoUrl(String videoUrl) { this.videoUrl = videoUrl; }
+    protected void updateVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
+    }
 }

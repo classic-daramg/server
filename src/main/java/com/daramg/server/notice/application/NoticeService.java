@@ -7,16 +7,15 @@ import com.daramg.server.notice.domain.vo.NoticeUpdateVo;
 import com.daramg.server.notice.dto.NoticeCreateDto;
 import com.daramg.server.notice.dto.NoticeUpdateDto;
 import com.daramg.server.notice.repository.NoticeRepository;
+import com.daramg.server.notice.utils.NoticeUserValidator;
 import com.daramg.server.user.domain.User;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Slf4j
-@ToString
 @Service
 public class NoticeService {
 
@@ -26,9 +25,6 @@ public class NoticeService {
     @Transactional
     public void create(NoticeCreateDto dto, User user) {
 
-//        Notice notice = dto.toEntity();
-//        Notice saved = noticeRepository.save(notice);
-
         NoticeCreateVo vo = new NoticeCreateVo(
                 user,
                 dto.getTitle(),
@@ -36,6 +32,7 @@ public class NoticeService {
                 dto.getImages(),
                 dto.getVideoUrl()
         );
+
         Notice notice = Notice.from(vo);
         noticeRepository.save(notice);
     }
@@ -43,21 +40,25 @@ public class NoticeService {
     @Transactional
     public void updateNotice(Long noticeId, NoticeUpdateDto dto, User user) {
         Notice notice = entityUtils.getEntity(noticeId, Notice.class);
+        NoticeUserValidator.check(notice, user);
+
         NoticeUpdateVo vo = toUpdateVo(dto);
         notice.update(vo);
     }
 
     @Transactional
-    public void delete(Long noticeId, User user){
+    public void delete(Long noticeId, User user) {
         Notice notice = entityUtils.getEntity(noticeId, Notice.class);
-
+        NoticeUserValidator.check(notice, user);
         noticeRepository.deleteById(noticeId);
     }
 
-    private NoticeUpdateVo toUpdateVo(NoticeUpdateDto dto){
+    private NoticeUpdateVo toUpdateVo(NoticeUpdateDto dto) {
         return new NoticeUpdateVo(
-                dto.getTitle(), dto.getContent(),
-                dto.getImages(), dto.getVideoUrl()
+                dto.getTitle(),
+                dto.getContent(),
+                dto.getImages(),
+                dto.getVideoUrl()
         );
     }
 }

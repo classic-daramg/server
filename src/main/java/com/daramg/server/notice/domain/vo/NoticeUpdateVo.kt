@@ -6,5 +6,4 @@ class NoticeUpdateVo (
     val content: String? = null,
     val images: List<String>? = null,
     val videoUrl: String? = null,
-) {
-}
+)
