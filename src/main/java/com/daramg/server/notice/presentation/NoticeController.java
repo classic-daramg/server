@@ -29,4 +29,10 @@ public class NoticeController {
                              @Valid @RequestBody NoticeUpdateDto updateRequest, User user) {
         noticeService.updateNotice(noticeId, updateRequest, user);
     }
+
+    @DeleteMapping("/notice/{noticeId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteNotice(@PathVariable Long noticeId, User user) {
+        noticeService.delete(noticeId, user);
+    }
 }
