@@ -73,12 +73,11 @@ public class AuthControllerTest extends ControllerTestSupport {
                                 .requestFields(
                                         fieldWithPath("originalEmail").optional().description("null로 설정"),
                                         fieldWithPath("email").type(JsonFieldType.STRING).description("이메일"),
-                                        fieldWithPath("emailPurpose").type(JsonFieldType.STRING).description("이메일 인증코드 전송 목적(SIGNUP, PASSWORD_RESET)")
+                                        fieldWithPath("emailPurpose").type(JsonFieldType.STRING).description("이메일 인증코드 전송 목적(SIGNUP, PASSWORD_RESET, EMAIL_CHANGE)")
                                 )
                                 .build()
                         )
                 ));
-
     }
 
     @Test
@@ -103,12 +102,41 @@ public class AuthControllerTest extends ControllerTestSupport {
                                 .requestFields(
                                         fieldWithPath("originalEmail").optional().description("null로 설정"),
                                         fieldWithPath("email").type(JsonFieldType.STRING).description("이메일"),
-                                        fieldWithPath("emailPurpose").type(JsonFieldType.STRING).description("이메일 인증코드 전송 목적(SIGNUP, PASSWORD_RESET)")
+                                        fieldWithPath("emailPurpose").type(JsonFieldType.STRING).description("이메일 인증코드 전송 목적(SIGNUP, PASSWORD_RESET, EMAIL_CHANGE)")
                                 )
                                 .build()
                         )
                 ));
 
+    }
+
+    @Test
+    void 이메일_변경을_위한_인증코드_메일_발송() throws Exception {
+        // given
+        EmailVerificationRequestDto request = new EmailVerificationRequestDto("original@email.com", "new@email.com", EmailPurpose.EMAIL_CHANGE);
+
+        doNothing().when(mailVerificationService).sendVerificationEmail(any(EmailVerificationRequestDto.class));
+
+        // when
+        ResultActions result = mockMvc.perform(post("/auth/email-verifications")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+
+        //then
+        result.andExpect(status().isOk())
+                .andDo(document("이메일_변경을_위한_인증코드_메일_발송",
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("Auth API")
+                                .summary("인증코드 이메일 발송")
+                                .description("이메일 주소로 인증코드를 발송합니다. 이메일 변경 시 기존 이메일(originalEmail)과 변경할 이메일(email)을 함께 전달합니다.")
+                                .requestFields(
+                                        fieldWithPath("originalEmail").type(JsonFieldType.STRING).description("기존 이메일 (이메일 변경 시 필수)"),
+                                        fieldWithPath("email").type(JsonFieldType.STRING).description("인증코드를 받을 이메일 (변경할 새 이메일)"),
+                                        fieldWithPath("emailPurpose").type(JsonFieldType.STRING).description("이메일 인증코드 전송 목적(SIGNUP, PASSWORD_RESET, EMAIL_CHANGE)")
+                                )
+                                .build()
+                        )
+                ));
     }
 
     @Test

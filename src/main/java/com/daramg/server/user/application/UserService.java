@@ -43,29 +43,35 @@ public class UserService {
 
     @Transactional
     public void changeUserEmail(User user, EmailChangeRequestDto request) {
-        if (user.getEmail().equals(request.getEmail())){
+        User managedUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new BusinessException("유저를 찾을 수 없습니다."));
+        if (managedUser.getEmail().equals(request.getEmail())){
             throw new BusinessException("기존 이메일과 동일한 이메일로 변경할 수 없습니다.");
         }
         if (userRepository.existsByEmail(request.getEmail())){
             throw new BusinessException("이미 가입되어 있는 이메일입니다.");
         }
-        user.changeEmail(request.getEmail());
+        managedUser.changeEmail(request.getEmail());
     }
 
     @Transactional
     public void changeUserPassword(User user, PasswordRequestDto request) {
+        User managedUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new BusinessException("유저를 찾을 수 없습니다."));
         String encodedPassword = passwordEncoder.encode(request.getPassword());
-        user.changePassword(encodedPassword);
+        managedUser.changePassword(encodedPassword);
     }
 
     @Transactional
     public void updateUserProfile(User user, UserProfileUpdateRequestDto request){
+        User managedUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new BusinessException("유저를 찾을 수 없습니다."));
         UpdateVo vo = new UpdateVo(
                 request.getProfileImageUrl(),
                 request.getNickname(),
                 request.getBio()
         );
-        user.update(vo);
+        managedUser.update(vo);
     }
 
     @Transactional
@@ -80,10 +86,12 @@ public class UserService {
             throw new BusinessException("이미 팔로우하고 있는 상태입니다.");
         }
 
+        User managedFollower = userRepository.findById(follower.getId())
+                .orElseThrow(() -> new BusinessException("유저를 찾을 수 없습니다."));
         User followed = entityUtils.getEntity(followedId, User.class);
-        userFollowRepository.save(UserFollow.of(follower, followed));
+        userFollowRepository.save(UserFollow.of(managedFollower, followed));
 
-        follower.incrementFollowingCount();
+        managedFollower.incrementFollowingCount();
         followed.incrementFollowerCount();
     }
 
@@ -92,6 +100,8 @@ public class UserService {
         if (follower.getId().equals(followedId)) {
             throw new BusinessException("언팔로우 대상과 주체의 유저가 동일합니다.");
         }
+        User managedFollower = userRepository.findById(follower.getId())
+                .orElseThrow(() -> new BusinessException("유저를 찾을 수 없습니다."));
         User followed = entityUtils.getEntity(followedId, User.class);
 
         boolean existingFollow = userFollowRepository
@@ -101,7 +111,7 @@ public class UserService {
         }
 
         userFollowRepository.deleteByFollowerIdAndFollowedId(follower.getId(), followedId);
-        follower.decrementFollowingCount();
+        managedFollower.decrementFollowingCount();
         followed.decrementFollowerCount();
     }
 }

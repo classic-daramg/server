@@ -9,6 +9,8 @@ import com.daramg.server.common.dto.PageResponseDto;
 import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.common.exception.NotFoundException;
 import com.daramg.server.common.util.PagingUtils;
+import com.daramg.server.composer.domain.*;
+import com.daramg.server.composer.dto.ComposerWithPostsResponseDto;
 import com.daramg.server.composer.repository.ComposerLikeRepository;
 import com.daramg.server.composer.repository.ComposerRepository;
 import com.daramg.server.post.domain.CurationPost;
@@ -792,6 +794,306 @@ public class PostQueryServiceTest extends ServiceTestSupport {
     }
 
     @Nested
+    @DisplayName("큐레이션 포스트 목록 조회 테스트")
+    class GetAllPublishedCurationPostsTest {
+
+        @Test
+        @DisplayName("eras, continents 필터 없이 조회 시 PUBLISHED 큐레이션 포스트 전체가 반환된다")
+        void getAllPublishedCurationPosts_WithoutFilter_ReturnsAllPublishedCurationPosts() {
+            // given
+            Composer composerBaroque = Composer.builder()
+                    .koreanName("비발디")
+                    .englishName("Antonio Vivaldi")
+                    .gender(Gender.MALE)
+                    .era(Era.BAROQUE)
+                    .continent(Continent.EUROPE)
+                    .build();
+
+            Composer composerClassical = Composer.builder()
+                    .koreanName("모차르트")
+                    .englishName("Wolfgang Amadeus Mozart")
+                    .gender(Gender.MALE)
+                    .era(Era.CLASSICAL)
+                    .continent(Continent.EUROPE)
+                    .build();
+
+            composerRepository.save(composerBaroque);
+            composerRepository.save(composerClassical);
+
+            CurationPost post1 = CurationPost.from(
+                    new PostCreateVo.Curation(
+                            user,
+                            "비발디 큐레이션",
+                            "비발디에 대한 큐레이션",
+                            PostStatus.PUBLISHED,
+                            List.of("curation1.jpg"),
+                            null,
+                            List.of("#비발디"),
+                            composerBaroque,
+                            List.of()
+                    )
+            );
+            CurationPost post2 = CurationPost.from(
+                    new PostCreateVo.Curation(
+                            user,
+                            "모차르트 큐레이션",
+                            "모차르트에 대한 큐레이션",
+                            PostStatus.PUBLISHED,
+                            List.of("curation2.jpg"),
+                            null,
+                            List.of("#모차르트"),
+                            composerClassical,
+                            List.of()
+                    )
+            );
+            postRepository.save(post1);
+            postRepository.save(post2);
+
+            PageRequestDto pageRequest = new PageRequestDto(null, 100);
+
+            // when
+            PageResponseDto<PostResponseDto> response =
+                    postQueryService.getAllPublishedCurationPosts(pageRequest, null, null, null);
+
+            // then
+            assertThat(response.getContent()).hasSize(2);
+            assertThat(response.getContent())
+                    .extracting(PostResponseDto::title)
+                    .containsExactlyInAnyOrder("비발디 큐레이션", "모차르트 큐레이션");
+        }
+
+        @Test
+        @DisplayName("eras 필터 적용 시 해당 시대의 primaryComposer를 가진 큐레이션 포스트만 반환된다")
+        void getAllPublishedCurationPosts_WithErasFilter_ReturnsOnlyMatchingEra() {
+            // given
+            Composer composerBaroque = Composer.builder()
+                    .koreanName("비발디")
+                    .englishName("Antonio Vivaldi")
+                    .gender(Gender.MALE)
+                    .era(Era.BAROQUE)
+                    .continent(Continent.EUROPE)
+                    .build();
+
+            Composer composerClassical = Composer.builder()
+                    .koreanName("모차르트")
+                    .englishName("Wolfgang Amadeus Mozart")
+                    .gender(Gender.MALE)
+                    .era(Era.CLASSICAL)
+                    .continent(Continent.EUROPE)
+                    .build();
+
+            composerRepository.save(composerBaroque);
+            composerRepository.save(composerClassical);
+
+            CurationPost baroquePost = CurationPost.from(
+                    new PostCreateVo.Curation(
+                            user,
+                            "바로크 큐레이션",
+                            "바로크 내용",
+                            PostStatus.PUBLISHED,
+                            List.of(),
+                            null,
+                            List.of(),
+                            composerBaroque,
+                            List.of()
+                    )
+            );
+
+            CurationPost classicalPost = CurationPost.from(
+                    new PostCreateVo.Curation(
+                            user,
+                            "고전 큐레이션",
+                            "고전 내용",
+                            PostStatus.PUBLISHED,
+                            List.of(),
+                            null,
+                            List.of(),
+                            composerClassical,
+                            List.of()
+                    )
+            );
+            postRepository.save(baroquePost);
+            postRepository.save(classicalPost);
+
+            PageRequestDto pageRequest = new PageRequestDto(null, 100);
+
+            // when - BAROQUE만 필터
+            PageResponseDto<PostResponseDto> response =
+                    postQueryService.getAllPublishedCurationPosts(pageRequest, null, List.of(Era.BAROQUE), null);
+
+            // then
+            assertThat(response.getContent()).hasSize(1);
+            assertThat(response.getContent().getFirst().title()).isEqualTo("바로크 큐레이션");
+            assertThat(response.getContent().getFirst().primaryComposer().era()).isEqualTo(Era.BAROQUE);
+        }
+
+        @Test
+        @DisplayName("continents 필터 적용 시 해당 대륙의 primaryComposer를 가진 큐레이션 포스트만 반환된다")
+        void getAllPublishedCurationPosts_WithContinentsFilter_ReturnsOnlyMatchingContinent() {
+            // given
+            Composer composerEurope = Composer.builder()
+                    .koreanName("비발디")
+                    .englishName("Antonio Vivaldi")
+                    .gender(Gender.MALE)
+                    .era(Era.BAROQUE)
+                    .continent(Continent.EUROPE)
+                    .build();
+
+            Composer composerAsia = Composer.builder()
+                    .koreanName("홍길동")
+                    .englishName("Hong Gildong")
+                    .gender(Gender.MALE)
+                    .era(Era.BAROQUE)
+                    .continent(Continent.ASIA)
+                    .build();
+
+            composerRepository.save(composerEurope);
+            composerRepository.save(composerAsia);
+
+            CurationPost europePost = CurationPost.from(
+                    new PostCreateVo.Curation(
+                            user,
+                            "유럽 큐레이션",
+                            "유럽 내용",
+                            PostStatus.PUBLISHED,
+                            List.of(),
+                            null,
+                            List.of(),
+                            composerEurope,
+                            List.of()
+                    )
+            );
+
+            CurationPost asiaPost = CurationPost.from(
+                    new PostCreateVo.Curation(
+                            user,
+                            "아시아 큐레이션",
+                            "아시아 내용",
+                            PostStatus.PUBLISHED,
+                            List.of(),
+                            null,
+                            List.of(),
+                            composerAsia,
+                            List.of()
+                    )
+            );
+            postRepository.save(europePost);
+            postRepository.save(asiaPost);
+
+            PageRequestDto pageRequest = new PageRequestDto(null, 100);
+
+            // when - EUROPE만 필터
+            PageResponseDto<PostResponseDto> response =
+                    postQueryService.getAllPublishedCurationPosts(pageRequest, null, null, List.of(Continent.EUROPE));
+
+            // then
+            assertThat(response.getContent()).hasSize(1);
+            assertThat(response.getContent().getFirst().title()).isEqualTo("유럽 큐레이션");
+            assertThat(response.getContent().getFirst().primaryComposer().continent()).isEqualTo(Continent.EUROPE);
+        }
+
+        @Test
+        @DisplayName("eras와 continents 필터를 함께 적용하면 두 조건을 모두 만족하는 큐레이션 포스트만 반환된다")
+        void getAllPublishedCurationPosts_WithErasAndContinents_ReturnsOnlyMatchingBoth() {
+            // given
+            Composer baroqueEurope = Composer.builder()
+                    .koreanName("비발디")
+                    .englishName("Antonio Vivaldi")
+                    .gender(Gender.MALE)
+                    .era(Era.BAROQUE)
+                    .continent(Continent.EUROPE)
+                    .build();
+
+            Composer classicalEurope = Composer.builder()
+                    .koreanName("모차르트")
+                    .englishName("Mozart")
+                    .gender(Gender.MALE)
+                    .era(Era.CLASSICAL)
+                    .continent(Continent.EUROPE)
+                    .build();
+
+            Composer baroqueAsia = Composer.builder()
+                    .koreanName("아시아 바로크")
+                    .englishName("Asia Baroque")
+                    .gender(Gender.MALE)
+                    .era(Era.BAROQUE)
+                    .continent(Continent.ASIA)
+                    .build();
+
+            composerRepository.save(baroqueEurope);
+            composerRepository.save(classicalEurope);
+            composerRepository.save(baroqueAsia);
+
+            CurationPost post1 = CurationPost.from(
+                    new PostCreateVo.Curation(user, "바로크 유럽", "내용", PostStatus.PUBLISHED, List.of(), null, List.of(), baroqueEurope, List.of()));
+            CurationPost post2 = CurationPost.from(
+                    new PostCreateVo.Curation(user, "고전 유럽", "내용", PostStatus.PUBLISHED, List.of(), null, List.of(), classicalEurope, List.of()));
+            CurationPost post3 = CurationPost.from(
+                    new PostCreateVo.Curation(user, "바로크 아시아", "내용", PostStatus.PUBLISHED, List.of(), null, List.of(), baroqueAsia, List.of()));
+            postRepository.save(post1);
+            postRepository.save(post2);
+            postRepository.save(post3);
+
+            PageRequestDto pageRequest = new PageRequestDto(null, 100);
+
+            // when - BAROQUE + EUROPE
+            PageResponseDto<PostResponseDto> response = postQueryService.getAllPublishedCurationPosts(
+                    pageRequest, null, List.of(Era.BAROQUE), List.of(Continent.EUROPE));
+
+            // then
+            assertThat(response.getContent()).hasSize(1);
+            assertThat(response.getContent().getFirst().title()).isEqualTo("바로크 유럽");
+            assertThat(response.getContent().getFirst().primaryComposer().era()).isEqualTo(Era.BAROQUE);
+            assertThat(response.getContent().getFirst().primaryComposer().continent()).isEqualTo(Continent.EUROPE);
+        }
+
+        @Test
+        @DisplayName("응답에 primaryComposer(id, koreanName, era, continent)가 포함된다")
+        void getAllPublishedCurationPosts_ResponseContainsPrimaryComposer() {
+            // given
+            Composer composer = Composer.builder()
+                    .koreanName("베토벤")
+                    .englishName("Ludwig van Beethoven")
+                    .gender(Gender.MALE)
+                    .era(Era.CLASSICAL)
+                    .continent(Continent.EUROPE)
+                    .build();
+
+            composerRepository.save(composer);
+
+            CurationPost curationPost = CurationPost.from(
+                    new PostCreateVo.Curation(
+                            user,
+                            "베토벤 큐레이션",
+                            "베토벤에 대한 큐레이션",
+                            PostStatus.PUBLISHED,
+                            List.of("curation.jpg"),
+                            null,
+                            List.of("#베토벤", "#큐레이션"),
+                            composer,
+                            List.of()
+                    )
+            );
+            postRepository.save(curationPost);
+
+            PageRequestDto pageRequest = new PageRequestDto(null, 10);
+
+            // when
+            PageResponseDto<PostResponseDto> response =
+                    postQueryService.getAllPublishedCurationPosts(pageRequest, null, null, null);
+
+            // then
+            assertThat(response.getContent()).hasSize(1);
+            PostResponseDto dto = response.getContent().getFirst();
+            assertThat(dto.primaryComposer()).isNotNull();
+            assertThat(dto.primaryComposer().id()).isEqualTo(composer.getId());
+            assertThat(dto.primaryComposer().koreanName()).isEqualTo("베토벤");
+            assertThat(dto.primaryComposer().era()).isEqualTo(Era.CLASSICAL);
+            assertThat(dto.primaryComposer().continent()).isEqualTo(Continent.EUROPE);
+        }
+    }
+
+    @Nested
     @DisplayName("작곡가 정보와 포스트 목록 조회 테스트")
     class GetComposerWithPostsTest {
 
@@ -799,17 +1101,18 @@ public class PostQueryServiceTest extends ServiceTestSupport {
         @DisplayName("작곡가 정보와 해당 작곡가의 STORY, CURATION 포스트 목록을 조회한다")
         void getComposerWithPosts_ReturnsComposerAndPosts() {
             // given
-            com.daramg.server.composer.domain.Composer composer = com.daramg.server.composer.domain.Composer.builder()
+            Composer composer = Composer.builder()
                     .koreanName("베토벤")
                     .englishName("Ludwig van Beethoven")
                     .nativeName("Ludwig van Beethoven")
                     .nationality("독일")
-                    .gender(com.daramg.server.composer.domain.Gender.MALE)
+                    .gender(Gender.MALE)
                     .birthYear((short) 1770)
                     .deathYear((short) 1827)
-                    .era(com.daramg.server.composer.domain.Era.CLASSICAL)
-                    .continent(com.daramg.server.composer.domain.Continent.EUROPE)
+                    .era(Era.CLASSICAL)
+                    .continent(Continent.EUROPE)
                     .build();
+
             composerRepository.save(composer);
 
             // StoryPost 생성
@@ -860,7 +1163,7 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             PageRequestDto pageRequest = new PageRequestDto(null, 100);
 
             // when
-            com.daramg.server.composer.dto.ComposerWithPostsResponseDto response =
+            ComposerWithPostsResponseDto response =
                     postQueryService.getComposerWithPosts(composer.getId(), pageRequest, null);
 
             // then
@@ -883,22 +1186,23 @@ public class PostQueryServiceTest extends ServiceTestSupport {
         @DisplayName("로그인한 유저가 좋아요한 작곡가의 경우 isLiked가 true로 반환된다")
         void getComposerWithPosts_WithLikedComposer_ReturnsIsLikedTrue() {
             // given
-            com.daramg.server.composer.domain.Composer composer = com.daramg.server.composer.domain.Composer.builder()
+            Composer composer = Composer.builder()
                     .koreanName("베토벤")
                     .englishName("Ludwig van Beethoven")
-                    .gender(com.daramg.server.composer.domain.Gender.MALE)
-                    .era(com.daramg.server.composer.domain.Era.CLASSICAL)
-                    .continent(com.daramg.server.composer.domain.Continent.EUROPE)
+                    .gender(Gender.MALE)
+                    .era(Era.CLASSICAL)
+                    .continent(Continent.EUROPE)
                     .build();
+
             composerRepository.save(composer);
 
             // 유저가 작곡가를 좋아요
-            composerLikeRepository.save(com.daramg.server.composer.domain.ComposerLike.of(composer, user));
+            composerLikeRepository.save(ComposerLike.of(composer, user));
 
             PageRequestDto pageRequest = new PageRequestDto(null, 10);
 
             // when
-            com.daramg.server.composer.dto.ComposerWithPostsResponseDto response =
+            ComposerWithPostsResponseDto response =
                     postQueryService.getComposerWithPosts(composer.getId(), pageRequest, user);
 
             // then
@@ -922,13 +1226,14 @@ public class PostQueryServiceTest extends ServiceTestSupport {
         @DisplayName("PUBLISHED 상태인 포스트만 반환된다")
         void getComposerWithPosts_ReturnsOnlyPublishedPosts() {
             // given
-            com.daramg.server.composer.domain.Composer composer = com.daramg.server.composer.domain.Composer.builder()
+            Composer composer = Composer.builder()
                     .koreanName("베토벤")
                     .englishName("Ludwig van Beethoven")
-                    .gender(com.daramg.server.composer.domain.Gender.MALE)
-                    .era(com.daramg.server.composer.domain.Era.CLASSICAL)
-                    .continent(com.daramg.server.composer.domain.Continent.EUROPE)
+                    .gender(Gender.MALE)
+                    .era(Era.CLASSICAL)
+                    .continent(Continent.EUROPE)
                     .build();
+
             composerRepository.save(composer);
 
             // PUBLISHED StoryPost
@@ -964,7 +1269,7 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             PageRequestDto pageRequest = new PageRequestDto(null, 100);
 
             // when
-            com.daramg.server.composer.dto.ComposerWithPostsResponseDto response =
+            ComposerWithPostsResponseDto response =
                     postQueryService.getComposerWithPosts(composer.getId(), pageRequest, null);
 
             // then

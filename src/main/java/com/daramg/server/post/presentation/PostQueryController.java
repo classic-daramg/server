@@ -1,5 +1,7 @@
 package com.daramg.server.post.presentation;
 
+import com.daramg.server.composer.domain.Continent;
+import com.daramg.server.composer.domain.Era;
 import com.daramg.server.common.dto.PageRequestDto;
 import com.daramg.server.common.dto.PageResponseDto;
 import com.daramg.server.post.application.PostQueryService;
@@ -10,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,9 +35,11 @@ public class PostQueryController {
     @ResponseStatus(HttpStatus.OK)
     public PageResponseDto<PostResponseDto> getAllPublishedCurationPosts(
             @AuthenticationPrincipal User user, // 로그인 or 비로그인 유저
-            @ModelAttribute PageRequestDto request
+            @ModelAttribute PageRequestDto request,
+            @RequestParam(name = "eras", required = false) List<Era> eras,
+            @RequestParam(name = "continents", required = false) List<Continent> continents
     ){
-        return postQueryService.getAllPublishedCurationPosts(request, user);
+        return postQueryService.getAllPublishedCurationPosts(request, user, eras, continents);
     }
 
     @GetMapping("/story")
