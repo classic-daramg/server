@@ -108,6 +108,7 @@ public class ComposerQueryControllerTest extends ControllerTestSupport {
                 5,
                 "https://example.com/image1.jpg",
                 PostType.STORY,
+                null,
                 true,
                 false
         );
@@ -123,6 +124,7 @@ public class ComposerQueryControllerTest extends ControllerTestSupport {
                 10,
                 null,
                 PostType.CURATION,
+                null,
                 false,
                 true
         );
@@ -184,6 +186,11 @@ public class ComposerQueryControllerTest extends ControllerTestSupport {
                                         fieldWithPath("posts.content[].commentCount").type(JsonFieldType.NUMBER).description("댓글 개수"),
                                         fieldWithPath("posts.content[].thumbnailImageUrl").type(JsonFieldType.STRING).description("썸네일 이미지 URL").optional(),
                                         fieldWithPath("posts.content[].type").type(JsonFieldType.STRING).description("포스트 타입 (FREE, CURATION, STORY)"),
+                                        fieldWithPath("posts.content[].primaryComposer").type(JsonFieldType.OBJECT).description("큐레이션 포스트의 대표 작곡가 정보 (CURATION 타입일 때만 존재)").optional(),
+                                        fieldWithPath("posts.content[].primaryComposer.id").type(JsonFieldType.NUMBER).description("작곡가 ID").optional(),
+                                        fieldWithPath("posts.content[].primaryComposer.koreanName").type(JsonFieldType.STRING).description("작곡가 한글 이름").optional(),
+                                        fieldWithPath("posts.content[].primaryComposer.era").type(JsonFieldType.STRING).description("작곡가 시대 (Era)").optional(),
+                                        fieldWithPath("posts.content[].primaryComposer.continent").type(JsonFieldType.STRING).description("작곡가 대륙 (Continent)").optional(),
                                         fieldWithPath("posts.content[].isLiked").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 좋아요 여부 (비로그인 시 null)").optional(),
                                         fieldWithPath("posts.content[].isScrapped").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 스크랩 여부 (비로그인 시 null)").optional(),
                                         fieldWithPath("posts.nextCursor").type(JsonFieldType.STRING).description("다음 페이지 조회를 위한 커서 (Base64 인코딩된 문자열). 마지막 페이지인 경우 null").optional(),

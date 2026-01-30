@@ -51,6 +51,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 "https://example.com/image1.jpg",
                 PostType.FREE,
                 null,
+                null,
                 null
         );
         PostResponseDto freePost2 = new PostResponseDto(
@@ -64,6 +65,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 10,
                 null,
                 PostType.FREE,
+                null,
                 null,
                 null
         );
@@ -108,6 +110,11 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                                         fieldWithPath("content[].commentCount").type(JsonFieldType.NUMBER).description("댓글 개수"),
                                         fieldWithPath("content[].thumbnailImageUrl").type(JsonFieldType.STRING).description("썸네일 이미지 URL").optional(),
                                         fieldWithPath("content[].type").type(JsonFieldType.STRING).description("포스트 타입 (FREE, CURATION, STORY)"),
+                                        fieldWithPath("content[].primaryComposer").type(JsonFieldType.OBJECT).description("큐레이션 포스트의 대표 작곡가 정보 (CURATION 타입일 때만 존재)").optional(),
+                                        fieldWithPath("content[].primaryComposer.id").type(JsonFieldType.NUMBER).description("작곡가 ID").optional(),
+                                        fieldWithPath("content[].primaryComposer.koreanName").type(JsonFieldType.STRING).description("작곡가 한글 이름").optional(),
+                                        fieldWithPath("content[].primaryComposer.era").type(JsonFieldType.STRING).description("작곡가 시대 (Era)").optional(),
+                                        fieldWithPath("content[].primaryComposer.continent").type(JsonFieldType.STRING).description("작곡가 대륙 (Continent)").optional(),
                                         fieldWithPath("content[].isLiked").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 좋아요 여부 (비로그인 시 null)").optional(),
                                         fieldWithPath("content[].isScrapped").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 스크랩 여부 (비로그인 시 null)").optional(),
                                         fieldWithPath("nextCursor").type(JsonFieldType.STRING).description("다음 페이지 조회를 위한 커서 (Base64 인코딩된 문자열). 마지막 페이지인 경우 null").optional(),
@@ -132,6 +139,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 15,
                 "https://example.com/curation1.jpg",
                 PostType.CURATION,
+                null, // primaryComposer
                 null,
                 null
         );
@@ -146,6 +154,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 12,
                 null,
                 PostType.CURATION,
+                null, // primaryComposer
                 null,
                 null
         );
@@ -156,12 +165,14 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 true
         );
 
-        when(postQueryService.getAllPublishedCurationPosts(any(PageRequestDto.class), any())).thenReturn(response);
+        when(postQueryService.getAllPublishedCurationPosts(any(PageRequestDto.class), any(), any(), any())).thenReturn(response);
 
         // when
         ResultActions result = mockMvc.perform(get("/posts/curation")
                 .param("cursor", "MjAyNC0wMS0xNFQxODo0NTowMF80NTY=") // Base64 인코딩된 이전 커서 (예시)
                 .param("size", "10")
+                .param("eras", "BAROQUE", "CLASSICAL")
+                .param("continents", "EUROPE")
                 .contentType(MediaType.APPLICATION_JSON)
         );
 
@@ -171,12 +182,14 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                         resource(ResourceSnippetParameters.builder()
                                 .tag("Post Query API")
                                 .summary("큐레이션 포스트 목록 조회")
-                                .description("큐레이션 포스트 목록을 커서 기반 페이징으로 조회합니다. PUBLISHED 상태인 포스트만 조회되며, 생성일시 내림차순으로 정렬됩니다.")
+                                .description("큐레이션 포스트 목록을 커서 기반 페이징으로 조회합니다. PUBLISHED 상태인 포스트만 조회되며, 생성일시 내림차순으로 정렬됩니다. eras, continents로 primaryComposer 기준 필터링할 수 있습니다.")
                                 .queryParameters(
                                         parameterWithName("cursor").description("다음 페이지 조회를 위한 커서 (Base64 인코딩된 문자열). 첫 페이지 조회 시 생략 가능 (기본값: null)")
                                                 .optional(),
                                         parameterWithName("size").description("한 페이지에 조회할 포스트 개수. 생략 시 기본값: 10")
-                                                .optional()
+                                                .optional(),
+                                        parameterWithName("eras").description("필터링할 시대(Era) 목록: MEDIEVAL_RENAISSANCE, BAROQUE, CLASSICAL, ROMANTIC, MODERN_CONTEMPORARY").optional(),
+                                        parameterWithName("continents").description("필터링할 대륙(Continent) 목록: ASIA, NORTH_AMERICA, EUROPE, SOUTH_AMERICA, AFRICA_OCEANIA").optional()
                                 )
                                 .responseFields(
                                         fieldWithPath("content").type(JsonFieldType.ARRAY).description("포스트 목록"),
@@ -190,6 +203,11 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                                         fieldWithPath("content[].commentCount").type(JsonFieldType.NUMBER).description("댓글 개수"),
                                         fieldWithPath("content[].thumbnailImageUrl").type(JsonFieldType.STRING).description("썸네일 이미지 URL").optional(),
                                         fieldWithPath("content[].type").type(JsonFieldType.STRING).description("포스트 타입 (FREE, CURATION, STORY)"),
+                                        fieldWithPath("content[].primaryComposer").type(JsonFieldType.OBJECT).description("큐레이션 포스트의 대표 작곡가 정보 (CURATION 타입일 때만 존재)").optional(),
+                                        fieldWithPath("content[].primaryComposer.id").type(JsonFieldType.NUMBER).description("작곡가 ID").optional(),
+                                        fieldWithPath("content[].primaryComposer.koreanName").type(JsonFieldType.STRING).description("작곡가 한글 이름").optional(),
+                                        fieldWithPath("content[].primaryComposer.era").type(JsonFieldType.STRING).description("작곡가 시대 (Era)").optional(),
+                                        fieldWithPath("content[].primaryComposer.continent").type(JsonFieldType.STRING).description("작곡가 대륙 (Continent)").optional(),
                                         fieldWithPath("content[].isLiked").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 좋아요 여부 (비로그인 시 null)").optional(),
                                         fieldWithPath("content[].isScrapped").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 스크랩 여부 (비로그인 시 null)").optional(),
                                         fieldWithPath("nextCursor").type(JsonFieldType.STRING).description("다음 페이지 조회를 위한 커서 (Base64 인코딩된 문자열). 마지막 페이지인 경우 null").optional(),
@@ -215,6 +233,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 "https://example.com/story1.jpg",
                 PostType.STORY,
                 null,
+                null,
                 null
         );
         PostResponseDto storyPost2 = new PostResponseDto(
@@ -228,6 +247,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 20,
                 null,
                 PostType.STORY,
+                null,
                 null,
                 null
         );
@@ -270,6 +290,11 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                                         fieldWithPath("content[].commentCount").type(JsonFieldType.NUMBER).description("댓글 개수"),
                                         fieldWithPath("content[].thumbnailImageUrl").type(JsonFieldType.STRING).description("썸네일 이미지 URL").optional(),
                                         fieldWithPath("content[].type").type(JsonFieldType.STRING).description("포스트 타입 (FREE, CURATION, STORY)"),
+                                        fieldWithPath("content[].primaryComposer").type(JsonFieldType.OBJECT).description("큐레이션 포스트의 대표 작곡가 정보 (CURATION 타입일 때만 존재)").optional(),
+                                        fieldWithPath("content[].primaryComposer.id").type(JsonFieldType.NUMBER).description("작곡가 ID").optional(),
+                                        fieldWithPath("content[].primaryComposer.koreanName").type(JsonFieldType.STRING).description("작곡가 한글 이름").optional(),
+                                        fieldWithPath("content[].primaryComposer.era").type(JsonFieldType.STRING).description("작곡가 시대 (Era)").optional(),
+                                        fieldWithPath("content[].primaryComposer.continent").type(JsonFieldType.STRING).description("작곡가 대륙 (Continent)").optional(),
                                         fieldWithPath("content[].isLiked").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 좋아요 여부 (비로그인 시 null)").optional(),
                                         fieldWithPath("content[].isScrapped").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 스크랩 여부 (비로그인 시 null)").optional(),
                                         fieldWithPath("nextCursor").type(JsonFieldType.STRING).description("다음 페이지 조회를 위한 커서 (Base64 인코딩된 문자열). 마지막 페이지인 경우 null").optional(),
@@ -296,6 +321,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 "https://example.com/published1.jpg",
                 PostType.FREE,
                 null,
+                null,
                 null
         );
         PostResponseDto publishedPost2 = new PostResponseDto(
@@ -309,6 +335,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 10,
                 null,
                 PostType.STORY,
+                null,
                 null,
                 null
         );
@@ -356,6 +383,11 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                                         fieldWithPath("content[].commentCount").type(JsonFieldType.NUMBER).description("댓글 개수"),
                                         fieldWithPath("content[].thumbnailImageUrl").type(JsonFieldType.STRING).description("썸네일 이미지 URL").optional(),
                                         fieldWithPath("content[].type").type(JsonFieldType.STRING).description("포스트 타입 (FREE, CURATION, STORY)"),
+                                        fieldWithPath("content[].primaryComposer").type(JsonFieldType.OBJECT).description("큐레이션 포스트의 대표 작곡가 정보 (CURATION 타입일 때만 존재)").optional(),
+                                        fieldWithPath("content[].primaryComposer.id").type(JsonFieldType.NUMBER).description("작곡가 ID").optional(),
+                                        fieldWithPath("content[].primaryComposer.koreanName").type(JsonFieldType.STRING).description("작곡가 한글 이름").optional(),
+                                        fieldWithPath("content[].primaryComposer.era").type(JsonFieldType.STRING).description("작곡가 시대 (Era)").optional(),
+                                        fieldWithPath("content[].primaryComposer.continent").type(JsonFieldType.STRING).description("작곡가 대륙 (Continent)").optional(),
                                         fieldWithPath("content[].isLiked").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 좋아요 여부 (비로그인 시 null)").optional(),
                                         fieldWithPath("content[].isScrapped").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 스크랩 여부 (비로그인 시 null)").optional(),
                                         fieldWithPath("nextCursor").type(JsonFieldType.STRING).description("다음 페이지 조회를 위한 커서 (Base64 인코딩된 문자열). 마지막 페이지인 경우 null").optional(),
@@ -382,6 +414,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 "https://example.com/draft1.jpg",
                 PostType.CURATION,
                 null,
+                null,
                 null
         );
         PostResponseDto draftPost2 = new PostResponseDto(
@@ -395,6 +428,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 0,
                 null,
                 PostType.FREE,
+                null,
                 null,
                 null
         );
@@ -442,6 +476,11 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                                         fieldWithPath("content[].commentCount").type(JsonFieldType.NUMBER).description("댓글 개수"),
                                         fieldWithPath("content[].thumbnailImageUrl").type(JsonFieldType.STRING).description("썸네일 이미지 URL").optional(),
                                         fieldWithPath("content[].type").type(JsonFieldType.STRING).description("포스트 타입 (FREE, CURATION, STORY)"),
+                                        fieldWithPath("content[].primaryComposer").type(JsonFieldType.OBJECT).description("큐레이션 포스트의 대표 작곡가 정보 (CURATION 타입일 때만 존재)").optional(),
+                                        fieldWithPath("content[].primaryComposer.id").type(JsonFieldType.NUMBER).description("작곡가 ID").optional(),
+                                        fieldWithPath("content[].primaryComposer.koreanName").type(JsonFieldType.STRING).description("작곡가 한글 이름").optional(),
+                                        fieldWithPath("content[].primaryComposer.era").type(JsonFieldType.STRING).description("작곡가 시대 (Era)").optional(),
+                                        fieldWithPath("content[].primaryComposer.continent").type(JsonFieldType.STRING).description("작곡가 대륙 (Continent)").optional(),
                                         fieldWithPath("content[].isLiked").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 좋아요 여부 (비로그인 시 null)").optional(),
                                         fieldWithPath("content[].isScrapped").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 스크랩 여부 (비로그인 시 null)").optional(),
                                         fieldWithPath("nextCursor").type(JsonFieldType.STRING).description("다음 페이지 조회를 위한 커서 (Base64 인코딩된 문자열). 마지막 페이지인 경우 null").optional(),
@@ -468,6 +507,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 "https://example.com/scrap1.jpg",
                 PostType.STORY,
                 null,
+                null,
                 null
         );
         PostResponseDto scrappedPost2 = new PostResponseDto(
@@ -481,6 +521,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 15,
                 null,
                 PostType.CURATION,
+                null,
                 null,
                 null
         );
@@ -526,6 +567,11 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                                         fieldWithPath("content[].commentCount").type(JsonFieldType.NUMBER).description("댓글 개수"),
                                         fieldWithPath("content[].thumbnailImageUrl").type(JsonFieldType.STRING).description("썸네일 이미지 URL").optional(),
                                         fieldWithPath("content[].type").type(JsonFieldType.STRING).description("포스트 타입 (FREE, CURATION, STORY)"),
+                                        fieldWithPath("content[].primaryComposer").type(JsonFieldType.OBJECT).description("큐레이션 포스트의 대표 작곡가 정보 (CURATION 타입일 때만 존재)").optional(),
+                                        fieldWithPath("content[].primaryComposer.id").type(JsonFieldType.NUMBER).description("작곡가 ID").optional(),
+                                        fieldWithPath("content[].primaryComposer.koreanName").type(JsonFieldType.STRING).description("작곡가 한글 이름").optional(),
+                                        fieldWithPath("content[].primaryComposer.era").type(JsonFieldType.STRING).description("작곡가 시대 (Era)").optional(),
+                                        fieldWithPath("content[].primaryComposer.continent").type(JsonFieldType.STRING).description("작곡가 대륙 (Continent)").optional(),
                                         fieldWithPath("content[].isLiked").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 좋아요 여부 (비로그인 시 null)").optional(),
                                         fieldWithPath("content[].isScrapped").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 스크랩 여부 (비로그인 시 null)").optional(),
                                         fieldWithPath("nextCursor").type(JsonFieldType.STRING).description("다음 페이지 조회를 위한 커서 (Base64 인코딩된 문자열). 마지막 페이지인 경우 null").optional(),
