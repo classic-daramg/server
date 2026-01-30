@@ -205,6 +205,42 @@ public class UserControllerTest extends ControllerTestSupport {
     }
 
     @Test
+    void 유저_비밀번호를_검증한다() throws Exception {
+        // given
+        PasswordRequestDto requestDto = new PasswordRequestDto("Password123!");
+        given(userService.verifyUserPassword(any(User.class), any(PasswordRequestDto.class))).willReturn(true);
+
+        Cookie cookie = new Cookie(COOKIE_NAME, "access_token");
+
+        // when
+        ResultActions result = mockMvc.perform(get("/users/verify-user-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto))
+                .cookie(cookie)
+        );
+
+        // then
+        result.andExpect(status().isOk())
+                .andDo(restDocsHandler.document(
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("User API")
+                                .summary("유저 비밀번호 검증")
+                                .description("현재 로그인한 유저의 비밀번호와 입력한 비밀번호가 일치하는지 확인합니다.")
+                                .requestFields(
+                                        fieldWithPath("password").type(JsonFieldType.STRING).description("검증할 비밀번호")
+                                )
+                                .responseFields(
+                                        fieldWithPath("유저 비밀번호 일치 여부 ").type(JsonFieldType.BOOLEAN).description("비밀번호 일치 여부 (true: 일치, false: 불일치)")
+                                )
+                                .build()
+                        ),
+                        requestCookies(
+                                cookieWithName(COOKIE_NAME).description("유저의 토큰")
+                        )
+                ));
+    }
+
+    @Test
     void 유저_프로필을_수정한다() throws Exception {
         // given
         UserProfileUpdateRequestDto requestDto = new UserProfileUpdateRequestDto(
