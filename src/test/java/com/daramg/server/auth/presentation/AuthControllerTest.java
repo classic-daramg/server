@@ -118,7 +118,7 @@ public class AuthControllerTest extends ControllerTestSupport {
         doNothing().when(mailVerificationService).sendVerificationEmail(any(EmailVerificationRequestDto.class));
 
         // when
-        ResultActions result = mockMvc.perform(post("/auth/email-verifications", request)
+        ResultActions result = mockMvc.perform(post("/auth/email-verifications")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
 

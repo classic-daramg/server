@@ -33,7 +33,7 @@ public class UserController {
             )
             String nickname) {
         boolean isAvailable = userService.isNicknameAvailable(nickname);
-        return ResponseEntity.ok(Map.of("닉네임 사용 가능 유무: ", isAvailable));
+        return ResponseEntity.ok(Map.of("isNicknameAvailable", isAvailable));
     }
 
     @GetMapping
@@ -46,14 +46,14 @@ public class UserController {
     public ResponseEntity<Map<String, Boolean>> verifyUserEmail(
             @RequestParam String email, User user) {
         boolean isValid = userService.verifyUserEmail(user, email);
-        return ResponseEntity.ok(Map.of("유저 이메일 일치 여부 ", isValid));
+        return ResponseEntity.ok(Map.of("isEmailMatch", isValid));
     }
 
-    @GetMapping("/verify-user-password")
+    @PostMapping("/verify-user-password")
     public ResponseEntity<Map<String, Boolean>> verifyUserPassword(
             @RequestBody @Valid PasswordRequestDto request, User user) {
         boolean isValid = userService.verifyUserPassword(user, request);
-        return ResponseEntity.ok(Map.of("유저 비밀번호 일치 여부 ", isValid));
+        return ResponseEntity.ok(Map.of("isPasswordMatch", isValid));
     }
 
     @PutMapping("/profile")
