@@ -26,8 +26,7 @@ public class NoticeQueryRepositoryImpl implements NoticeQueryRepository {
 
         JPAQuery<Notice> query = queryFactory
                 .selectFrom(notice)
-                .leftJoin(notice.user, user).fetchJoin()
-                .orderBy(notice.createdAt.desc(), notice.id.desc());
+                .leftJoin(notice.user, user).fetchJoin();
 
         return pagingUtils.applyCursorPagination(
                 query,

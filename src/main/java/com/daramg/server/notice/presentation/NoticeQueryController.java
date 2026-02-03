@@ -23,7 +23,7 @@ public class NoticeQueryController {
     private final EntityUtils entityUtils;
 
     @GetMapping
-    public PageResponseDto<NoticeResponseDto> getPublishedNotices(
+    public PageResponseDto<NoticeResponseDto> getAllNotices(
             PageRequestDto pageRequest,
             User user
     ) {

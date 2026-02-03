@@ -12,14 +12,13 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
 @Entity
+@Getter
+@Table(name = "notices")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Notice extends BaseEntity<Notice> {
 
     private static final String EMPTY_UPDATE_REQUEST = "수정 사항이 없습니다.";
-
-    protected Notice() {
-    }
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -61,7 +60,7 @@ public class Notice extends BaseEntity<Notice> {
         }
     }
 
-    @Builder
+    @Builder(access = AccessLevel.PRIVATE)
     private Notice(String title, String content, List<String> images, String videoUrl, User user) {
         this.title = title;
         this.content = content;

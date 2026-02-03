@@ -14,8 +14,7 @@ public record NoticeDetailResponse(
         String content,
         List<String> images,
         String videoUrl,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        LocalDateTime createdAt
 ) {
 
     public static NoticeDetailResponse from(Notice notice) {
@@ -27,8 +26,7 @@ public record NoticeDetailResponse(
                 notice.getContent(),
                 notice.getImages(),
                 notice.getVideoUrl(),
-                notice.getCreatedAt(),
-                notice.getUpdatedAt()
+                notice.getCreatedAt()
         );
     }
 }
