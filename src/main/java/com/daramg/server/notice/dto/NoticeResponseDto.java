@@ -11,10 +11,15 @@ public record NoticeResponseDto(
         String writerNickname,
         LocalDateTime createdAt,
         String content,
-        String ThumbnailImageUrl
+        String thumbnailImageUrl
 ) {
     public static NoticeResponseDto from(Notice notice) {
         List<String> imageUrls = notice.getImages();
+
+        String thumb = null;
+        if (imageUrls != null && !imageUrls.isEmpty()) {
+            thumb = imageUrls.get(0); // Java 21+의 getFirst() 대신 안전한 방식
+        }
 
         return new NoticeResponseDto(
                 notice.getId(),
@@ -22,7 +27,7 @@ public record NoticeResponseDto(
                 notice.getUser().getNickname(),
                 notice.getCreatedAt(),
                 notice.getContent(),
-                imageUrls.isEmpty() ? null : imageUrls.getFirst()
+                thumb
         );
     }
 }

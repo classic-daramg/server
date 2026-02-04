@@ -35,4 +35,26 @@ public class NoticeController {
     public void deleteNotice(@PathVariable Long noticeId, User user) {
         noticeService.delete(noticeId, user);
     }
+
+//    @PostMapping("/notice")
+//    @ResponseStatus(HttpStatus.CREATED)
+//    public void createNotice(@Valid @RequestBody NoticeCreateDto request,
+//                             @RequestAttribute("user") User user) {
+//        noticeService.create(request, user);
+//    }
+//
+//    @PatchMapping("/notice/{noticeId}")
+//    @ResponseStatus(HttpStatus.OK)
+//    public void updateNotice(@PathVariable Long noticeId,
+//                             @Valid @RequestBody NoticeUpdateDto updateRequest,
+//                             @RequestAttribute("user") User user) {
+//        noticeService.updateNotice(noticeId, updateRequest, user);
+//    }
+//
+//    @DeleteMapping("/notice/{noticeId}")
+//    @ResponseStatus(HttpStatus.NO_CONTENT)
+//    public void deleteNotice(@PathVariable Long noticeId,
+//                             @RequestAttribute("user") User user) {
+//        noticeService.delete(noticeId, user);
+//    }
 }

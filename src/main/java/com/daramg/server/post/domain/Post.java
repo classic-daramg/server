@@ -6,6 +6,7 @@ import com.daramg.server.post.domain.vo.PostUpdateVo;
 import com.daramg.server.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLRestriction;
 import org.springframework.lang.NonNull;
 
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.List;
 @Entity
 @Getter
 @Table(name = "posts")
+@SQLRestriction("is_deleted = false")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "TYPE", discriminatorType = DiscriminatorType.STRING)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

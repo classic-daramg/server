@@ -2,6 +2,8 @@ package com.daramg.server.user.application;
 
 import com.daramg.server.common.application.EntityUtils;
 import com.daramg.server.common.exception.BusinessException;
+import com.daramg.server.notice.repository.NoticeRepository;
+import com.daramg.server.post.repository.PostRepository;
 import com.daramg.server.user.domain.UpdateVo;
 import com.daramg.server.user.domain.User;
 import com.daramg.server.user.domain.UserFollow;
@@ -16,6 +18,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
+import static com.daramg.server.common.exception.CommonErrorStatus.NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -24,6 +30,8 @@ public class UserService {
     private final UserFollowRepository userFollowRepository;
     private final EntityUtils entityUtils;
     private final PasswordEncoder passwordEncoder;
+    private final NoticeRepository noticeRepository;
+    private final PostRepository postRepository;
 
     public boolean isNicknameAvailable(String nickName) {
         return !userRepository.existsByNickname(nickName);
@@ -103,5 +111,18 @@ public class UserService {
         userFollowRepository.deleteByFollowerIdAndFollowedId(follower.getId(), followedId);
         follower.decrementFollowingCount();
         followed.decrementFollowerCount();
+    }
+
+    @Transactional
+    public void withdraw(Long userId) {
+        User user = userRepository.findById(userId)
+                        .orElseThrow(() -> new BusinessException(NOT_FOUND));
+
+        user.withdraw();
+
+        User admin = userRepository.getReferenceById(1L);
+        noticeRepository.transferToAdmin(userId, admin);
+
+        postRepository.softDeleteAllByUserId(userId, LocalDateTime.now());
     }
 }

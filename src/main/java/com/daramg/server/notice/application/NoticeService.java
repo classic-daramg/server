@@ -50,7 +50,7 @@ public class NoticeService {
     public void delete(Long noticeId, User user) {
         Notice notice = entityUtils.getEntity(noticeId, Notice.class);
         NoticeUserValidator.check(notice, user);
-        noticeRepository.deleteById(noticeId);
+        notice.softDelete();
     }
 
     private NoticeUpdateVo toUpdateVo(NoticeUpdateDto dto) {

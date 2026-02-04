@@ -8,6 +8,7 @@ import com.daramg.server.notice.domain.vo.NoticeUpdateVo;
 import com.daramg.server.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
 @Entity
 @Getter
 @Table(name = "notices")
+@SQLRestriction("is_deleted = false")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Notice extends BaseEntity<Notice> {
 
@@ -64,7 +66,7 @@ public class Notice extends BaseEntity<Notice> {
     private Notice(String title, String content, List<String> images, String videoUrl, User user) {
         this.title = title;
         this.content = content;
-        this.images = images;
+        this.images = (images != null) ? images : new ArrayList<>();
         this.videoUrl = videoUrl;
         this.user = user;
     }
@@ -88,7 +90,7 @@ public class Notice extends BaseEntity<Notice> {
     }
 
     protected void updateImages(List<String> images) {
-        this.images = images;
+        this.images = (images != null) ? images : new ArrayList<>();
     }
 
     protected void updateVideoUrl(String videoUrl) {
