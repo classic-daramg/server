@@ -11,5 +11,4 @@ data class NoticeUpdateDto (
     val content: String? = null,
 
     val images: List<String>? = null,
-    val videoUrl: String? = null,
 )

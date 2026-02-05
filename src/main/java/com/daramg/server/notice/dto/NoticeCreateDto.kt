@@ -14,6 +14,4 @@ data class NoticeCreateDto (
     val content: String,
 
     val images: List<String> = emptyList(),
-
-    val videoUrl: String? = null,
 )

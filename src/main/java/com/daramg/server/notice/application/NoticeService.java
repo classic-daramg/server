@@ -29,8 +29,7 @@ public class NoticeService {
                 user,
                 dto.getTitle(),
                 dto.getContent(),
-                dto.getImages(),
-                dto.getVideoUrl()
+                dto.getImages()
         );
 
         Notice notice = Notice.from(vo);
@@ -57,8 +56,7 @@ public class NoticeService {
         return new NoticeUpdateVo(
                 dto.getTitle(),
                 dto.getContent(),
-                dto.getImages(),
-                dto.getVideoUrl()
+                dto.getImages()
         );
     }
 }
