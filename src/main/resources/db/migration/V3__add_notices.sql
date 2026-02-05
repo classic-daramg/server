@@ -5,7 +5,8 @@ CREATE TABLE notices (
     title TEXT NOT NULL,
     content TEXT NOT NULL,
     images JSON DEFAULT (JSON_ARRAY()),
-    video_url VARCHAR(255),
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    deleted_at DATETIME(6),
     created_at DATETIME(6) NOT NULL,
     updated_at DATETIME(6) NOT NULL
 );
