@@ -150,7 +150,7 @@ public class PostService {
     public void delete(Long postId, User user){
         Post post = entityUtils.getEntity(postId, Post.class);
         PostUserValidator.check(post, user);
-        postRepository.deleteById(postId);
+        post.softDelete();
     }
 
     @Transactional

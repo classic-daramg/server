@@ -44,3 +44,4 @@ cors:
     - "http://localhost:3000"
     - "https://classic-daramg.duckdns.org"
     - "https://client-amber-sigma.vercel.app"
+    - "https://client-kwongeonwoos-projects.vercel.app"

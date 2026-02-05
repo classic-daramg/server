@@ -32,6 +32,7 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
+                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))  // 추가: h2 db 접근
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         /**
@@ -47,6 +48,7 @@ public class SecurityConfig {
 
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/docs/**").permitAll()
+                        .requestMatchers("/h2-console/**").permitAll() // 추가: h2 db 접근
 
                         /**
                          * 위에서 등록되지 않은 모든 경로는 인증 필요

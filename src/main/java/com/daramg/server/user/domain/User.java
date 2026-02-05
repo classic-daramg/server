@@ -119,8 +119,10 @@ public class User extends BaseEntity<User> {
     }
 
     public void withdraw(){
-        deletedAt = LocalDateTime.now();
+        if (this.userStatus == UserStatus.DELETED) return;
+
         userStatus = UserStatus.DELETED;
+        this.deletedAt = LocalDateTime.now();
     }
 
     public boolean isActive() {
