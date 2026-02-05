@@ -34,6 +34,9 @@ public class QFreePost extends EntityPathBase<FreePost> {
     public final DateTimePath<java.time.LocalDateTime> createdAt;
 
     //inherited
+    public final DateTimePath<java.time.LocalDateTime> deletedAt;
+
+    //inherited
     public final ListPath<String, StringPath> hashtags;
 
     //inherited
@@ -44,6 +47,9 @@ public class QFreePost extends EntityPathBase<FreePost> {
 
     //inherited
     public final BooleanPath isBlocked;
+
+    //inherited
+    public final BooleanPath isDeleted;
 
     //inherited
     public final NumberPath<Integer> likeCount;
@@ -85,10 +91,12 @@ public class QFreePost extends EntityPathBase<FreePost> {
         this.commentCount = _super.commentCount;
         this.content = _super.content;
         this.createdAt = _super.createdAt;
+        this.deletedAt = _super.deletedAt;
         this.hashtags = _super.hashtags;
         this.id = _super.id;
         this.images = _super.images;
         this.isBlocked = _super.isBlocked;
+        this.isDeleted = _super.isDeleted;
         this.likeCount = _super.likeCount;
         this.postStatus = _super.postStatus;
         this.title = _super.title;

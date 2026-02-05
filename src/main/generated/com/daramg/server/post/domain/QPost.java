@@ -31,6 +31,8 @@ public class QPost extends EntityPathBase<Post> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
 
+    public final DateTimePath<java.time.LocalDateTime> deletedAt = createDateTime("deletedAt", java.time.LocalDateTime.class);
+
     public final ListPath<String, StringPath> hashtags = this.<String, StringPath>createList("hashtags", String.class, StringPath.class, PathInits.DIRECT2);
 
     //inherited
@@ -39,6 +41,8 @@ public class QPost extends EntityPathBase<Post> {
     public final ListPath<String, StringPath> images = this.<String, StringPath>createList("images", String.class, StringPath.class, PathInits.DIRECT2);
 
     public final BooleanPath isBlocked = createBoolean("isBlocked");
+
+    public final BooleanPath isDeleted = createBoolean("isDeleted");
 
     public final NumberPath<Integer> likeCount = createNumber("likeCount", Integer.class);
 

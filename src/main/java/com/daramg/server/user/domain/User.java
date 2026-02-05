@@ -56,6 +56,9 @@ public class User extends BaseEntity<User> {
     @Column(name = "user_status", nullable = false)
     private UserStatus userStatus;
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
     @Builder
     public User(@NonNull String email, @NonNull String password, @NonNull String name,
                 @NonNull LocalDate birthDate, String profileImage, @NonNull String nickname,
@@ -119,7 +122,7 @@ public class User extends BaseEntity<User> {
         if (this.userStatus == UserStatus.DELETED) return;
 
         userStatus = UserStatus.DELETED;
-        softDelete();
+        this.deletedAt = LocalDateTime.now();
     }
 
     public boolean isActive() {

@@ -10,6 +10,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,12 +37,15 @@ public class Notice extends BaseEntity<Notice> {
     @Column(name = "images", columnDefinition = "JSON")
     private List<String> images = new ArrayList<>();
 
-    @Column(name = "video_url")
-    private String videoUrl;
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     public void update(NoticeUpdateVo vo) {
         if (vo.getTitle() == null && vo.getContent() == null
-                && vo.getImages() == null && vo.getVideoUrl() == null) {
+                && vo.getImages() == null) {
             throw new BusinessException(EMPTY_UPDATE_REQUEST);
         }
 
@@ -56,18 +60,13 @@ public class Notice extends BaseEntity<Notice> {
         if (vo.getImages() != null) {
             updateImages(vo.getImages());
         }
-
-        if (vo.getVideoUrl() != null) {
-            updateVideoUrl(vo.getVideoUrl());
-        }
     }
 
     @Builder(access = AccessLevel.PRIVATE)
-    private Notice(String title, String content, List<String> images, String videoUrl, User user) {
+    private Notice(String title, String content, List<String> images, User user) {
         this.title = title;
         this.content = content;
         this.images = (images != null) ? images : new ArrayList<>();
-        this.videoUrl = videoUrl;
         this.user = user;
     }
 
@@ -76,7 +75,6 @@ public class Notice extends BaseEntity<Notice> {
                 .title(vo.getTitle())
                 .content(vo.getContent())
                 .images(vo.getImages())
-                .videoUrl(vo.getVideoUrl())
                 .user(vo.getUser())
                 .build();
     }
@@ -93,7 +91,10 @@ public class Notice extends BaseEntity<Notice> {
         this.images = (images != null) ? images : new ArrayList<>();
     }
 
-    protected void updateVideoUrl(String videoUrl) {
-        this.videoUrl = videoUrl;
+    public void softDelete() {
+        if (this.isDeleted) return;
+
+        this.isDeleted = true;
+        this.deletedAt = LocalDateTime.now();
     }
 }

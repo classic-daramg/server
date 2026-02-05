@@ -9,6 +9,7 @@ import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
 import org.springframework.lang.NonNull;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,6 +55,12 @@ public abstract class Post extends BaseEntity<Post> {
 
     @Column(name = "is_blocked", nullable = false)
     private boolean isBlocked = false;
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     protected Post(@NonNull User user, @NonNull String title, @NonNull String content,
                    @Singular List<String> images, String videoUrl,
@@ -124,5 +131,12 @@ public abstract class Post extends BaseEntity<Post> {
 
     public void incrementCommentCount(){
         commentCount++;
+    }
+
+    public void softDelete() {
+        if (this.isDeleted) return;
+
+        this.isDeleted = true;
+        this.deletedAt = LocalDateTime.now();
     }
 }
