@@ -8,10 +8,13 @@ import com.daramg.server.comment.repository.CommentRepository;
 import com.daramg.server.common.application.EntityUtils;
 import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.post.domain.Post;
+import com.daramg.server.notification.domain.NotificationType;
+import com.daramg.server.notification.event.NotificationEvent;
 import com.daramg.server.post.dto.CommentCreateDto;
 import com.daramg.server.post.dto.CommentReplyCreateDto;
 import com.daramg.server.user.domain.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +26,7 @@ public class CommentService {
     private final EntityUtils entityUtils;
     private final CommentRepository commentRepository;
     private final CommentLikeRepository commentLikeRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public void createComment(Long postId, CommentCreateDto request, User user){
         Post post = entityUtils.getEntity(postId, Post.class);
@@ -39,6 +43,9 @@ public class CommentService {
 
         commentRepository.save(comment);
         post.incrementCommentCount();
+        eventPublisher.publishEvent(new NotificationEvent(
+                post.getUser(), user, post, NotificationType.COMMENT
+        ));
     }
 
     public void createReply(Long commentId, CommentReplyCreateDto request, User user){
@@ -60,6 +67,9 @@ public class CommentService {
 
         commentRepository.save(reply);
         post.incrementCommentCount();
+        eventPublisher.publishEvent(new NotificationEvent(
+                parentComment.getUser(), user, post, NotificationType.REPLY
+        ));
     }
 
     public CommentLikeResponseDto toggleCommentLike(Long commentId, User user){
