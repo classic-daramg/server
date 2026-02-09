@@ -5,18 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.List;
-
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
-
-    @Query("""
-            select n from Notification n
-            join fetch n.sender
-            join fetch n.post
-            where n.receiver.id = :receiverId
-            order by n.createdAt desc
-            """)
-    List<Notification> findAllByReceiverIdWithSenderAndPost(Long receiverId);
 
     long countByReceiverIdAndIsReadFalse(Long receiverId);
 

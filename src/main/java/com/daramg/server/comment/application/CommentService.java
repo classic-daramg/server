@@ -43,9 +43,11 @@ public class CommentService {
 
         commentRepository.save(comment);
         post.incrementCommentCount();
-        eventPublisher.publishEvent(new NotificationEvent(
-                post.getUser(), user, post, NotificationType.COMMENT
-        ));
+        if (!post.getUser().getId().equals(user.getId())) {
+            eventPublisher.publishEvent(new NotificationEvent(
+                    post.getUser(), user, post, NotificationType.COMMENT
+            ));
+        }
     }
 
     public void createReply(Long commentId, CommentReplyCreateDto request, User user){
@@ -67,9 +69,11 @@ public class CommentService {
 
         commentRepository.save(reply);
         post.incrementCommentCount();
-        eventPublisher.publishEvent(new NotificationEvent(
-                parentComment.getUser(), user, post, NotificationType.REPLY
-        ));
+        if (!parentComment.getUser().getId().equals(user.getId())) {
+            eventPublisher.publishEvent(new NotificationEvent(
+                    parentComment.getUser(), user, post, NotificationType.REPLY
+            ));
+        }
     }
 
     public CommentLikeResponseDto toggleCommentLike(Long commentId, User user){
@@ -89,6 +93,11 @@ public class CommentService {
 
         commentLikeRepository.save(CommentLike.of(comment, user));
         comment.incrementLikeCount();
+        if (!comment.getUser().getId().equals(user.getId())) {
+            eventPublisher.publishEvent(new NotificationEvent(
+                    comment.getUser(), user, comment.getPost(), NotificationType.COMMENT_LIKE
+            ));
+        }
         return new CommentLikeResponseDto(true, comment.getLikeCount());
     }
 

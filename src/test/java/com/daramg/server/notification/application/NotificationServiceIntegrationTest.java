@@ -1,6 +1,8 @@
 package com.daramg.server.notification.application;
 
 import com.daramg.server.comment.application.CommentService;
+import com.daramg.server.common.dto.PageRequestDto;
+import com.daramg.server.common.dto.PageResponseDto;
 import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.notification.domain.Notification;
 import com.daramg.server.notification.domain.NotificationType;
@@ -127,10 +129,24 @@ public class NotificationServiceIntegrationTest extends ServiceTestSupport {
             assertThat(notification.getSender().getId()).isEqualTo(actor.getId());
             assertThat(notification.getType()).isEqualTo(NotificationType.REPLY);
         }
+
+        @Test
+        void 자신의_댓글에_대댓글을_작성하면_알림이_생성되지_않는다() {
+            // given
+            Comment parent = Comment.of(post, postAuthor, "부모 댓글", null);
+            commentRepository.save(parent);
+
+            // when
+            commentService.createReply(parent.getId(), new CommentReplyCreateDto("본인 대댓글"), postAuthor);
+
+            // then
+            List<Notification> notifications = notificationRepository.findAll();
+            assertThat(notifications).isEmpty();
+        }
     }
 
     @Nested
-    @DisplayName("좋아요 시 알림")
+    @DisplayName("게시글 좋아요 시 알림")
     class PostLikeNotificationTest {
         @Test
         void 게시글에_좋아요를_누르면_작성자에게_알림이_생성된다() {
@@ -173,21 +189,77 @@ public class NotificationServiceIntegrationTest extends ServiceTestSupport {
     }
 
     @Nested
+    @DisplayName("댓글 좋아요 시 알림")
+    class CommentLikeNotificationTest {
+        @Test
+        void 댓글에_좋아요를_누르면_댓글_작성자에게_알림이_생성된다() {
+            // given
+            Comment comment = Comment.of(post, postAuthor, "댓글입니다", null);
+            commentRepository.save(comment);
+
+            // when
+            commentService.toggleCommentLike(comment.getId(), actor);
+
+            // then
+            List<Notification> notifications = notificationRepository.findAll();
+            assertThat(notifications).hasSize(1);
+
+            Notification notification = notifications.getFirst();
+            assertThat(notification.getReceiver().getId()).isEqualTo(postAuthor.getId());
+            assertThat(notification.getSender().getId()).isEqualTo(actor.getId());
+            assertThat(notification.getPost().getId()).isEqualTo(post.getId());
+            assertThat(notification.getType()).isEqualTo(NotificationType.COMMENT_LIKE);
+        }
+
+        @Test
+        void 자신의_댓글에_좋아요를_누르면_알림이_생성되지_않는다() {
+            // given
+            Comment comment = Comment.of(post, postAuthor, "댓글입니다", null);
+            commentRepository.save(comment);
+
+            // when
+            commentService.toggleCommentLike(comment.getId(), postAuthor);
+
+            // then
+            List<Notification> notifications = notificationRepository.findAll();
+            assertThat(notifications).isEmpty();
+        }
+
+        @Test
+        void 댓글_좋아요_취소_시에는_알림이_생성되지_않는다() {
+            // given
+            Comment comment = Comment.of(post, postAuthor, "댓글입니다", null);
+            commentRepository.save(comment);
+            commentService.toggleCommentLike(comment.getId(), actor); // 좋아요
+            notificationRepository.deleteAll();
+
+            // when
+            commentService.toggleCommentLike(comment.getId(), actor); // 좋아요 취소
+
+            // then
+            List<Notification> notifications = notificationRepository.findAll();
+            assertThat(notifications).isEmpty();
+        }
+    }
+
+    @Nested
     @DisplayName("알림 조회")
     class QueryNotificationTest {
         @Test
-        void 내_알림_목록을_조회한다() {
+        void 내_알림_목록을_페이지네이션으로_조회한다() {
             // given
             commentService.createComment(post.getId(), new CommentCreateDto("댓글1"), actor);
             postService.toggleLike(post.getId(), actor);
 
             // when
-            List<NotificationResponseDto> notifications = notificationQueryService.getNotifications(postAuthor);
+            PageResponseDto<NotificationResponseDto> response =
+                    notificationQueryService.getNotifications(postAuthor, new PageRequestDto(null, 10));
 
             // then
-            assertThat(notifications).hasSize(2);
-            assertThat(notifications.getFirst().senderNickname()).isEqualTo("행위자닉");
-            assertThat(notifications.getFirst().postTitle()).isEqualTo("제목");
+            assertThat(response.getContent()).hasSize(2);
+            assertThat(response.getHasNext()).isFalse();
+            assertThat(response.getContent().getFirst().senderNickname()).isEqualTo("행위자닉");
+            assertThat(response.getContent().getFirst().postTitle()).isEqualTo("제목");
         }
 
         @Test
@@ -251,8 +323,9 @@ public class NotificationServiceIntegrationTest extends ServiceTestSupport {
             notificationService.delete(notification.getId(), postAuthor);
 
             // then
-            List<NotificationResponseDto> notifications = notificationQueryService.getNotifications(postAuthor);
-            assertThat(notifications).isEmpty();
+            PageResponseDto<NotificationResponseDto> response =
+                    notificationQueryService.getNotifications(postAuthor, new PageRequestDto(null, 10));
+            assertThat(response.getContent()).isEmpty();
         }
 
         @Test

@@ -171,9 +171,11 @@ public class PostService {
 
         postLikeRepository.save(PostLike.of(post, user));
         post.incrementPostLike();
-        eventPublisher.publishEvent(new NotificationEvent(
-                post.getUser(), user, post, NotificationType.POST_LIKE
-        ));
+        if (!post.getUser().getId().equals(user.getId())) {
+            eventPublisher.publishEvent(new NotificationEvent(
+                    post.getUser(), user, post, NotificationType.POST_LIKE
+            ));
+        }
         return new PostLikeResponseDto(true, post.getLikeCount());
     }
 

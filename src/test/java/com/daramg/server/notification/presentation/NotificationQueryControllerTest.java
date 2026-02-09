@@ -1,5 +1,6 @@
 package com.daramg.server.notification.presentation;
 
+import com.daramg.server.common.dto.PageResponseDto;
 import com.daramg.server.notification.application.NotificationQueryService;
 import com.daramg.server.notification.domain.NotificationType;
 import com.daramg.server.notification.dto.NotificationResponseDto;
@@ -36,7 +37,7 @@ public class NotificationQueryControllerTest extends ControllerTestSupport {
         // given
         Cookie cookie = new Cookie(COOKIE_NAME, "access_token");
 
-        List<NotificationResponseDto> response = List.of(
+        List<NotificationResponseDto> content = List.of(
                 new NotificationResponseDto(
                         1L, "보내는사람", "profile.jpg", 10L, "게시글 제목",
                         NotificationType.COMMENT, false, LocalDateTime.of(2025, 1, 1, 12, 0)
@@ -46,7 +47,8 @@ public class NotificationQueryControllerTest extends ControllerTestSupport {
                         NotificationType.POST_LIKE, true, LocalDateTime.of(2025, 1, 1, 11, 0)
                 )
         );
-        when(notificationQueryService.getNotifications(any())).thenReturn(response);
+        PageResponseDto<NotificationResponseDto> response = new PageResponseDto<>(content, null, false);
+        when(notificationQueryService.getNotifications(any(), any())).thenReturn(response);
 
         // when
         ResultActions result = mockMvc.perform(get("/notifications")
@@ -55,26 +57,30 @@ public class NotificationQueryControllerTest extends ControllerTestSupport {
 
         // then
         result.andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].senderNickname").value("보내는사람"))
-                .andExpect(jsonPath("$[0].type").value("COMMENT"))
-                .andExpect(jsonPath("$[0].isRead").value(false))
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].senderNickname").value("보내는사람"))
+                .andExpect(jsonPath("$.content[0].type").value("COMMENT"))
+                .andExpect(jsonPath("$.content[0].isRead").value(false))
+                .andExpect(jsonPath("$.hasNext").value(false))
+                .andExpect(jsonPath("$.nextCursor").doesNotExist())
                 .andDo(restDocsHandler.document(
                         resource(ResourceSnippetParameters.builder()
                                 .tag("Notification API")
                                 .summary("알림 목록 조회")
-                                .description("사용자의 알림 목록을 최신순으로 조회합니다.")
+                                .description("사용자의 알림 목록을 커서 기반 페이지네이션으로 조회합니다.")
                                 .responseFields(
-                                        fieldWithPath("[].id").type(JsonFieldType.NUMBER).description("알림 아이디"),
-                                        fieldWithPath("[].senderNickname").type(JsonFieldType.STRING).description("알림 유발자 닉네임"),
-                                        fieldWithPath("[].senderProfileImage").type(JsonFieldType.STRING).description("알림 유발자 프로필 이미지").optional(),
-                                        fieldWithPath("[].postId").type(JsonFieldType.NUMBER).description("관련 게시글 아이디"),
-                                        fieldWithPath("[].postTitle").type(JsonFieldType.STRING).description("관련 게시글 제목"),
-                                        fieldWithPath("[].type").type(JsonFieldType.STRING).description("알림 유형 (COMMENT, POST_LIKE, REPLY)"),
-                                        fieldWithPath("[].isRead").type(JsonFieldType.BOOLEAN).description("읽음 여부"),
-                                        fieldWithPath("[].createdAt").type(JsonFieldType.STRING).description("알림 생성 시각")
+                                        fieldWithPath("content[].id").type(JsonFieldType.NUMBER).description("알림 아이디"),
+                                        fieldWithPath("content[].senderNickname").type(JsonFieldType.STRING).description("알림 유발자 닉네임"),
+                                        fieldWithPath("content[].senderProfileImage").type(JsonFieldType.STRING).description("알림 유발자 프로필 이미지").optional(),
+                                        fieldWithPath("content[].postId").type(JsonFieldType.NUMBER).description("관련 게시글 아이디"),
+                                        fieldWithPath("content[].postTitle").type(JsonFieldType.STRING).description("관련 게시글 제목"),
+                                        fieldWithPath("content[].type").type(JsonFieldType.STRING).description("알림 유형 (COMMENT, COMMENT_LIKE, POST_LIKE, REPLY)"),
+                                        fieldWithPath("content[].isRead").type(JsonFieldType.BOOLEAN).description("읽음 여부"),
+                                        fieldWithPath("content[].createdAt").type(JsonFieldType.STRING).description("알림 생성 시각"),
+                                        fieldWithPath("nextCursor").type(JsonFieldType.STRING).description("다음 페이지 커서").optional(),
+                                        fieldWithPath("hasNext").type(JsonFieldType.BOOLEAN).description("다음 페이지 존재 여부")
                                 )
                                 .build()
                         ),
