@@ -5,6 +5,8 @@ import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.common.exception.NotFoundException;
 import com.daramg.server.composer.domain.Composer;
 import com.daramg.server.composer.repository.ComposerRepository;
+import com.daramg.server.notification.domain.NotificationType;
+import com.daramg.server.notification.event.NotificationEvent;
 import com.daramg.server.post.domain.*;
 import com.daramg.server.post.domain.vo.PostCreateVo;
 import com.daramg.server.post.domain.vo.PostUpdateVo;
@@ -18,6 +20,7 @@ import com.daramg.server.post.repository.PostScrapRepository;
 import com.daramg.server.post.utils.PostUserValidator;
 import com.daramg.server.user.domain.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +38,7 @@ public class PostService {
     private static final String INVALID_POST_TYPE = "게시글 타입이 올바르지 않습니다.";
     private final PostLikeRepository postLikeRepository;
     private final PostScrapRepository postScrapRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public void createFree(PostCreateDto.CreateFree dto, User user) {
@@ -167,6 +171,11 @@ public class PostService {
 
         postLikeRepository.save(PostLike.of(post, user));
         post.incrementPostLike();
+        if (!post.getUser().getId().equals(user.getId())) {
+            eventPublisher.publishEvent(new NotificationEvent(
+                    post.getUser(), user, post, NotificationType.POST_LIKE
+            ));
+        }
         return new PostLikeResponseDto(true, post.getLikeCount());
     }
 
