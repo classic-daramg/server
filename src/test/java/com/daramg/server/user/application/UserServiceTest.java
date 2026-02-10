@@ -59,7 +59,8 @@ public class UserServiceTest extends ServiceTestSupport {
             String profileImage = "https://example.com/profile.jpg";
             String nickname = "테스트닉네임";
             String bio = "테스트 소개글";
-            User user = new User("test@email.com", "password", "테스트", LocalDate.now(), profileImage, nickname, bio, null);
+            String email = "test@email.com";
+            User user = new User(email, "password", "테스트", LocalDate.now(), profileImage, nickname, bio, null);
             userRepository.save(user);
 
             //when
@@ -69,13 +70,15 @@ public class UserServiceTest extends ServiceTestSupport {
             assertThat(result.profileImage()).isEqualTo(profileImage);
             assertThat(result.nickname()).isEqualTo(nickname);
             assertThat(result.bio()).isEqualTo(bio);
+            assertThat(result.email()).isEqualTo(email);
         }
 
         @Test
         void 프로필_이미지와_소개글이_null인_유저의_프로필을_조회한다() {
             //given
             String nickname = "테스트닉네임";
-            User user = new User("test@email.com", "password", "테스트", LocalDate.now(), null, nickname, null, null);
+            String email = "test@email.com";
+            User user = new User(email, "password", "테스트", LocalDate.now(), null, nickname, null, null);
             userRepository.save(user);
 
             //when
@@ -85,6 +88,7 @@ public class UserServiceTest extends ServiceTestSupport {
             assertThat(result.profileImage()).isNull();
             assertThat(result.nickname()).isEqualTo(nickname);
             assertThat(result.bio()).isNull();
+            assertThat(result.email()).isEqualTo(email);
         }
     }
 

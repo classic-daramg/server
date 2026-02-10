@@ -73,7 +73,8 @@ public class UserControllerTest extends ControllerTestSupport {
         String profileImage = "https://example.com/profile.jpg";
         String nickname = "테스트닉네임";
         String bio = "테스트 소개글";
-        UserProfileResponseDto responseDto = new UserProfileResponseDto(profileImage, nickname, bio);
+        String email = "test@email.com";
+        UserProfileResponseDto responseDto = new UserProfileResponseDto(profileImage, nickname, bio, email);
         given(userService.getProfile(any(User.class))).willReturn(responseDto);
 
         Cookie cookie = new Cookie(COOKIE_NAME, "access_token");
@@ -94,7 +95,8 @@ public class UserControllerTest extends ControllerTestSupport {
                                 .responseFields(
                                         fieldWithPath("profileImage").type(JsonFieldType.STRING).description("프로필 이미지 URL").optional(),
                                         fieldWithPath("nickname").type(JsonFieldType.STRING).description("닉네임"),
-                                        fieldWithPath("bio").type(JsonFieldType.STRING).description("자기소개").optional()
+                                        fieldWithPath("bio").type(JsonFieldType.STRING).description("자기소개").optional(),
+                                        fieldWithPath("email").type(JsonFieldType.STRING).description("이메일")
                                 )
                                 .build()
                         ),
