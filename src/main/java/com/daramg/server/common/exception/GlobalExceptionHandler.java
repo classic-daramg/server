@@ -1,6 +1,7 @@
 package com.daramg.server.common.exception;
 
 import com.daramg.server.common.dto.ErrorResponse;
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -85,6 +86,29 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         
         log.warn("handleExceptionInternal: {} - {}", ex.getClass().getName(), ex.getMessage());
         return super.handleExceptionInternal(ex, body, headers, statusCode, request);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException e) {
+        log.warn("ConstraintViolationException: {}", e.getMessage());
+
+        List<ErrorResponse.FieldErrorResponse> fieldErrors = e.getConstraintViolations().stream()
+                .map(violation -> {
+                    String propertyPath = violation.getPropertyPath().toString();
+                    String field = propertyPath.contains(".")
+                            ? propertyPath.substring(propertyPath.lastIndexOf('.') + 1)
+                            : propertyPath;
+                    return new ErrorResponse.FieldErrorResponse(
+                            field,
+                            violation.getInvalidValue() == null ? "" : violation.getInvalidValue().toString(),
+                            violation.getMessage()
+                    );
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse.of(CommonErrorStatus.BAD_REQUEST, fieldErrors));
     }
 
     @Override
