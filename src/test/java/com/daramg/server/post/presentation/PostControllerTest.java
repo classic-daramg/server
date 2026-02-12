@@ -303,6 +303,46 @@ public class PostControllerTest extends ControllerTestSupport {
     }
 
     @Test
+    void 비속어가_포함된_제목으로_포스트_생성시_400을_반환한다() throws Exception {
+        //given
+        PostCreateDto.CreateFree requestDto = new PostCreateDto.CreateFree(
+                "시발 제목", "정상적인 포스트 내용입니다람쥐", PostStatus.PUBLISHED,
+                List.of(), null, List.of()
+        );
+        Cookie cookie = new Cookie(COOKIE_NAME, "access_token");
+
+        //when
+        ResultActions result = mockMvc.perform(post("/posts/free")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto))
+                .cookie(cookie)
+        );
+
+        //then
+        result.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void 비속어가_포함된_내용으로_포스트_생성시_400을_반환한다() throws Exception {
+        //given
+        PostCreateDto.CreateFree requestDto = new PostCreateDto.CreateFree(
+                "정상 제목", "fuck 포스트 내용입니다람쥐", PostStatus.PUBLISHED,
+                List.of(), null, List.of()
+        );
+        Cookie cookie = new Cookie(COOKIE_NAME, "access_token");
+
+        //when
+        ResultActions result = mockMvc.perform(post("/posts/free")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto))
+                .cookie(cookie)
+        );
+
+        //then
+        result.andExpect(status().isBadRequest());
+    }
+
+    @Test
     void 포스트를_삭제한다() throws Exception {
         //given
         Long postId = 1L;

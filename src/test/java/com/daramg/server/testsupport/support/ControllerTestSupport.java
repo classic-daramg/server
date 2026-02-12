@@ -6,6 +6,7 @@ import com.daramg.server.auth.util.JwtUtil;
 import com.daramg.server.common.config.ErrorCodeRegistryConfig;
 import com.daramg.server.common.exception.ErrorCodeRegistry;
 import com.daramg.server.common.exception.GlobalExceptionHandler;
+import com.daramg.server.common.validation.BadWordFilter;
 import com.daramg.server.testsupport.config.RestDocsConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +36,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
         ErrorCodeRegistry.class,
         ErrorCodeRegistryConfig.class,
         GlobalExceptionHandler.class,
+        BadWordFilter.class,
 })
 @TestPropertySource(properties = {
         "cors.allowed-origins=http://localhost:3000,https://client-git-main-classicdaramgs-projects.vercel.app"

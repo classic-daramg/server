@@ -20,7 +20,7 @@ public class BadWordCollectionValidator implements ConstraintValidator<NoBadWord
 
     @Override
     public boolean isValid(Collection<String> values, ConstraintValidatorContext context) {
-        if (values == null || values.isEmpty()) {
+        if (badWordFilter == null || values == null || values.isEmpty()) {
             return true;
         }
         return values.stream().noneMatch(badWordFilter::containsBadWord);

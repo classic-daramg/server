@@ -103,6 +103,42 @@ public class CommentControllerTest extends ControllerTestSupport {
     }
 
     @Test
+    void 비속어가_포함된_댓글_생성시_400을_반환한다() throws Exception {
+        // given
+        Long postId = 1L;
+        CommentCreateDto requestDto = new CommentCreateDto("시발 이게 뭐야");
+        Cookie cookie = new Cookie(COOKIE_NAME, "access_token");
+
+        // when
+        ResultActions result = mockMvc.perform(post("/posts/{postId}/comments", postId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto))
+                .cookie(cookie)
+        );
+
+        // then
+        result.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void 비속어가_포함된_대댓글_생성시_400을_반환한다() throws Exception {
+        // given
+        Long parentCommentId = 100L;
+        CommentReplyCreateDto requestDto = new CommentReplyCreateDto("병신 같은 글");
+        Cookie cookie = new Cookie(COOKIE_NAME, "access_token");
+
+        // when
+        ResultActions result = mockMvc.perform(post("/comments/{parentCommentId}/replies", parentCommentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto))
+                .cookie(cookie)
+        );
+
+        // then
+        result.andExpect(status().isBadRequest());
+    }
+
+    @Test
     void 댓글을_삭제한다() throws Exception {
         // given
         Long commentId = 10L;
