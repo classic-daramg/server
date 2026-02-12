@@ -1,5 +1,6 @@
 package com.daramg.server.post.dto
 
+import com.daramg.server.common.validation.NoBadWords
 import com.daramg.server.post.domain.PostStatus
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
@@ -8,9 +9,11 @@ import jakarta.validation.constraints.Size
 sealed class PostCreateDto(
     @get:NotBlank(message = "제목은 필수입니다")
     @get:Size(max = 15, message = "제목은 15자를 초과할 수 없습니다")
+    @get:NoBadWords
     open val title: String,
 
     @get:Size(min = 5, max = 3000, message = "내용은 5자 이상 3000자 이하로 입력해주세요")
+    @get:NoBadWords
     open val content: String,
 
     @get:NotNull(message = "게시글 상태는 필수입니다")
