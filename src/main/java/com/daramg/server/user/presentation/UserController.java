@@ -6,6 +6,7 @@ import com.daramg.server.user.dto.EmailChangeRequestDto;
 import com.daramg.server.user.dto.PasswordRequestDto;
 import com.daramg.server.user.dto.UserProfileResponseDto;
 import com.daramg.server.user.dto.UserProfileUpdateRequestDto;
+import com.daramg.server.common.validation.NoBadWords;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class UserController {
                     regexp = "^[a-zA-Z0-9가-힣._]{2,8}$",
                     message = "닉네임은 2~8자의 한글, 영문, 숫자와 일부 특수문자(_, .)만 사용할 수 있습니다."
             )
+            @NoBadWords
             String nickname) {
         boolean isAvailable = userService.isNicknameAvailable(nickname);
         return ResponseEntity.ok(Map.of("isNicknameAvailable", isAvailable));

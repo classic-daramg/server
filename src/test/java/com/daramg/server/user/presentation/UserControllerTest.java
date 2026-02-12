@@ -68,6 +68,39 @@ public class UserControllerTest extends ControllerTestSupport {
     }
 
     @Test
+    void 비속어가_포함된_닉네임_중복확인시_400을_반환한다() throws Exception {
+        // when
+        ResultActions result = mockMvc.perform(get("/users/check-nickname")
+                .param("nickname", "씨발")
+                .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        // then
+        result.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void 비속어가_포함된_닉네임으로_프로필_수정시_400을_반환한다() throws Exception {
+        // given
+        UserProfileUpdateRequestDto requestDto = new UserProfileUpdateRequestDto(
+                "https://example.com/profile.jpg",
+                "병신",
+                "정상 소개글"
+        );
+        Cookie cookie = new Cookie(COOKIE_NAME, "access_token");
+
+        // when
+        ResultActions result = mockMvc.perform(put("/users/profile")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto))
+                .cookie(cookie)
+        );
+
+        // then
+        result.andExpect(status().isBadRequest());
+    }
+
+    @Test
     void 유저_프로필을_조회한다() throws Exception {
         // given
         String profileImage = "https://example.com/profile.jpg";
