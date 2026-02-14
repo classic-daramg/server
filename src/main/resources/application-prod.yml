@@ -33,6 +33,9 @@ aws:
   stack:
     auto: false
 
+cookie:
+  domain: ".classicaldaramz.com"
+
 logging:
   level:
     root: INFO

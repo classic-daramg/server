@@ -38,6 +38,9 @@ public class AuthController {
     @Value("${jwt.refresh-time}")
     private long refreshTokenLifetimeInMillis;
 
+    @Value("${cookie.domain:}")
+    private String cookieDomain;
+
     private final MailVerificationService mailVerificationService;
     private final AuthService authService;
 
@@ -111,7 +114,8 @@ public class AuthController {
         ResponseCookie accessCookie = CookieUtil.createCookie(
                 ACCESS_COOKIE_NAME,
                 accessToken,
-                accessTokenLifetimeInMillis
+                accessTokenLifetimeInMillis,
+                cookieDomain
         );
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
     }
@@ -120,16 +124,17 @@ public class AuthController {
         ResponseCookie refreshCookie = CookieUtil.createCookie(
                 REFRESH_COOKIE_NAME,
                 refreshToken,
-                refreshTokenLifetimeInMillis
+                refreshTokenLifetimeInMillis,
+                cookieDomain
         );
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
     }
 
     private void clearAuthCookies(HttpServletResponse response) {
-        ResponseCookie expiredAccessCookie = CookieUtil.deleteCookie(ACCESS_COOKIE_NAME);
+        ResponseCookie expiredAccessCookie = CookieUtil.deleteCookie(ACCESS_COOKIE_NAME, cookieDomain);
         response.addHeader(HttpHeaders.SET_COOKIE, expiredAccessCookie.toString());
 
-        ResponseCookie expiredRefreshCookie = CookieUtil.deleteCookie(REFRESH_COOKIE_NAME);
+        ResponseCookie expiredRefreshCookie = CookieUtil.deleteCookie(REFRESH_COOKIE_NAME, cookieDomain);
         response.addHeader(HttpHeaders.SET_COOKIE, expiredRefreshCookie.toString());
     }
 }

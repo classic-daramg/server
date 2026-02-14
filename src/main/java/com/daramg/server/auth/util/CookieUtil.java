@@ -10,16 +10,21 @@ import java.util.Optional;
 public final class CookieUtil {
 
     public static ResponseCookie createCookie(final String cookieName, final String token,
-                                              final Long cookieValidTimeMillis) {
+                                              final Long cookieValidTimeMillis, final String domain) {
 
         long maxAgeInSeconds = cookieValidTimeMillis / 1000L;
-        return ResponseCookie.from(cookieName, token)
+        ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from(cookieName, token)
                 .path("/")
-                .sameSite("None")
+                .sameSite("Strict")
                 .secure(true)
                 .maxAge(Math.toIntExact(maxAgeInSeconds))
-                .httpOnly(true)
-                .build();
+                .httpOnly(true);
+
+        if (domain != null && !domain.isBlank()) {
+            builder.domain(domain);
+        }
+
+        return builder.build();
     }
 
     public static Optional<Cookie> getCookie(HttpServletRequest request, String cookieName) {
@@ -33,14 +38,19 @@ public final class CookieUtil {
                 .findFirst();
     }
 
-    public static ResponseCookie deleteCookie(final String nameOfCookie) {
-        return ResponseCookie.from(nameOfCookie, "")
+    public static ResponseCookie deleteCookie(final String nameOfCookie, final String domain) {
+        ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from(nameOfCookie, "")
                 .path("/")
                 .sameSite("Strict")
                 .secure(true)
                 .maxAge(0)
-                .httpOnly(true)
-                .build();
+                .httpOnly(true);
+
+        if (domain != null && !domain.isBlank()) {
+            builder.domain(domain);
+        }
+
+        return builder.build();
     }
 
 }
