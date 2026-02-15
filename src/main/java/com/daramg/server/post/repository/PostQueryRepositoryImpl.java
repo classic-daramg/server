@@ -143,10 +143,12 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                 .fetch();
 
         List<CurationPost> curationPosts = queryFactory
-                .selectFrom(curationPost)
+                .selectDistinct(curationPost)
+                .from(curationPost)
                 .leftJoin(curationPost._super.user, user).fetchJoin()
                 .where(
-                        curationPost.primaryComposer.id.eq(composerId)
+                        (curationPost.primaryComposer.id.eq(composerId)
+                                .or(curationPost.additionalComposers.any().id.eq(composerId)))
                                 .and(curationPost._super.isBlocked.isFalse())
                                 .and(curationPost._super.postStatus.eq(PostStatus.PUBLISHED))
                 )
