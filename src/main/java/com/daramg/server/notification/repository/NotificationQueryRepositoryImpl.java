@@ -8,6 +8,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.daramg.server.notification.domain.QNotification.notification;
@@ -27,7 +28,10 @@ public class NotificationQueryRepositoryImpl implements NotificationQueryReposit
                 .selectFrom(notification)
                 .leftJoin(notification.sender, user).fetchJoin()
                 .leftJoin(notification.post, post).fetchJoin()
-                .where(notification.receiver.id.eq(receiverId));
+                .where(
+                        notification.receiver.id.eq(receiverId),
+                        notification.createdAt.goe(LocalDateTime.now().minusDays(30))
+                );
 
         return pagingUtils.applyCursorPagination(
                 query,

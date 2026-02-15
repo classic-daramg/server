@@ -28,5 +28,9 @@ public class NotificationEventListener {
         );
 
         notificationRepository.save(notification);
+
+        if (notificationRepository.countByReceiverId(event.receiver().getId()) > 100) {
+            notificationRepository.deleteOldestByReceiverIdExceedingLimit(event.receiver().getId());
+        }
     }
 }
