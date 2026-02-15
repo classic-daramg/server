@@ -36,6 +36,11 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         /**
+                         * CORS preflight 요청 허용
+                         */
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        /**
                          * 인증 없이 허용할 경로
                          */
                         .requestMatchers("/auth/email-verifications").permitAll()
