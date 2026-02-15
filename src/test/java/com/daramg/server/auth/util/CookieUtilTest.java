@@ -29,13 +29,13 @@ class CookieUtilTest {
         Long validTimeMillis = 3600000L;
 
         // when
-        ResponseCookie responseCookie = CookieUtil.createCookie(cookieName, token, validTimeMillis);
+        ResponseCookie responseCookie = CookieUtil.createCookie(cookieName, token, validTimeMillis, null);
 
         // then
         assertThat(responseCookie.getName()).isEqualTo(cookieName);
         assertThat(responseCookie.getValue()).isEqualTo(token);
         assertThat(responseCookie.getPath()).isEqualTo("/");
-        assertThat(responseCookie.getSameSite()).isEqualTo("None");
+        assertThat(responseCookie.getSameSite()).isEqualTo("Strict");
         assertThat(responseCookie.isSecure()).isTrue();
         assertThat(responseCookie.isHttpOnly()).isTrue();
         assertThat(responseCookie.getMaxAge().getSeconds()).isEqualTo(3600L);
@@ -95,7 +95,7 @@ class CookieUtilTest {
         String cookieName = "testCookie";
 
         // when
-        ResponseCookie responseCookie = CookieUtil.deleteCookie(cookieName);
+        ResponseCookie responseCookie = CookieUtil.deleteCookie(cookieName, null);
 
         // then
         assertThat(responseCookie.getName()).isEqualTo(cookieName);

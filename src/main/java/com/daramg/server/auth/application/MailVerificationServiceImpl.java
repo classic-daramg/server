@@ -74,7 +74,7 @@ public class MailVerificationServiceImpl implements MailVerificationService{
             );
 
             javaMailSender.send(mimeMessage);
-        } catch (MessagingException | MailException e) {
+        } catch (MessagingException | MailException | java.io.UnsupportedEncodingException e) {
             throw new BusinessException(AuthErrorStatus.SEND_VERIFICATION_EMAIL_FAILED);
         }
     }

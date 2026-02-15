@@ -39,6 +39,10 @@ aws:
   stack:
     auto: false
 
+mail:
+  sender-email: "test@test.com"
+  sender-name: "테스트"
+
 jwt:
   secret-key: test-secret-key-for-ci-cd-environment-only-do-not-use-in-production-1234567890
   access-time: 3600000
