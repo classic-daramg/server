@@ -10,6 +10,7 @@ import com.daramg.server.auth.domain.SignupVo;
 import com.daramg.server.auth.dto.LoginRequestDto;
 import com.daramg.server.auth.dto.PasswordRequestDto;
 import com.daramg.server.auth.dto.SignupRequestDto;
+import com.daramg.server.user.domain.UserStatus;
 import com.daramg.server.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -40,6 +42,13 @@ public class AuthService {
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new BusinessException("중복된 이메일입니다.");
         }
+        userRepository.findByEmailAndUserStatus(dto.getEmail(), UserStatus.DELETED)
+                .ifPresent(deletedUser -> {
+                    if (deletedUser.getDeletedAt() != null
+                            && deletedUser.getDeletedAt().isAfter(LocalDateTime.now().minusDays(30))) {
+                        throw new BusinessException(AuthErrorStatus.REJOIN_NOT_ALLOWED);
+                    }
+                });
         if (userRepository.existsByNickname(dto.getNickname())){
             throw new BusinessException("중복된 닉네임입니다.");
         }

@@ -17,6 +17,7 @@ public enum AuthErrorStatus implements BaseErrorCode {
     VERIFICATION_CODE_NOT_EXIST(HttpStatus.BAD_REQUEST, ErrorCategory.AUTH.generate(400_4), "인증번호는 비어있을 수 없습니다."),
     INVALID_VERIFICATION_CODE(HttpStatus.BAD_REQUEST, ErrorCategory.AUTH.generate(400_5), "인증번호는 6자리 숫자여야 합니다."),
     EMAIL_NOT_REGISTERED(HttpStatus.BAD_REQUEST, ErrorCategory.AUTH.generate(400_6), "가입되지 않은 이메일입니다."),
+    REJOIN_NOT_ALLOWED(HttpStatus.BAD_REQUEST, ErrorCategory.AUTH.generate(400_7), "탈퇴 후 30일이 지나야 재가입할 수 있습니다."),
 
     TOKEN_EXPIRED_EXCEPTION(HttpStatus.UNAUTHORIZED, ErrorCategory.AUTH.generate(401_1), "만료된 토큰입니다."),
     INVALID_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED, ErrorCategory.AUTH.generate(401_2), "유효하지 않은 토큰입니다."),
