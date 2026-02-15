@@ -39,6 +39,11 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     public String ACCESS_COOKIE_NAME;
 
     @Override
+    protected boolean shouldNotFilter(@NotNull HttpServletRequest request) {
+        return "OPTIONS".equalsIgnoreCase(request.getMethod());
+    }
+
+    @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request,
                                     @NotNull HttpServletResponse response,
                                     @NotNull FilterChain filterChain) throws IOException, ServletException {
