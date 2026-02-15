@@ -42,8 +42,7 @@ sealed class PostCreateDto(
         override val videoUrl: String? = null,
         override val hashtags: List<String> = emptyList(),
 
-        @get:NotNull(message = "주요 작곡가는 필수입니다")
-        val primaryComposerId: Long
+        val primaryComposerId: Long? = null
 
     ) : PostCreateDto(title, content, postStatus, images, videoUrl, hashtags)
 
@@ -55,8 +54,7 @@ sealed class PostCreateDto(
         override val videoUrl: String? = null,
         override val hashtags: List<String> = emptyList(),
 
-        @get:NotNull(message = "주요 작곡가는 필수입니다")
-        val primaryComposerId: Long,
+        val primaryComposerId: Long? = null,
         val additionalComposerIds: List<Long> = emptyList()
     ) : PostCreateDto(title, content, postStatus, images, videoUrl, hashtags)
 }
