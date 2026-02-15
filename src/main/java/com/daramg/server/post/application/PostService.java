@@ -57,7 +57,12 @@ public class PostService {
 
     @Transactional
     public void createCuration(PostCreateDto.CreateCuration dto, User user) {
-        Composer primaryComposer = entityUtils.getEntity(dto.getPrimaryComposerId(), Composer.class);
+        Composer primaryComposer = null;
+        if (dto.getPrimaryComposerId() != null) {
+            primaryComposer = entityUtils.getEntity(dto.getPrimaryComposerId(), Composer.class);
+        } else if (dto.getPostStatus() == PostStatus.PUBLISHED) {
+            throw new BusinessException("발행 시 주요 작곡가는 필수입니다.");
+        }
         List<Composer> additionalComposers = new ArrayList<>();
 
         if (!dto.getAdditionalComposerIds().isEmpty()){
@@ -86,7 +91,12 @@ public class PostService {
 
     @Transactional
     public void createStory(PostCreateDto.CreateStory dto, User user) {
-        Composer primaryComposer = entityUtils.getEntity(dto.getPrimaryComposerId(), Composer.class);
+        Composer primaryComposer = null;
+        if (dto.getPrimaryComposerId() != null) {
+            primaryComposer = entityUtils.getEntity(dto.getPrimaryComposerId(), Composer.class);
+        } else if (dto.getPostStatus() == PostStatus.PUBLISHED) {
+            throw new BusinessException("발행 시 주요 작곡가는 필수입니다.");
+        }
         PostCreateVo.Story vo = new PostCreateVo.Story(
                 user,
                 dto.getTitle(),
