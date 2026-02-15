@@ -28,6 +28,10 @@ spring:
       max-file-size: 10MB
       max-request-size: 50MB
 
+mail:
+  sender-email: "classic.daramg@gmail.com"
+  sender-name: "클듣다"
+
 server:
   port: 8080
 
