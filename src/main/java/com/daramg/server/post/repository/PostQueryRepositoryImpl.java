@@ -10,8 +10,10 @@ import com.daramg.server.post.domain.Post;
 import com.daramg.server.post.domain.PostStatus;
 import com.daramg.server.post.domain.QPost;
 import com.daramg.server.post.domain.StoryPost;
+import com.daramg.server.composer.domain.QComposer;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.EntityPathBase;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -142,13 +144,16 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                 .orderBy(storyPost._super.createdAt.desc(), storyPost._super.id.desc())
                 .fetch();
 
+        QComposer additionalComposer = new QComposer("additionalComposer");
+
         List<CurationPost> curationPosts = queryFactory
                 .selectDistinct(curationPost)
                 .from(curationPost)
                 .leftJoin(curationPost._super.user, user).fetchJoin()
+                .leftJoin(curationPost.additionalComposers, additionalComposer)
                 .where(
                         (curationPost.primaryComposer.id.eq(composerId)
-                                .or(curationPost.additionalComposers.any().id.eq(composerId)))
+                                .or(additionalComposer.id.eq(composerId)))
                                 .and(curationPost._super.isBlocked.isFalse())
                                 .and(curationPost._super.postStatus.eq(PostStatus.PUBLISHED))
                 )
