@@ -25,6 +25,7 @@ public record PostResponseDto(
         String thumbnailImageUrl,
         PostType type,
         ComposerSummary primaryComposer,
+        List<ComposerSummary> additionalComposers,
         Boolean isLiked,
         Boolean isScrapped
 ) {
@@ -36,6 +37,7 @@ public record PostResponseDto(
         List<String> imageUrls = post.getImages();
         PostType type = getPostType(post);
         ComposerSummary primaryComposer = extractPrimaryComposer(post);
+        List<ComposerSummary> additionalComposers = extractAdditionalComposers(post);
         return new PostResponseDto(
                 post.getId(),
                 post.getTitle(),
@@ -48,6 +50,7 @@ public record PostResponseDto(
                 imageUrls.isEmpty() ? null : imageUrls.getFirst(),
                 type,
                 primaryComposer,
+                additionalComposers,
                 isLiked,
                 isScrapped
         );
@@ -77,6 +80,17 @@ public record PostResponseDto(
                     composer.getContinent()
             );
         }
+    }
+
+    private static List<ComposerSummary> extractAdditionalComposers(Post post) {
+        if (post instanceof CurationPost curationPost
+                && curationPost.getAdditionalComposers() != null
+                && !curationPost.getAdditionalComposers().isEmpty()) {
+            return curationPost.getAdditionalComposers().stream()
+                    .map(ComposerSummary::from)
+                    .toList();
+        }
+        return null;
     }
 
     private static PostType getPostType(Post post) {
