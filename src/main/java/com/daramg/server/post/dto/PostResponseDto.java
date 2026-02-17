@@ -57,6 +57,9 @@ public record PostResponseDto(
         if (post instanceof CurationPost curationPost && curationPost.getPrimaryComposer() != null) {
             return ComposerSummary.from(curationPost.getPrimaryComposer());
         }
+        if (post instanceof StoryPost storyPost && storyPost.getPrimaryComposer() != null) {
+            return ComposerSummary.from(storyPost.getPrimaryComposer());
+        }
         return null;
     }
 
