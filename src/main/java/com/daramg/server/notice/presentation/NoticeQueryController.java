@@ -1,10 +1,8 @@
 package com.daramg.server.notice.presentation;
 
-import com.daramg.server.common.application.EntityUtils;
 import com.daramg.server.common.dto.PageRequestDto;
 import com.daramg.server.common.dto.PageResponseDto;
 import com.daramg.server.notice.application.NoticeQueryService;
-import com.daramg.server.notice.domain.Notice;
 import com.daramg.server.notice.dto.NoticeDetailResponse;
 import com.daramg.server.notice.dto.NoticeResponseDto;
 import com.daramg.server.user.domain.User;
@@ -20,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class NoticeQueryController {
 
     private final NoticeQueryService noticeQueryService;
-    private final EntityUtils entityUtils;
 
     @GetMapping
     public PageResponseDto<NoticeResponseDto> getAllNotices(
@@ -34,8 +31,6 @@ public class NoticeQueryController {
     public NoticeDetailResponse getNoticeDetail(
             @PathVariable Long noticeId
     ) {
-        Notice notice = entityUtils.getEntity(noticeId, Notice.class);
-        return NoticeDetailResponse.from(notice);
+        return noticeQueryService.getNoticeDetail(noticeId);
     }
 }
-
