@@ -1,12 +1,10 @@
 package com.daramg.server.notice.presentation;
 
-import com.daramg.server.common.application.EntityUtils;
 import com.daramg.server.common.dto.PageResponseDto;
 import com.daramg.server.notice.application.NoticeQueryService;
-import com.daramg.server.notice.domain.Notice;
+import com.daramg.server.notice.dto.NoticeDetailResponse;
 import com.daramg.server.notice.dto.NoticeResponseDto;
 import com.daramg.server.testsupport.support.ControllerTestSupport;
-import com.daramg.server.user.domain.User;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
@@ -21,7 +19,6 @@ import java.util.List;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.cookies.CookieDocumentation.cookieWithName;
 import static org.springframework.restdocs.cookies.CookieDocumentation.requestCookies;
@@ -37,9 +34,6 @@ public class NoticeQueryControllerTest extends ControllerTestSupport {
 
     @MockitoBean
     private NoticeQueryService noticeQueryService;
-
-    @MockitoBean
-    private EntityUtils entityUtils;
 
     @Test
     void 공지사항_목록을_조회한다() throws Exception {
@@ -98,19 +92,13 @@ public class NoticeQueryControllerTest extends ControllerTestSupport {
         // given
         Long noticeId = 1L;
 
-        Notice mockNotice = mock(Notice.class);
-        User mockUser = mock(User.class);
+        NoticeDetailResponse response = new NoticeDetailResponse(
+                1L, "관리자", "https://example.com/profile.jpg",
+                "공지사항 제목", "공지사항 상세 내용입니다.",
+                List.of("https://example.com/image1.jpg"), LocalDateTime.now()
+        );
 
-        when(mockUser.getNickname()).thenReturn("관리자");
-        when(mockUser.getProfileImage()).thenReturn("https://example.com/profile.jpg");
-        when(mockNotice.getId()).thenReturn(1L);
-        when(mockNotice.getUser()).thenReturn(mockUser);
-        when(mockNotice.getTitle()).thenReturn("공지사항 제목");
-        when(mockNotice.getContent()).thenReturn("공지사항 상세 내용입니다.");
-        when(mockNotice.getImages()).thenReturn(List.of("https://example.com/image1.jpg"));
-        when(mockNotice.getCreatedAt()).thenReturn(LocalDateTime.now());
-
-        when(entityUtils.getEntity(anyLong(), any())).thenReturn(mockNotice);
+        when(noticeQueryService.getNoticeDetail(anyLong())).thenReturn(response);
 
         // when
         ResultActions result = mockMvc.perform(get("/notice/{noticeId}", noticeId));
