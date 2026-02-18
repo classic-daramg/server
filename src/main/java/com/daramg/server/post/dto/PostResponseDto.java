@@ -84,13 +84,12 @@ public record PostResponseDto(
 
     private static List<ComposerSummary> extractAdditionalComposers(Post post) {
         if (post instanceof CurationPost curationPost
-                && curationPost.getAdditionalComposers() != null
-                && !curationPost.getAdditionalComposers().isEmpty()) {
+                && curationPost.getAdditionalComposers() != null) {
             return curationPost.getAdditionalComposers().stream()
                     .map(ComposerSummary::from)
                     .toList();
         }
-        return null;
+        return List.of();
     }
 
     private static PostType getPostType(Post post) {
