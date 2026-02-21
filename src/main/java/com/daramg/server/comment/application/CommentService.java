@@ -54,7 +54,7 @@ public class CommentService {
     public void createReply(Long commentId, CommentReplyCreateDto request, User user){
         Comment parentComment = entityUtils.getEntity(commentId, Comment.class);
         if (parentComment.isDeleted() || parentComment.isBlocked()){
-            throw new BusinessException(CommentErrorStatus.BLOCKED_OR_DELETED_COMMENT);
+            throw new BusinessException(CommentErrorStatus.BLOCKED_OR_DELETED_COMMENT_REPLY);
         }
         Post post = parentComment.getPost();
         if (post.isBlocked()){
@@ -80,7 +80,7 @@ public class CommentService {
     public CommentLikeResponseDto toggleCommentLike(Long commentId, User user){
         Comment comment = entityUtils.getEntity(commentId, Comment.class);
         if (comment.isDeleted() || comment.isBlocked()){
-            throw new BusinessException(CommentErrorStatus.BLOCKED_OR_DELETED_COMMENT);
+            throw new BusinessException(CommentErrorStatus.BLOCKED_OR_DELETED_COMMENT_LIKE);
         }
 
         boolean alreadyLiked = commentLikeRepository
