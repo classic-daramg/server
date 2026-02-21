@@ -3,6 +3,7 @@ package com.daramg.server.common.util;
 import com.daramg.server.common.dto.PageRequestDto;
 import com.daramg.server.common.dto.PageResponseDto;
 import com.daramg.server.common.exception.BusinessException;
+import com.daramg.server.common.exception.CommonErrorStatus;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.DateTimePath;
 import com.querydsl.core.types.dsl.NumberPath;
@@ -116,7 +117,7 @@ public class PagingUtils {
             return new Cursor(LocalDateTime.parse(parts[0]), Long.parseLong(parts[1]));
         } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException |
                  DateTimeParseException e) {
-            throw new BusinessException("유효하지 않은 커서 포맷입니다.");
+            throw new BusinessException(CommonErrorStatus.INVALID_CURSOR);
         }
     }
 

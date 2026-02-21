@@ -26,6 +26,11 @@ public enum AuthErrorStatus implements BaseErrorCode {
 
     USER_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, ErrorCategory.AUTH.generate(404_1), "존재하지 않는 사용자입니다."),
 
+    DUPLICATE_EMAIL(HttpStatus.CONFLICT, ErrorCategory.AUTH.generate(409_1), "중복된 이메일입니다."),
+    DUPLICATE_NICKNAME(HttpStatus.CONFLICT, ErrorCategory.AUTH.generate(409_2), "중복된 닉네임입니다."),
+    INVALID_PASSWORD(HttpStatus.BAD_REQUEST, ErrorCategory.AUTH.generate(400_8), "비밀번호가 일치하지 않습니다."),
+    UNSUPPORTED_EMAIL_PURPOSE(HttpStatus.BAD_REQUEST, ErrorCategory.AUTH.generate(400_9), "지원하지 않는 이메일 발송 목적입니다."),
+
     SEND_VERIFICATION_EMAIL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCategory.AUTH.generate(500), "이메일 전송에 실패했습니다."),
     REDIS_CONNECTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCategory.AUTH.generate(500_1), "Redis 연결에 실패했습니다. 서버 관리자에게 문의 바랍니다.");
 

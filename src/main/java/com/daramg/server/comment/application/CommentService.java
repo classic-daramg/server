@@ -6,6 +6,7 @@ import com.daramg.server.comment.dto.CommentLikeResponseDto;
 import com.daramg.server.comment.repository.CommentLikeRepository;
 import com.daramg.server.comment.repository.CommentRepository;
 import com.daramg.server.common.application.EntityUtils;
+import com.daramg.server.comment.exception.CommentErrorStatus;
 import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.post.domain.Post;
 import com.daramg.server.notification.domain.NotificationType;
@@ -31,7 +32,7 @@ public class CommentService {
     public void createComment(Long postId, CommentCreateDto request, User user){
         Post post = entityUtils.getEntity(postId, Post.class);
         if (post.isBlocked()){
-            throw new BusinessException("블락된 포스트에는 댓글을 남길 수 없습니다.");
+            throw new BusinessException(CommentErrorStatus.BLOCKED_POST);
         }
 
         Comment comment = Comment.of(
@@ -53,11 +54,11 @@ public class CommentService {
     public void createReply(Long commentId, CommentReplyCreateDto request, User user){
         Comment parentComment = entityUtils.getEntity(commentId, Comment.class);
         if (parentComment.isDeleted() || parentComment.isBlocked()){
-            throw new BusinessException("삭제되었거나 블락된 댓글에는 대댓글을 남길 수 없습니다.");
+            throw new BusinessException(CommentErrorStatus.BLOCKED_OR_DELETED_COMMENT);
         }
         Post post = parentComment.getPost();
         if (post.isBlocked()){
-            throw new BusinessException("블락된 포스트에는 댓글을 남길 수 없습니다.");
+            throw new BusinessException(CommentErrorStatus.BLOCKED_POST);
         }
 
         Comment reply = Comment.of(
@@ -79,7 +80,7 @@ public class CommentService {
     public CommentLikeResponseDto toggleCommentLike(Long commentId, User user){
         Comment comment = entityUtils.getEntity(commentId, Comment.class);
         if (comment.isDeleted() || comment.isBlocked()){
-            throw new BusinessException("삭제되었거나 블락된 댓글에는 좋아요를 누를 수 없습니다.");
+            throw new BusinessException(CommentErrorStatus.BLOCKED_OR_DELETED_COMMENT);
         }
 
         boolean alreadyLiked = commentLikeRepository
@@ -105,10 +106,10 @@ public class CommentService {
         Comment comment = entityUtils.getEntity(commentId, Comment.class);
 
         if (comment.isDeleted()){
-            throw new BusinessException("이미 삭제 처리된 댓글입니다.");
+            throw new BusinessException(CommentErrorStatus.ALREADY_DELETED);
         }
         if (comment.getUser() == null || !comment.getUser().getId().equals(user.getId())){
-            throw new BusinessException("댓글을 작성한 유저만 댓글을 삭제할 수 있습니다.");
+            throw new BusinessException(CommentErrorStatus.NOT_COMMENT_AUTHOR);
         }
 
         comment.softDelete();

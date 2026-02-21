@@ -2,6 +2,7 @@ package com.daramg.server.post.application;
 
 import com.daramg.server.common.application.EntityUtils;
 import com.daramg.server.common.exception.BusinessException;
+import com.daramg.server.post.exception.PostErrorStatus;
 import com.daramg.server.common.exception.NotFoundException;
 import com.daramg.server.composer.domain.Composer;
 import com.daramg.server.composer.repository.ComposerRepository;
@@ -61,7 +62,7 @@ public class PostService {
         if (dto.getPrimaryComposerId() != null) {
             primaryComposer = entityUtils.getEntity(dto.getPrimaryComposerId(), Composer.class);
         } else if (dto.getPostStatus() == PostStatus.PUBLISHED) {
-            throw new BusinessException("발행 시 주요 작곡가는 필수입니다.");
+            throw new BusinessException(PostErrorStatus.PRIMARY_COMPOSER_REQUIRED);
         }
         List<Composer> additionalComposers = new ArrayList<>();
 
@@ -95,7 +96,7 @@ public class PostService {
         if (dto.getPrimaryComposerId() != null) {
             primaryComposer = entityUtils.getEntity(dto.getPrimaryComposerId(), Composer.class);
         } else if (dto.getPostStatus() == PostStatus.PUBLISHED) {
-            throw new BusinessException("발행 시 주요 작곡가는 필수입니다.");
+            throw new BusinessException(PostErrorStatus.PRIMARY_COMPOSER_REQUIRED);
         }
         PostCreateVo.Story vo = new PostCreateVo.Story(
                 user,

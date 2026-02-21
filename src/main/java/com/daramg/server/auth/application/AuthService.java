@@ -40,7 +40,7 @@ public class AuthService {
 
     public void signup(SignupRequestDto dto, MultipartFile image){
         if (userRepository.existsByEmail(dto.getEmail())) {
-            throw new BusinessException("중복된 이메일입니다.");
+            throw new BusinessException(AuthErrorStatus.DUPLICATE_EMAIL);
         }
         userRepository.findByEmailAndUserStatus(dto.getEmail(), UserStatus.DELETED)
                 .ifPresent(deletedUser -> {
@@ -50,7 +50,7 @@ public class AuthService {
                     }
                 });
         if (userRepository.existsByNickname(dto.getNickname())){
-            throw new BusinessException("중복된 닉네임입니다.");
+            throw new BusinessException(AuthErrorStatus.DUPLICATE_NICKNAME);
         }
         // TODO: bio, 닉네임에 금칙어 검사
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
@@ -117,7 +117,7 @@ public class AuthService {
 
     public void signOut(User user, com.daramg.server.user.dto.PasswordRequestDto request){
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new BusinessException("비밀번호가 일치하지 않습니다.");
+            throw new BusinessException(AuthErrorStatus.INVALID_PASSWORD);
         }
         redisTemplate.delete(user.getEmail());
         user.withdraw();
