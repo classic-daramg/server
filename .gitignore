@@ -39,5 +39,6 @@ out/
 
 ### 보안정보
 application-secret.yml
+*.pem
 
 src/main/generated

@@ -2,6 +2,7 @@ package com.daramg.server.notification.application;
 
 import com.daramg.server.common.application.EntityUtils;
 import com.daramg.server.common.exception.BusinessException;
+import com.daramg.server.notification.exception.NotificationErrorStatus;
 import com.daramg.server.notification.domain.Notification;
 import com.daramg.server.notification.repository.NotificationRepository;
 import com.daramg.server.user.domain.User;
@@ -35,7 +36,7 @@ public class NotificationService {
 
     private void validateReceiver(Notification notification, User user) {
         if (!notification.getReceiver().getId().equals(user.getId())) {
-            throw new BusinessException("본인의 알림만 처리할 수 있습니다.");
+            throw new BusinessException(NotificationErrorStatus.NOT_OWN_NOTIFICATION);
         }
     }
 }

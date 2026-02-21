@@ -29,7 +29,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ErrorResponse> handleGeneralException(BusinessException e) {
         BaseErrorCode errorCode = e.getErrorCode();
 
-        log.warn("GeneralException: {}", errorCode.getMessage());
+        log.warn("GeneralException: {} - {}", errorCode.getMessage(), e.getMessage());
         return ResponseEntity
                 .status(errorCode.getHttpStatus())
                 .body(ErrorResponse.of(errorCode));

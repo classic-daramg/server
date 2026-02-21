@@ -9,6 +9,7 @@ import com.daramg.server.auth.util.MailContentBuilder;
 import com.daramg.server.auth.util.MimeMessageGenerator;
 import com.daramg.server.auth.util.VerificationCodeGenerator;
 import com.daramg.server.common.exception.BusinessException;
+import com.daramg.server.user.exception.UserErrorStatus;
 import com.daramg.server.user.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -35,7 +36,7 @@ public class MailVerificationServiceImpl implements MailVerificationService{
             case SIGNUP -> sendForSignup(request);
             case PASSWORD_RESET -> sendForPasswordReset(request);
             case EMAIL_CHANGE -> sendForEmailChange(request);
-            default -> throw new BusinessException("지원하지 않는 이메일 발송 목적입니다.");
+            default -> throw new BusinessException(AuthErrorStatus.UNSUPPORTED_EMAIL_PURPOSE);
         }
     }
 
@@ -53,7 +54,7 @@ public class MailVerificationServiceImpl implements MailVerificationService{
     private void sendForEmailChange(EmailVerificationRequestDto request) {
         if (userRepository.existsByEmail(request.getEmail())
                 && !request.getEmail().equals(request.getOriginalEmail())) {
-            throw new BusinessException("이미 가입되어 있는 이메일입니다.");
+            throw new BusinessException(UserErrorStatus.DUPLICATE_EMAIL);
         }
         sendVerificationCode(request);
     }

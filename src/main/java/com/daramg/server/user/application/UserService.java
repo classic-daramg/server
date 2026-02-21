@@ -11,6 +11,7 @@ import com.daramg.server.user.dto.EmailChangeRequestDto;
 import com.daramg.server.user.dto.PasswordRequestDto;
 import com.daramg.server.user.dto.UserProfileResponseDto;
 import com.daramg.server.user.dto.UserProfileUpdateRequestDto;
+import com.daramg.server.user.exception.UserErrorStatus;
 import com.daramg.server.user.repository.UserRepository;
 import com.daramg.server.user.repository.UserFollowRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-
-import static com.daramg.server.common.exception.CommonErrorStatus.NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -52,12 +51,12 @@ public class UserService {
     @Transactional
     public void changeUserEmail(User user, EmailChangeRequestDto request) {
         User managedUser = userRepository.findById(user.getId())
-                .orElseThrow(() -> new BusinessException("유저를 찾을 수 없습니다."));
-        if (managedUser.getEmail().equals(request.getEmail())){
-            throw new BusinessException("기존 이메일과 동일한 이메일로 변경할 수 없습니다.");
+                .orElseThrow(() -> new BusinessException(UserErrorStatus.USER_NOT_FOUND));
+        if (managedUser.getEmail().equals(request.getEmail())) {
+            throw new BusinessException(UserErrorStatus.SAME_EMAIL);
         }
-        if (userRepository.existsByEmail(request.getEmail())){
-            throw new BusinessException("이미 가입되어 있는 이메일입니다.");
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new BusinessException(UserErrorStatus.DUPLICATE_EMAIL);
         }
         managedUser.changeEmail(request.getEmail());
     }
@@ -65,15 +64,15 @@ public class UserService {
     @Transactional
     public void changeUserPassword(User user, PasswordRequestDto request) {
         User managedUser = userRepository.findById(user.getId())
-                .orElseThrow(() -> new BusinessException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(UserErrorStatus.USER_NOT_FOUND));
         String encodedPassword = passwordEncoder.encode(request.getPassword());
         managedUser.changePassword(encodedPassword);
     }
 
     @Transactional
-    public void updateUserProfile(User user, UserProfileUpdateRequestDto request){
+    public void updateUserProfile(User user, UserProfileUpdateRequestDto request) {
         User managedUser = userRepository.findById(user.getId())
-                .orElseThrow(() -> new BusinessException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(UserErrorStatus.USER_NOT_FOUND));
         UpdateVo vo = new UpdateVo(
                 request.getProfileImageUrl(),
                 request.getNickname(),
@@ -85,17 +84,17 @@ public class UserService {
     @Transactional
     public void follow(User follower, Long followedId) {
         if (follower.getId().equals(followedId)) {
-            throw new BusinessException("팔로우 대상과 주체의 유저가 동일합니다.");
+            throw new BusinessException(UserErrorStatus.SELF_FOLLOW);
         }
 
         boolean alreadyFollowing = userFollowRepository
                 .existsByFollowerIdAndFollowedId(follower.getId(), followedId);
         if (alreadyFollowing) {
-            throw new BusinessException("이미 팔로우하고 있는 상태입니다.");
+            throw new BusinessException(UserErrorStatus.ALREADY_FOLLOWING);
         }
 
         User managedFollower = userRepository.findById(follower.getId())
-                .orElseThrow(() -> new BusinessException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(UserErrorStatus.USER_NOT_FOUND));
         User followed = entityUtils.getEntity(followedId, User.class);
         userFollowRepository.save(UserFollow.of(managedFollower, followed));
 
@@ -106,16 +105,16 @@ public class UserService {
     @Transactional
     public void unfollow(User follower, Long followedId) {
         if (follower.getId().equals(followedId)) {
-            throw new BusinessException("언팔로우 대상과 주체의 유저가 동일합니다.");
+            throw new BusinessException(UserErrorStatus.SELF_UNFOLLOW);
         }
         User managedFollower = userRepository.findById(follower.getId())
-                .orElseThrow(() -> new BusinessException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(UserErrorStatus.USER_NOT_FOUND));
         User followed = entityUtils.getEntity(followedId, User.class);
 
         boolean existingFollow = userFollowRepository
                 .existsByFollowerIdAndFollowedId(follower.getId(), followedId);
         if (!existingFollow) {
-            throw new BusinessException("언팔로우할 유저를 팔로우하지 않은 상태입니다.");
+            throw new BusinessException(UserErrorStatus.NOT_FOLLOWING);
         }
 
         userFollowRepository.deleteByFollowerIdAndFollowedId(follower.getId(), followedId);
@@ -126,7 +125,7 @@ public class UserService {
     @Transactional
     public void withdraw(Long userId) {
         User user = userRepository.findById(userId)
-                        .orElseThrow(() -> new BusinessException(NOT_FOUND));
+                .orElseThrow(() -> new BusinessException(UserErrorStatus.USER_NOT_FOUND));
 
         user.withdraw();
 
