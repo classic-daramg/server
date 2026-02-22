@@ -125,8 +125,10 @@ public class PostQueryService {
         );
     }
 
+    @Transactional
     public PostDetailResponse getPostById(Long postId, User user) {
         Post post = entityUtils.getEntity(postId, Post.class);
+        post.incrementViewCount();
         Boolean isLiked = user != null ? postLikeRepository.existsByPostIdAndUserId(postId, user.getId()) : null;
         Boolean isScrapped = user != null ? postScrapRepository.existsByPostIdAndUserId(postId, user.getId()) : null;
         List<Comment> comments = commentRepository.findByPostIdAndIsBlockedFalseOrderByCreatedAtAsc(postId);

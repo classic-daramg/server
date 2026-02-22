@@ -53,6 +53,9 @@ public abstract class Post extends BaseEntity<Post> {
     @Column(name = "comment_count", nullable = false)
     private int commentCount = 0;
 
+    @Column(name = "view_count", nullable = false)
+    private int viewCount = 0;
+
     @Column(name = "is_blocked", nullable = false)
     private boolean isBlocked = false;
 
@@ -131,6 +134,10 @@ public abstract class Post extends BaseEntity<Post> {
 
     public void incrementCommentCount(){
         commentCount++;
+    }
+
+    public void incrementViewCount(){
+        viewCount++;
     }
 
     public void softDelete() {
