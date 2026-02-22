@@ -52,6 +52,7 @@ public class SecurityConfig {
                         .requestMatchers("/users/check-nickname").permitAll()
                         .requestMatchers("/composers/{composerId}/posts").permitAll()
                         .requestMatchers(HttpMethod.GET, "/notice/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/search").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/docs/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll() // 추가: h2 db 접근
