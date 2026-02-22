@@ -664,6 +664,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 PostStatus.PUBLISHED,
                 10,
                 5,
+                0,
                 false,
                 createdAt,
                 updatedAt,
