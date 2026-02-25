@@ -31,6 +31,9 @@ public enum AuthErrorStatus implements BaseErrorCode {
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, ErrorCategory.AUTH.generate(400_8), "비밀번호가 일치하지 않습니다."),
     UNSUPPORTED_EMAIL_PURPOSE(HttpStatus.BAD_REQUEST, ErrorCategory.AUTH.generate(400_9), "지원하지 않는 이메일 발송 목적입니다."),
 
+    EMAIL_RATE_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, ErrorCategory.AUTH.generate(429_1), "잠시 후 다시 시도해주세요. (1분에 1회만 요청 가능합니다.)"),
+    VERIFICATION_ATTEMPT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, ErrorCategory.AUTH.generate(429_2), "인증 시도 횟수를 초과했습니다. 새로운 인증번호를 요청해주세요."),
+
     SEND_VERIFICATION_EMAIL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCategory.AUTH.generate(500), "이메일 전송에 실패했습니다."),
     REDIS_CONNECTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCategory.AUTH.generate(500_1), "Redis 연결에 실패했습니다. 서버 관리자에게 문의 바랍니다.");
 
