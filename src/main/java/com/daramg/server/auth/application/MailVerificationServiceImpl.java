@@ -13,6 +13,7 @@ import com.daramg.server.user.exception.UserErrorStatus;
 import com.daramg.server.user.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import com.daramg.server.auth.repository.RateLimitRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.RedisConnectionFailureException;
@@ -29,6 +30,7 @@ public class MailVerificationServiceImpl implements MailVerificationService{
     private final MailContentBuilder mailContentBuilder;
     private final JavaMailSender javaMailSender;
     private final VerificationCodeRepository verificationCodeRepository;
+    private final RateLimitRepository rateLimitRepository;
     private final UserRepository userRepository;
 
     public void sendVerificationEmail(EmailVerificationRequestDto request) {
@@ -41,6 +43,9 @@ public class MailVerificationServiceImpl implements MailVerificationService{
     }
 
     private void sendForSignup(EmailVerificationRequestDto request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new BusinessException(AuthErrorStatus.DUPLICATE_EMAIL);
+        }
         sendVerificationCode(request);
     }
 
@@ -60,12 +65,18 @@ public class MailVerificationServiceImpl implements MailVerificationService{
     }
 
     private void sendVerificationCode(EmailVerificationRequestDto request) {
-        String verificationCode = VerificationCodeGenerator.generate();
-        
         executeRedisOperationVoid(() -> {
-            verificationCodeRepository.save(request.getEmail(), verificationCode);
+            if (rateLimitRepository.isRateLimited(request.getEmail())) {
+                throw new BusinessException(AuthErrorStatus.EMAIL_RATE_LIMIT_EXCEEDED);
+            }
         });
-        
+
+        String verificationCode = VerificationCodeGenerator.generate();
+
+        executeRedisOperationVoid(() ->
+            verificationCodeRepository.save(request.getEmail(), verificationCode)
+        );
+
         try {
             String htmlContent = mailContentBuilder.buildVerificationEmail(verificationCode);
             MimeMessage mimeMessage = mimeMessageGenerator.generate(
@@ -76,21 +87,30 @@ public class MailVerificationServiceImpl implements MailVerificationService{
 
             javaMailSender.send(mimeMessage);
         } catch (MessagingException | MailException | java.io.UnsupportedEncodingException e) {
+            log.error("이메일 발송 실패 - email: {}, error: {}", request.getEmail(), e.getMessage());
             throw new BusinessException(AuthErrorStatus.SEND_VERIFICATION_EMAIL_FAILED);
         }
     }
 
     public void verifyEmailWithCode(CodeVerificationRequestDto request) {
-        String storedCode = executeRedisOperation(() -> 
+        executeRedisOperationVoid(() -> {
+            if (rateLimitRepository.isAttemptExceeded(request.getEmail())) {
+                throw new BusinessException(AuthErrorStatus.VERIFICATION_ATTEMPT_EXCEEDED);
+            }
+        });
+
+        String storedCode = executeRedisOperation(() ->
             verificationCodeRepository.findByEmail(request.getEmail()).orElse(null)
         );
 
         if (storedCode == null || !storedCode.equals(request.getVerificationCode())) {
+            executeRedisOperationVoid(() -> rateLimitRepository.incrementAttempt(request.getEmail()));
             throw new BusinessException(AuthErrorStatus.CODE_VERIFICATION_FAILED);
         }
-        
+
         executeRedisOperationVoid(() -> {
             verificationCodeRepository.deleteByEmail(request.getEmail());
+            rateLimitRepository.resetAttempts(request.getEmail());
         });
     }
 
