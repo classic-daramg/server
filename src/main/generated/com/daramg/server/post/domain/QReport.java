@@ -27,7 +27,7 @@ public class QReport extends EntityPathBase<Report> {
     public final com.daramg.server.comment.domain.QComment comment;
 
     //inherited
-    public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
+    public final DateTimePath<java.time.Instant> createdAt = _super.createdAt;
 
     //inherited
     public final NumberPath<Long> id = _super.id;
@@ -45,7 +45,7 @@ public class QReport extends EntityPathBase<Report> {
     public final EnumPath<Report.ReportType> type = createEnum("type", Report.ReportType.class);
 
     //inherited
-    public final DateTimePath<java.time.LocalDateTime> updatedAt = _super.updatedAt;
+    public final DateTimePath<java.time.Instant> updatedAt = _super.updatedAt;
 
     public QReport(String variable) {
         this(Report.class, forVariable(variable), INITS);

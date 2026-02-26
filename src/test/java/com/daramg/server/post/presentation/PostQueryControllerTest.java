@@ -17,7 +17,8 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.ResultActions;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
@@ -44,7 +45,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 "자유 포스트 제목 1",
                 "자유 포스트 내용입니다",
                 List.of("#해시태그1", "#해시태그2"),
-                LocalDateTime.of(2024, 1, 15, 10, 30, 0),
+                Instant.parse("2024-01-15T10:30:00Z"),
                 "작성자1",
                 10,
                 5,
@@ -60,7 +61,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 "자유 포스트 제목 2",
                 "자유 포스트 내용입니다",
                 List.of("#해시태그3"),
-                LocalDateTime.of(2024, 1, 14, 15, 20, 0),
+                Instant.parse("2024-01-14T15:20:00Z"),
                 "작성자2",
                 20,
                 10,
@@ -140,7 +141,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 "큐레이션 포스트 제목 1",
                 "큐레이션 포스트 내용입니다",
                 List.of("#큐레이션1", "#음악"),
-                LocalDateTime.of(2024, 1, 15, 12, 0, 0),
+                Instant.parse("2024-01-15T12:00:00Z"),
                 "작성자1",
                 30,
                 15,
@@ -156,7 +157,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 "큐레이션 포스트 제목 2",
                 "큐레이션 포스트 내용입니다",
                 List.of("#큐레이션2"),
-                LocalDateTime.of(2024, 1, 14, 18, 45, 0),
+                Instant.parse("2024-01-14T18:45:00Z"),
                 "작성자2",
                 25,
                 12,
@@ -240,7 +241,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 "스토리 포스트 제목 1",
                 "스토리 포스트 내용입니다",
                 List.of("#스토리1", "#음악이야기"),
-                LocalDateTime.of(2024, 1, 15, 14, 30, 0),
+                Instant.parse("2024-01-15T14:30:00Z"),
                 "작성자1",
                 50,
                 25,
@@ -256,7 +257,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 "스토리 포스트 제목 2",
                 "스토리 포스트 내용입니다",
                 List.of("#스토리2"),
-                LocalDateTime.of(2024, 1, 14, 20, 15, 0),
+                Instant.parse("2024-01-14T20:15:00Z"),
                 "작성자2",
                 40,
                 20,
@@ -335,7 +336,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 "발행된 포스트 제목 1",
                 "발행된 포스트 내용입니다",
                 List.of("#발행1", "#음악"),
-                LocalDateTime.of(2024, 1, 15, 10, 30, 0),
+                Instant.parse("2024-01-15T10:30:00Z"),
                 "작성자1",
                 15,
                 8,
@@ -351,7 +352,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 "발행된 포스트 제목 2",
                 "발행된 포스트 내용입니다",
                 List.of("#발행2"),
-                LocalDateTime.of(2024, 1, 14, 15, 20, 0),
+                Instant.parse("2024-01-14T15:20:00Z"),
                 "작성자1",
                 20,
                 10,
@@ -435,7 +436,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 "임시저장 포스트 제목 1",
                 "임시저장 포스트 내용입니다",
                 List.of("#임시저장1", "#작업중"),
-                LocalDateTime.of(2024, 1, 15, 10, 30, 0),
+                Instant.parse("2024-01-15T10:30:00Z"),
                 "작성자1",
                 0,
                 0,
@@ -451,7 +452,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 "임시저장 포스트 제목 2",
                 "임시저장 포스트 내용입니다",
                 List.of("#임시저장2"),
-                LocalDateTime.of(2024, 1, 14, 15, 20, 0),
+                Instant.parse("2024-01-14T15:20:00Z"),
                 "작성자1",
                 0,
                 0,
@@ -535,7 +536,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 "스크랩한 포스트 제목 1",
                 "스크랩한 포스트 내용입니다",
                 List.of("#스크랩1", "#좋은음악"),
-                LocalDateTime.of(2024, 1, 15, 10, 30, 0),
+                Instant.parse("2024-01-15T10:30:00Z"),
                 "다른작성자1",
                 50,
                 25,
@@ -551,7 +552,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 "스크랩한 포스트 제목 2",
                 "스크랩한 포스트 내용입니다",
                 List.of("#스크랩2"),
-                LocalDateTime.of(2024, 1, 14, 15, 20, 0),
+                Instant.parse("2024-01-14T15:20:00Z"),
                 "다른작성자2",
                 30,
                 15,
@@ -628,14 +629,14 @@ public class PostQueryControllerTest extends ControllerTestSupport {
     void 포스트_상세를_조회한다() throws Exception {
         // given
         Long postId = 1L;
-        LocalDateTime createdAt = LocalDateTime.of(2024, 1, 15, 10, 30, 0);
-        LocalDateTime updatedAt = LocalDateTime.of(2024, 1, 15, 11, 0, 0);
+        Instant createdAt = Instant.parse("2024-01-15T10:30:00Z");
+        Instant updatedAt = Instant.parse("2024-01-15T11:00:00Z");
         CommentResponseDto.ChildCommentResponseDto childComment = new CommentResponseDto.ChildCommentResponseDto(
                 2L,
                 "대댓글 내용",
                 false,
                 1,
-                createdAt.plusMinutes(5),
+                createdAt.plus(5, ChronoUnit.MINUTES),
                 "대댓글작성자",
                 "https://example.com/child-profile.jpg",
                 true
@@ -646,7 +647,7 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 false,
                 3,
                 1,
-                createdAt.plusMinutes(1),
+                createdAt.plus(1, ChronoUnit.MINUTES),
                 "댓글작성자",
                 "https://example.com/comment-profile.jpg",
                 false,

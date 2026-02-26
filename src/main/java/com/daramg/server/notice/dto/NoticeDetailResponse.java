@@ -3,7 +3,7 @@ package com.daramg.server.notice.dto;
 import com.daramg.server.notice.domain.Notice;
 import com.daramg.server.post.domain.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 public record NoticeDetailResponse(
@@ -13,7 +13,7 @@ public record NoticeDetailResponse(
         String title,
         String content,
         List<String> images,
-        LocalDateTime createdAt
+        Instant createdAt
 ) {
 
     public static NoticeDetailResponse from(Notice notice) {

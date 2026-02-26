@@ -2,7 +2,7 @@ package com.daramg.server.comment.dto;
 
 import com.daramg.server.comment.domain.Comment;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 public record CommentResponseDto(
@@ -11,7 +11,7 @@ public record CommentResponseDto(
         boolean isDeleted,
         int likeCount,
         int childCommentCount,
-        LocalDateTime createdAt,
+        Instant createdAt,
         String writerNickname,
         String writerProfileImage,
         Boolean isLiked,
@@ -19,7 +19,9 @@ public record CommentResponseDto(
 ) {
 
     public static CommentResponseDto from(Comment comment, Boolean isLiked, List<ChildCommentResponseDto> childComments) {
-        int childCommentCount = childComments != null ? childComments.size() : 0;
+        int childCommentCount = childComments != null
+                ? (int) childComments.stream().filter(c -> !c.isDeleted()).count()
+                : 0;
 
         return new CommentResponseDto(
                 comment.getId(),
@@ -40,7 +42,7 @@ public record CommentResponseDto(
             String content,
             boolean isDeleted,
             int likeCount,
-            LocalDateTime createdAt,
+            Instant createdAt,
             String writerNickname,
             String writerProfileImage,
             Boolean isLiked

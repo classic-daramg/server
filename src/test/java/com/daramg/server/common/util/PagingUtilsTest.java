@@ -8,7 +8,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.LongStream;
@@ -24,7 +25,7 @@ public class PagingUtilsTest {
         pagingUtils = new PagingUtils();
     }
 
-    private record TestEntity(Long id, String name, LocalDateTime createdAt) {}
+    private record TestEntity(Long id, String name, Instant createdAt) {}
     private record TestDto(Long id, String name) {}
 
     @Nested
@@ -38,7 +39,7 @@ public class PagingUtilsTest {
             int requestSize = 10;
 
             List<TestEntity> content = LongStream.range(1, 12) // 11개
-                    .mapToObj(i -> new TestEntity(11 - i, "Test " + i, LocalDateTime.now().minusDays(i)))
+                    .mapToObj(i -> new TestEntity(11 - i, "Test " + i, Instant.now().minus(i, ChronoUnit.DAYS)))
                     .toList();
 
             // when
@@ -68,7 +69,7 @@ public class PagingUtilsTest {
             // given
             int requestSize = 10;
             List<TestEntity> content = LongStream.range(1, 11) // 10개
-                    .mapToObj(i -> new TestEntity(10 - i, "Test " + i, LocalDateTime.now().minusDays(i)))
+                    .mapToObj(i -> new TestEntity(10 - i, "Test " + i, Instant.now().minus(i, ChronoUnit.DAYS)))
                     .toList();
 
             // when
@@ -117,7 +118,7 @@ public class PagingUtilsTest {
         @DisplayName("커서 인코딩 및 디코딩 라운드트립")
         void cursor_EncodeDecode_Roundtrip() {
             // given
-            LocalDateTime now = LocalDateTime.now();
+            Instant now = Instant.now();
             Long id = 123L;
 
             // when
@@ -131,7 +132,7 @@ public class PagingUtilsTest {
             assertThat(encodedCursor).isNotNull().isNotEqualTo(now.toString() + "_" + id); // Base64 인코딩
             assertThat(decodedRecord).isNotNull();
 
-            LocalDateTime decodedTime = (LocalDateTime) ReflectionTestUtils.getField(decodedRecord, "createdAt");
+            Instant decodedTime = (Instant) ReflectionTestUtils.getField(decodedRecord, "createdAt");
             Long decodedId = (Long) ReflectionTestUtils.getField(decodedRecord, "id");
 
             assertThat(decodedTime).isEqualTo(now);

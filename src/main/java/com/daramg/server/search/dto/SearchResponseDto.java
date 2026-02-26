@@ -4,7 +4,7 @@ import com.daramg.server.composer.domain.Composer;
 import com.daramg.server.post.domain.Post;
 import com.daramg.server.post.domain.PostType;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 public record SearchResponseDto(
@@ -30,7 +30,7 @@ public record SearchResponseDto(
             String title,
             PostType type,
             String writerNickname,
-            LocalDateTime createdAt
+            Instant createdAt
     ) {
         public static PostResult from(Post post, PostType type) {
             return new PostResult(

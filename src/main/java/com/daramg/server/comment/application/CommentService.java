@@ -113,6 +113,7 @@ public class CommentService {
         }
 
         comment.softDelete();
+        comment.getPost().decrementCommentCount();
         commentLikeRepository.deleteAllByCommentId(commentId);
         comment.resetLikeCount();
     }

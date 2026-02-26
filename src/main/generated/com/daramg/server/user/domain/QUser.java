@@ -29,9 +29,9 @@ public class QUser extends EntityPathBase<User> {
     public final DatePath<java.time.LocalDate> birthDate = createDate("birthDate", java.time.LocalDate.class);
 
     //inherited
-    public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
+    public final DateTimePath<java.time.Instant> createdAt = _super.createdAt;
 
-    public final DateTimePath<java.time.LocalDateTime> deletedAt = createDateTime("deletedAt", java.time.LocalDateTime.class);
+    public final DateTimePath<java.time.Instant> deletedAt = createDateTime("deletedAt", java.time.Instant.class);
 
     public final StringPath email = createString("email");
 
@@ -51,7 +51,7 @@ public class QUser extends EntityPathBase<User> {
     public final StringPath profileImage = createString("profileImage");
 
     //inherited
-    public final DateTimePath<java.time.LocalDateTime> updatedAt = _super.updatedAt;
+    public final DateTimePath<java.time.Instant> updatedAt = _super.updatedAt;
 
     public final EnumPath<UserStatus> userStatus = createEnum("userStatus", UserStatus.class);
 

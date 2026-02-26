@@ -102,7 +102,7 @@ clean {
 test {
 	outputs.dir snippetsDir
 	useJUnitPlatform()
-	jvmArgs '-Duser.timezone=Asia/Seoul'
+	jvmArgs '-Duser.timezone=UTC'
 	testLogging {
 		events "failed"
 		exceptionFormat "full"

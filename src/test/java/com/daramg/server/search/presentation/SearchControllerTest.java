@@ -12,7 +12,7 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.ResultActions;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
@@ -47,7 +47,7 @@ public class SearchControllerTest extends ControllerTestSupport {
                 "모차르트의 피아노 협주곡",
                 PostType.STORY,
                 "작성자닉네임",
-                LocalDateTime.of(2024, 3, 1, 12, 0, 0)
+                Instant.parse("2024-03-01T12:00:00Z")
         );
 
         SearchResponseDto response = new SearchResponseDto(List.of(composer), List.of(post));

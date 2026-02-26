@@ -5,7 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Getter
@@ -21,7 +21,7 @@ public class SearchLog {
     private String keyword;
 
     @Column(name = "searched_at", nullable = false)
-    private LocalDateTime searchedAt;
+    private Instant searchedAt;
 
     @Column(name = "user_id")
     private Long userId;
@@ -33,7 +33,7 @@ public class SearchLog {
 
     @PrePersist
     protected void onCreate() {
-        this.searchedAt = LocalDateTime.now();
+        this.searchedAt = Instant.now();
     }
 
     public static SearchLog of(String keyword, Long userId) {

@@ -31,10 +31,10 @@ public class QFreePost extends EntityPathBase<FreePost> {
     public final StringPath content;
 
     //inherited
-    public final DateTimePath<java.time.LocalDateTime> createdAt;
+    public final DateTimePath<java.time.Instant> createdAt;
 
     //inherited
-    public final DateTimePath<java.time.LocalDateTime> deletedAt;
+    public final DateTimePath<java.time.Instant> deletedAt;
 
     //inherited
     public final ListPath<String, StringPath> hashtags;
@@ -61,13 +61,16 @@ public class QFreePost extends EntityPathBase<FreePost> {
     public final StringPath title;
 
     //inherited
-    public final DateTimePath<java.time.LocalDateTime> updatedAt;
+    public final DateTimePath<java.time.Instant> updatedAt;
 
     // inherited
     public final com.daramg.server.user.domain.QUser user;
 
     //inherited
     public final StringPath videoUrl;
+
+    //inherited
+    public final NumberPath<Integer> viewCount;
 
     public QFreePost(String variable) {
         this(FreePost.class, forVariable(variable), INITS);
@@ -103,6 +106,7 @@ public class QFreePost extends EntityPathBase<FreePost> {
         this.updatedAt = _super.updatedAt;
         this.user = _super.user;
         this.videoUrl = _super.videoUrl;
+        this.viewCount = _super.viewCount;
     }
 
 }

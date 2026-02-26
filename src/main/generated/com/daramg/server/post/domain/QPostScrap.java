@@ -25,7 +25,7 @@ public class QPostScrap extends EntityPathBase<PostScrap> {
     public final com.daramg.server.common.domain.QBaseEntity _super = new com.daramg.server.common.domain.QBaseEntity(this);
 
     //inherited
-    public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
+    public final DateTimePath<java.time.Instant> createdAt = _super.createdAt;
 
     //inherited
     public final NumberPath<Long> id = _super.id;
@@ -33,7 +33,7 @@ public class QPostScrap extends EntityPathBase<PostScrap> {
     public final QPost post;
 
     //inherited
-    public final DateTimePath<java.time.LocalDateTime> updatedAt = _super.updatedAt;
+    public final DateTimePath<java.time.Instant> updatedAt = _super.updatedAt;
 
     public final com.daramg.server.user.domain.QUser user;
 

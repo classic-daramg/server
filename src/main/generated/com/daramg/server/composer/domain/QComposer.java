@@ -28,7 +28,7 @@ public class QComposer extends EntityPathBase<Composer> {
     public final EnumPath<Continent> continent = createEnum("continent", Continent.class);
 
     //inherited
-    public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
+    public final DateTimePath<java.time.Instant> createdAt = _super.createdAt;
 
     public final NumberPath<Short> deathYear = createNumber("deathYear", Short.class);
 
@@ -48,7 +48,7 @@ public class QComposer extends EntityPathBase<Composer> {
     public final StringPath nativeName = createString("nativeName");
 
     //inherited
-    public final DateTimePath<java.time.LocalDateTime> updatedAt = _super.updatedAt;
+    public final DateTimePath<java.time.Instant> updatedAt = _super.updatedAt;
 
     public QComposer(String variable) {
         super(Composer.class, forVariable(variable));

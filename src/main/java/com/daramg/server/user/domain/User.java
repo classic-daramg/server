@@ -9,8 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.NonNull;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +57,7 @@ public class User extends BaseEntity<User> {
     private UserStatus userStatus;
 
     @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
+    private Instant deletedAt;
 
     @Builder
     public User(@NonNull String email, @NonNull String password, @NonNull String name,
@@ -122,7 +122,7 @@ public class User extends BaseEntity<User> {
         if (this.userStatus == UserStatus.DELETED) return;
 
         userStatus = UserStatus.DELETED;
-        this.deletedAt = LocalDateTime.now();
+        this.deletedAt = Instant.now();
     }
 
     public boolean isActive() {

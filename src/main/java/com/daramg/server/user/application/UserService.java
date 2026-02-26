@@ -19,7 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
@@ -129,9 +129,10 @@ public class UserService {
 
         user.withdraw();
 
-        User admin = userRepository.getReferenceById(1L);
+        User admin = userRepository.findById(1L)
+                .orElseThrow(() -> new BusinessException(UserErrorStatus.ADMIN_NOT_FOUND));
         noticeRepository.transferToAdmin(userId, admin);
 
-        postRepository.softDeleteAllByUserId(userId, LocalDateTime.now());
+        postRepository.softDeleteAllByUserId(userId, Instant.now());
     }
 }

@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -273,6 +274,31 @@ public class CommentServiceTest extends ServiceTestSupport {
                     .isInstanceOf(BusinessException.class)
                     .hasMessage("댓글을 작성한 유저만 댓글을 삭제할 수 있습니다.");
         }
+
+        @Test
+        void 댓글_삭제_시_포스트의_댓글_카운트가_감소한다() {
+            // given
+            commentService.createComment(post.getId(), new CommentCreateDto("댓글"), user);
+            assertThat(postRepository.findById(post.getId()).orElseThrow().getCommentCount()).isEqualTo(1);
+            Comment comment = commentRepository.findAll().getFirst();
+
+            // when
+            commentService.deleteComment(comment.getId(), user);
+
+            // then
+            assertThat(postRepository.findById(post.getId()).orElseThrow().getCommentCount()).isEqualTo(0);
+        }
+    }
+
+    @Test
+    void 엔티티_생성_시_createdAt이_UTC_Instant로_저장된다() {
+        Instant before = Instant.now();
+        commentRepository.save(Comment.of(post, user, "테스트", null));
+        Instant after = Instant.now();
+
+        Comment saved = commentRepository.findAll().getFirst();
+        assertThat(saved.getCreatedAt()).isAfterOrEqualTo(before);
+        assertThat(saved.getCreatedAt()).isBeforeOrEqualTo(after);
     }
 }
 

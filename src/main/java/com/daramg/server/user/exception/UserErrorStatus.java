@@ -17,7 +17,8 @@ public enum UserErrorStatus implements BaseErrorCode {
     SELF_FOLLOW(HttpStatus.BAD_REQUEST, ErrorCategory.USER.generate(400_2), "팔로우 대상과 주체의 유저가 동일합니다."),
     ALREADY_FOLLOWING(HttpStatus.CONFLICT, ErrorCategory.USER.generate(409_2), "이미 팔로우하고 있는 상태입니다."),
     SELF_UNFOLLOW(HttpStatus.BAD_REQUEST, ErrorCategory.USER.generate(400_3), "언팔로우 대상과 주체의 유저가 동일합니다."),
-    NOT_FOLLOWING(HttpStatus.BAD_REQUEST, ErrorCategory.USER.generate(400_4), "언팔로우할 유저를 팔로우하지 않은 상태입니다.");
+    NOT_FOLLOWING(HttpStatus.BAD_REQUEST, ErrorCategory.USER.generate(400_4), "언팔로우할 유저를 팔로우하지 않은 상태입니다."),
+    ADMIN_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCategory.USER.generate(500_1), "관리자 계정을 찾을 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

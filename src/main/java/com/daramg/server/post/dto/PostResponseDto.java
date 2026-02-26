@@ -10,7 +10,7 @@ import com.daramg.server.post.domain.Post;
 import com.daramg.server.post.domain.PostType;
 import com.daramg.server.post.domain.StoryPost;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 public record PostResponseDto(
@@ -18,7 +18,7 @@ public record PostResponseDto(
         String title,
         String content,
         List<String> hashtags,
-        LocalDateTime createdAt,
+        Instant createdAt,
         String writerNickname,
         int likeCount,
         int commentCount,

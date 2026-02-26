@@ -36,8 +36,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -288,7 +289,7 @@ public class PostQueryServiceTest extends ServiceTestSupport {
         @DisplayName("cursor가 유효한 포맷이지만 존재하지 않는 포스트를 가리킬 경우 빈 리스트를 반환한다")
         void getAllFreePosts_WithNonExistentCursor_ReturnsEmptyList() {
             // given
-            LocalDateTime pastDateTime = LocalDateTime.now().minusYears(100);
+            Instant pastDateTime = Instant.now().minus(100 * 365L, ChronoUnit.DAYS);
             Long nonExistentId = 0L;
             String validFormatCursor = pagingUtils.encodeCursor(pastDateTime, nonExistentId);
             PageRequestDto pageRequest = new PageRequestDto(validFormatCursor, 10);
@@ -737,15 +738,15 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             FreePost savedPost = freePosts.get(0);
             Long postId = savedPost.getId();
 
-            LocalDateTime baseTime = LocalDateTime.now().minusHours(1);
+            Instant baseTime = Instant.now().minus(1, ChronoUnit.HOURS);
 
             Comment parent1 = commentRepository.save(Comment.of(savedPost, user, "부모1", null));
             Comment parent2 = commentRepository.save(Comment.of(savedPost, user, "부모2", null));
             Comment parent3 = commentRepository.save(Comment.of(savedPost, user, "부모3", null));
 
             ReflectionTestUtils.setField(parent1, "createdAt", baseTime);
-            ReflectionTestUtils.setField(parent2, "createdAt", baseTime.plusMinutes(10));
-            ReflectionTestUtils.setField(parent3, "createdAt", baseTime.plusMinutes(20));
+            ReflectionTestUtils.setField(parent2, "createdAt", baseTime.plus(10, ChronoUnit.MINUTES));
+            ReflectionTestUtils.setField(parent3, "createdAt", baseTime.plus(20, ChronoUnit.MINUTES));
 
             commentRepository.saveAll(List.of(parent1, parent2, parent3));
 
@@ -753,9 +754,9 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             Comment child2 = commentRepository.save(Comment.of(savedPost, user, "자식2", parent2));
             Comment child3 = commentRepository.save(Comment.of(savedPost, user, "자식3", parent3));
 
-            ReflectionTestUtils.setField(child1, "createdAt", baseTime.plusMinutes(1));
-            ReflectionTestUtils.setField(child2, "createdAt", baseTime.plusMinutes(11));
-            ReflectionTestUtils.setField(child3, "createdAt", baseTime.plusMinutes(21));
+            ReflectionTestUtils.setField(child1, "createdAt", baseTime.plus(1, ChronoUnit.MINUTES));
+            ReflectionTestUtils.setField(child2, "createdAt", baseTime.plus(11, ChronoUnit.MINUTES));
+            ReflectionTestUtils.setField(child3, "createdAt", baseTime.plus(21, ChronoUnit.MINUTES));
 
             commentRepository.saveAll(List.of(child1, child2, child3));
 

@@ -29,9 +29,9 @@ public class QPost extends EntityPathBase<Post> {
     public final StringPath content = createString("content");
 
     //inherited
-    public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
+    public final DateTimePath<java.time.Instant> createdAt = _super.createdAt;
 
-    public final DateTimePath<java.time.LocalDateTime> deletedAt = createDateTime("deletedAt", java.time.LocalDateTime.class);
+    public final DateTimePath<java.time.Instant> deletedAt = createDateTime("deletedAt", java.time.Instant.class);
 
     public final ListPath<String, StringPath> hashtags = this.<String, StringPath>createList("hashtags", String.class, StringPath.class, PathInits.DIRECT2);
 
@@ -51,11 +51,13 @@ public class QPost extends EntityPathBase<Post> {
     public final StringPath title = createString("title");
 
     //inherited
-    public final DateTimePath<java.time.LocalDateTime> updatedAt = _super.updatedAt;
+    public final DateTimePath<java.time.Instant> updatedAt = _super.updatedAt;
 
     public final com.daramg.server.user.domain.QUser user;
 
     public final StringPath videoUrl = createString("videoUrl");
+
+    public final NumberPath<Integer> viewCount = createNumber("viewCount", Integer.class);
 
     public QPost(String variable) {
         this(Post.class, forVariable(variable), INITS);

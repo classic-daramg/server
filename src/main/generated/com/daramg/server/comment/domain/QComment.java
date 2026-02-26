@@ -29,7 +29,7 @@ public class QComment extends EntityPathBase<Comment> {
     public final StringPath content = createString("content");
 
     //inherited
-    public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
+    public final DateTimePath<java.time.Instant> createdAt = _super.createdAt;
 
     //inherited
     public final NumberPath<Long> id = _super.id;
@@ -45,7 +45,7 @@ public class QComment extends EntityPathBase<Comment> {
     public final com.daramg.server.post.domain.QPost post;
 
     //inherited
-    public final DateTimePath<java.time.LocalDateTime> updatedAt = _super.updatedAt;
+    public final DateTimePath<java.time.Instant> updatedAt = _super.updatedAt;
 
     public final com.daramg.server.user.domain.QUser user;
 

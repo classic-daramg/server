@@ -27,7 +27,7 @@ public class QComposerPost extends EntityPathBase<ComposerPost> {
     public final QComposer composer;
 
     //inherited
-    public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
+    public final DateTimePath<java.time.Instant> createdAt = _super.createdAt;
 
     //inherited
     public final NumberPath<Long> id = _super.id;
@@ -35,7 +35,7 @@ public class QComposerPost extends EntityPathBase<ComposerPost> {
     public final com.daramg.server.post.domain.QPost post;
 
     //inherited
-    public final DateTimePath<java.time.LocalDateTime> updatedAt = _super.updatedAt;
+    public final DateTimePath<java.time.Instant> updatedAt = _super.updatedAt;
 
     public QComposerPost(String variable) {
         this(ComposerPost.class, forVariable(variable), INITS);

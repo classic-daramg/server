@@ -10,7 +10,7 @@ import com.daramg.server.post.domain.PostStatus;
 import com.daramg.server.post.domain.PostType;
 import com.daramg.server.post.domain.StoryPost;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,8 +28,8 @@ public record PostDetailResponse(
         int commentCount,
         int viewCount,
         boolean isBlocked,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt,
+        Instant createdAt,
+        Instant updatedAt,
         PostType type,
         ComposerInfo primaryComposer,
         List<ComposerInfo> additionalComposers,

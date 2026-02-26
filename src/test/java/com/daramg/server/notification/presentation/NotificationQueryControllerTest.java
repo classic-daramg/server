@@ -13,7 +13,7 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.ResultActions;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
@@ -40,11 +40,11 @@ public class NotificationQueryControllerTest extends ControllerTestSupport {
         List<NotificationResponseDto> content = List.of(
                 new NotificationResponseDto(
                         1L, "보내는사람", "profile.jpg", 10L, "게시글 제목",
-                        NotificationType.COMMENT, false, LocalDateTime.of(2025, 1, 1, 12, 0)
+                        NotificationType.COMMENT, false, Instant.parse("2025-01-01T12:00:00Z")
                 ),
                 new NotificationResponseDto(
                         2L, "다른사람", null, 10L, "게시글 제목",
-                        NotificationType.POST_LIKE, true, LocalDateTime.of(2025, 1, 1, 11, 0)
+                        NotificationType.POST_LIKE, true, Instant.parse("2025-01-01T11:00:00Z")
                 )
         );
         PageResponseDto<NotificationResponseDto> response = new PageResponseDto<>(content, null, false);
