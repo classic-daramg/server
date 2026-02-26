@@ -73,10 +73,9 @@ public class MailVerificationServiceImpl implements MailVerificationService{
 
         String verificationCode = VerificationCodeGenerator.generate();
 
-        executeRedisOperationVoid(() -> {
-            verificationCodeRepository.save(request.getEmail(), verificationCode);
-            rateLimitRepository.resetAttempts(request.getEmail());
-        });
+        executeRedisOperationVoid(() ->
+            verificationCodeRepository.save(request.getEmail(), verificationCode)
+        );
 
         try {
             String htmlContent = mailContentBuilder.buildVerificationEmail(verificationCode);
