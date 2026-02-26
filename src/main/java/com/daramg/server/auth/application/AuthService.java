@@ -21,7 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -45,7 +46,7 @@ public class AuthService {
         userRepository.findByEmailAndUserStatus(dto.getEmail(), UserStatus.DELETED)
                 .ifPresent(deletedUser -> {
                     if (deletedUser.getDeletedAt() != null
-                            && deletedUser.getDeletedAt().isAfter(LocalDateTime.now().minusDays(30))) {
+                            && deletedUser.getDeletedAt().isAfter(Instant.now().minus(30, ChronoUnit.DAYS))) {
                         throw new BusinessException(AuthErrorStatus.REJOIN_NOT_ALLOWED);
                     }
                 });

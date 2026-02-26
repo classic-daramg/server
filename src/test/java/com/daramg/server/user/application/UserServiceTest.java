@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.daramg.server.user.domain.UserStatus;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,9 +44,12 @@ public class UserServiceTest extends ServiceTestSupport {
     @BeforeEach
     void setUp() {
         String encodedPassword = passwordEncoder.encode("password");
+        User admin = new User("admin@test.com", encodedPassword, "Admin", LocalDate.now(), null, "admin닉네임", null, null);
+        userRepository.save(admin);  // id=1 로 저장되어 withdraw 테스트에서 사용됨
+
         follower = new User("follower@email.com", encodedPassword, "팔로워", LocalDate.now(), "profile image", "팔로워닉네임", "bio", null);
         followed = new User("followed@email.com", encodedPassword, "팔로우당하는사람", LocalDate.now(), "profile image", "팔로우당하는닉네임", "bio", null);
-        
+
         userRepository.save(follower);
         userRepository.save(followed);
     }
@@ -459,6 +463,30 @@ public class UserServiceTest extends ServiceTestSupport {
             assertThatThrownBy(() -> userService.unfollow(follower, selfId))
                     .isInstanceOf(BusinessException.class)
                     .hasMessageContaining("언팔로우 대상과 주체의 유저가 동일합니다.");
+        }
+    }
+
+    @Nested
+    @DisplayName("회원 탈퇴 테스트")
+    class WithdrawTest {
+
+        @Test
+        @Transactional
+        void 회원_탈퇴_시_유저_상태가_DELETED로_변경된다() {
+            // when
+            userService.withdraw(follower.getId());
+
+            // then
+            User withdrawnUser = userRepository.findById(follower.getId()).orElseThrow();
+            assertThat(withdrawnUser.getUserStatus()).isEqualTo(UserStatus.DELETED);
+            assertThat(withdrawnUser.getDeletedAt()).isNotNull();
+        }
+
+        @Test
+        void 존재하지_않는_유저_탈퇴_시_예외가_발생한다() {
+            assertThatThrownBy(() -> userService.withdraw(999L))
+                    .isInstanceOf(BusinessException.class)
+                    .hasMessageContaining("유저를 찾을 수 없습니다.");
         }
     }
 }

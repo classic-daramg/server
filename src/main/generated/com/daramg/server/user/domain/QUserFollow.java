@@ -25,7 +25,7 @@ public class QUserFollow extends EntityPathBase<UserFollow> {
     public final com.daramg.server.common.domain.QBaseEntity _super = new com.daramg.server.common.domain.QBaseEntity(this);
 
     //inherited
-    public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
+    public final DateTimePath<java.time.Instant> createdAt = _super.createdAt;
 
     public final QUser followed;
 
@@ -35,7 +35,7 @@ public class QUserFollow extends EntityPathBase<UserFollow> {
     public final NumberPath<Long> id = _super.id;
 
     //inherited
-    public final DateTimePath<java.time.LocalDateTime> updatedAt = _super.updatedAt;
+    public final DateTimePath<java.time.Instant> updatedAt = _super.updatedAt;
 
     public QUserFollow(String variable) {
         this(UserFollow.class, forVariable(variable), INITS);

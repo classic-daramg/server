@@ -2,14 +2,14 @@ package com.daramg.server.notice.dto;
 
 import com.daramg.server.notice.domain.Notice;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 public record NoticeResponseDto(
         Long id,
         String title,
         String writerNickname,
-        LocalDateTime createdAt,
+        Instant createdAt,
         String content,
         String thumbnailImageUrl
 ) {

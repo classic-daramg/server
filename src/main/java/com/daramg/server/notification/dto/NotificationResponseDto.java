@@ -3,7 +3,7 @@ package com.daramg.server.notification.dto;
 import com.daramg.server.notification.domain.Notification;
 import com.daramg.server.notification.domain.NotificationType;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public record NotificationResponseDto(
         Long id,
@@ -13,7 +13,7 @@ public record NotificationResponseDto(
         String postTitle,
         NotificationType type,
         boolean isRead,
-        LocalDateTime createdAt
+        Instant createdAt
 ) {
     public static NotificationResponseDto from(Notification notification) {
         return new NotificationResponseDto(

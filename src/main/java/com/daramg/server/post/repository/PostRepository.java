@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @Repository
@@ -24,6 +24,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         where p.user.id = :userId
           and p.isDeleted = false
         """)
-    int softDeleteAllByUserId(@Param("userId") Long userId, @Param("now") LocalDateTime now);
+    int softDeleteAllByUserId(@Param("userId") Long userId, @Param("now") Instant now);
 }
 

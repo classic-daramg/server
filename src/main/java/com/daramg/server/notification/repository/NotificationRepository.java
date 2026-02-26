@@ -5,12 +5,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
     @Query("SELECT COUNT(n) FROM Notification n WHERE n.receiver.id = :receiverId AND n.isRead = false AND n.createdAt >= :since")
-    long countUnreadByReceiverIdSince(Long receiverId, LocalDateTime since);
+    long countUnreadByReceiverIdSince(Long receiverId, Instant since);
 
     long countByReceiverId(Long receiverId);
 

@@ -13,7 +13,7 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.ResultActions;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
@@ -40,8 +40,8 @@ public class NoticeQueryControllerTest extends ControllerTestSupport {
         // given
         Cookie cookie = new Cookie(COOKIE_NAME, "access_token");
         List<NoticeResponseDto> notices = List.of(
-                new NoticeResponseDto(1L, "첫 번째 공지", "관리자", LocalDateTime.now(), "공지 내용입니다.", "https://example.com/thumb1.jpg"),
-                new NoticeResponseDto(2L, "두 번째 공지", "관리자", LocalDateTime.now(), "공지 내용입니다.", null)
+                new NoticeResponseDto(1L, "첫 번째 공지", "관리자", Instant.now(), "공지 내용입니다.", "https://example.com/thumb1.jpg"),
+                new NoticeResponseDto(2L, "두 번째 공지", "관리자", Instant.now(), "공지 내용입니다.", null)
         );
         PageResponseDto<NoticeResponseDto> response = new PageResponseDto<>(notices, "2", true);
 
@@ -95,7 +95,7 @@ public class NoticeQueryControllerTest extends ControllerTestSupport {
         NoticeDetailResponse response = new NoticeDetailResponse(
                 1L, "관리자", "https://example.com/profile.jpg",
                 "공지사항 제목", "공지사항 상세 내용입니다.",
-                List.of("https://example.com/image1.jpg"), LocalDateTime.now()
+                List.of("https://example.com/image1.jpg"), Instant.now()
         );
 
         when(noticeQueryService.getNoticeDetail(anyLong())).thenReturn(response);

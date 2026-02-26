@@ -12,7 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -38,6 +39,6 @@ public class NotificationQueryService {
     }
 
     public long getUnreadCount(User user) {
-        return notificationRepository.countUnreadByReceiverIdSince(user.getId(), LocalDateTime.now().minusDays(30));
+        return notificationRepository.countUnreadByReceiverIdSince(user.getId(), Instant.now().minus(30, ChronoUnit.DAYS));
     }
 }

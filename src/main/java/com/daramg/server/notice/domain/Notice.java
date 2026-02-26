@@ -10,7 +10,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +41,7 @@ public class Notice extends BaseEntity<Notice> {
     private boolean isDeleted = false;
 
     @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
+    private Instant deletedAt;
 
     public void update(NoticeUpdateVo vo) {
         if (vo.getTitle() == null && vo.getContent() == null
@@ -95,6 +95,6 @@ public class Notice extends BaseEntity<Notice> {
         if (this.isDeleted) return;
 
         this.isDeleted = true;
-        this.deletedAt = LocalDateTime.now();
+        this.deletedAt = Instant.now();
     }
 }

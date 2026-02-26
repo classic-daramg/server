@@ -27,13 +27,13 @@ public class QCommentLike extends EntityPathBase<CommentLike> {
     public final QComment comment;
 
     //inherited
-    public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
+    public final DateTimePath<java.time.Instant> createdAt = _super.createdAt;
 
     //inherited
     public final NumberPath<Long> id = _super.id;
 
     //inherited
-    public final DateTimePath<java.time.LocalDateTime> updatedAt = _super.updatedAt;
+    public final DateTimePath<java.time.Instant> updatedAt = _super.updatedAt;
 
     public final com.daramg.server.user.domain.QUser user;
 

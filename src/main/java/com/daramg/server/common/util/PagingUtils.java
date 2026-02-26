@@ -10,7 +10,7 @@ import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.jpa.impl.JPAQuery;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.Base64;
 import java.util.List;
@@ -24,7 +24,7 @@ public class PagingUtils {
     public <T> List<T> applyCursorPagination(
             JPAQuery<T> query,
             PageRequestDto request,
-            DateTimePath<LocalDateTime> createdAtPath,
+            DateTimePath<Instant> createdAtPath,
             NumberPath<Long> idPath
     ) {
         int querySize = request.getValidatedSize() + 1;
@@ -41,7 +41,7 @@ public class PagingUtils {
             List<T> content,
             int size,
             Function<T, D> dtoMapper,
-            Function<T, LocalDateTime> createdAtExtractor,
+            Function<T, Instant> createdAtExtractor,
             Function<T, Long> idExtractor
     ) {
         boolean hasNext = content.size() > size;
@@ -65,7 +65,7 @@ public class PagingUtils {
     public <T> List<T> applyCursorPaginationToList(
             List<T> content,
             PageRequestDto request,
-            Function<T, LocalDateTime> createdAtExtractor,
+            Function<T, Instant> createdAtExtractor,
             Function<T, Long> idExtractor
     ) {
         Cursor cursor = decodeCursor(request.getCursor());
@@ -76,7 +76,7 @@ public class PagingUtils {
                     if (cursor == null) {
                         return true;
                     }
-                    LocalDateTime createdAt = createdAtExtractor.apply(item);
+                    Instant createdAt = createdAtExtractor.apply(item);
                     Long id = idExtractor.apply(item);
                     return createdAt.isBefore(cursor.createdAt())
                             || (createdAt.equals(cursor.createdAt()) && id < cursor.id());
@@ -89,7 +89,7 @@ public class PagingUtils {
 
     private BooleanExpression getPaginationConditions(
             Cursor cursor,
-            DateTimePath<LocalDateTime> createdAtPath,
+            DateTimePath<Instant> createdAtPath,
             NumberPath<Long> idPath
     ) {
         if (cursor == null) {
@@ -101,7 +101,7 @@ public class PagingUtils {
                         .and(idPath.lt(cursor.id())));
     }
 
-    public String encodeCursor(LocalDateTime createdAt, Long id) {
+    public String encodeCursor(Instant createdAt, Long id) {
         if (createdAt == null || id == null) return null;
         String cursorStr = createdAt.toString() + CURSOR_DELIMITER + id;
         return Base64.getEncoder().encodeToString(cursorStr.getBytes());
@@ -114,12 +114,12 @@ public class PagingUtils {
         try {
             String decoded = new String(Base64.getDecoder().decode(cursorString));
             String[] parts = decoded.split(CURSOR_DELIMITER);
-            return new Cursor(LocalDateTime.parse(parts[0]), Long.parseLong(parts[1]));
+            return new Cursor(Instant.parse(parts[0]), Long.parseLong(parts[1]));
         } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException |
                  DateTimeParseException e) {
             throw new BusinessException(CommonErrorStatus.INVALID_CURSOR);
         }
     }
 
-    private record Cursor(LocalDateTime createdAt, Long id) {}
+    private record Cursor(Instant createdAt, Long id) {}
 }

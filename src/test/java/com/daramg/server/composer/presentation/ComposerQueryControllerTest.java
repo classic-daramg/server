@@ -17,7 +17,7 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.ResultActions;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 import static com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName;
@@ -102,7 +102,7 @@ public class ComposerQueryControllerTest extends ControllerTestSupport {
                 "코렐리 스토리 포스트",
                 "코렐리에 대한 스토리 포스트 내용입니다",
                 List.of("#코렐리", "#바로크"),
-                LocalDateTime.of(2024, 1, 15, 10, 30, 0),
+                Instant.parse("2024-01-15T10:30:00Z"),
                 "작성자1",
                 10,
                 5,
@@ -119,7 +119,7 @@ public class ComposerQueryControllerTest extends ControllerTestSupport {
                 "코렐리 큐레이션 포스트",
                 "코렐리에 대한 큐레이션 포스트 내용입니다",
                 List.of("#코렐리", "#큐레이션"),
-                LocalDateTime.of(2024, 1, 14, 15, 20, 0),
+                Instant.parse("2024-01-14T15:20:00Z"),
                 "작성자2",
                 20,
                 10,
