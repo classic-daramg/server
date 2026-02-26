@@ -43,6 +43,9 @@ public class MailVerificationServiceImpl implements MailVerificationService{
     }
 
     private void sendForSignup(EmailVerificationRequestDto request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new BusinessException(AuthErrorStatus.DUPLICATE_EMAIL);
+        }
         sendVerificationCode(request);
     }
 

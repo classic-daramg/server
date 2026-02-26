@@ -21,7 +21,10 @@ import java.time.LocalDate;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
+import com.daramg.server.auth.exception.AuthErrorStatus;
+import com.daramg.server.common.exception.BusinessException;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.cookies.CookieDocumentation.cookieWithName;
@@ -140,6 +143,40 @@ public class AuthControllerTest extends ControllerTestSupport {
     }
 
     @Test
+    void 이미_가입된_이메일로_회원가입_인증코드_발송_실패() throws Exception {
+        // given
+        EmailVerificationRequestDto request = new EmailVerificationRequestDto(null, "daramg123@gmail.com", EmailPurpose.SIGNUP);
+
+        doThrow(new BusinessException(AuthErrorStatus.DUPLICATE_EMAIL))
+                .when(mailVerificationService).sendVerificationEmail(any(EmailVerificationRequestDto.class));
+
+        // when
+        ResultActions result = mockMvc.perform(post("/auth/email-verifications")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+
+        // then
+        result.andExpect(status().isConflict());
+    }
+
+    @Test
+    void 레이트_리밋_초과_시_인증코드_메일_발송_실패() throws Exception {
+        // given
+        EmailVerificationRequestDto request = new EmailVerificationRequestDto(null, "daramg123@gmail.com", EmailPurpose.SIGNUP);
+
+        doThrow(new BusinessException(AuthErrorStatus.EMAIL_RATE_LIMIT_EXCEEDED))
+                .when(mailVerificationService).sendVerificationEmail(any(EmailVerificationRequestDto.class));
+
+        // when
+        ResultActions result = mockMvc.perform(post("/auth/email-verifications")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+
+        // then
+        result.andExpect(status().isTooManyRequests());
+    }
+
+    @Test
     void 인증번호로_이메일_인증() throws Exception {
         // given
         CodeVerificationRequestDto request = new CodeVerificationRequestDto("daramg123@gmail.com", "123456");
@@ -165,6 +202,23 @@ public class AuthControllerTest extends ControllerTestSupport {
                                 .build()
                         )
                 ));
+    }
+
+    @Test
+    void 검증_시도_횟수_초과_시_이메일_인증_실패() throws Exception {
+        // given
+        CodeVerificationRequestDto request = new CodeVerificationRequestDto("daramg123@gmail.com", "123456");
+
+        doThrow(new BusinessException(AuthErrorStatus.VERIFICATION_ATTEMPT_EXCEEDED))
+                .when(mailVerificationService).verifyEmailWithCode(any(CodeVerificationRequestDto.class));
+
+        // when
+        ResultActions result = mockMvc.perform(post("/auth/verify-email")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+
+        // then
+        result.andExpect(status().isTooManyRequests());
     }
 
     @Test
