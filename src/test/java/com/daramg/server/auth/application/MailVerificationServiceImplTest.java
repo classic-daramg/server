@@ -1,15 +1,13 @@
 package com.daramg.server.auth.application;
 
 import com.daramg.server.auth.domain.EmailPurpose;
+import com.daramg.server.auth.dto.CodeVerificationRequestDto;
 import com.daramg.server.auth.dto.EmailVerificationRequestDto;
 import com.daramg.server.auth.exception.AuthErrorStatus;
 import com.daramg.server.auth.repository.RateLimitRepository;
 import com.daramg.server.auth.repository.VerificationCodeRepository;
-import com.daramg.server.auth.util.MailContentBuilder;
-import com.daramg.server.auth.util.MimeMessageGenerator;
 import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.user.repository.UserRepository;
-import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -17,12 +15,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mail.javamail.JavaMailSender;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -30,9 +26,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class MailVerificationServiceImplTest {
 
-    @Mock private MimeMessageGenerator mimeMessageGenerator;
-    @Mock private MailContentBuilder mailContentBuilder;
-    @Mock private JavaMailSender javaMailSender;
+    @Mock private AsyncMailSender asyncMailSender;
     @Mock private VerificationCodeRepository verificationCodeRepository;
     @Mock private RateLimitRepository rateLimitRepository;
     @Mock private UserRepository userRepository;
@@ -48,16 +42,14 @@ class MailVerificationServiceImplTest {
 
         @Test
         @DisplayName("새 코드 발급 시 시도 횟수를 초기화하지 않는다")
-        void 새_코드_발급_시_시도_횟수_초기화_안됨() throws Exception {
+        void 새_코드_발급_시_시도_횟수_초기화_안됨() {
             given(userRepository.existsByEmail(TEST_EMAIL)).willReturn(false);
             given(rateLimitRepository.isRateLimited(TEST_EMAIL)).willReturn(false);
-            given(mailContentBuilder.buildVerificationEmail(anyString())).willReturn("<html>code</html>");
-            given(mimeMessageGenerator.generate(anyString(), anyString(), anyString()))
-                    .willReturn(mock(MimeMessage.class));
 
             EmailVerificationRequestDto request = new EmailVerificationRequestDto(null, TEST_EMAIL, EmailPurpose.SIGNUP);
             mailVerificationService.sendVerificationEmail(request);
 
+            verify(asyncMailSender).sendVerificationCode(eq(TEST_EMAIL), anyString());
             verify(rateLimitRepository, never()).resetAttempts(TEST_EMAIL);
         }
 
@@ -72,6 +64,8 @@ class MailVerificationServiceImplTest {
             assertThatThrownBy(() -> mailVerificationService.sendVerificationEmail(request))
                     .isInstanceOf(BusinessException.class)
                     .hasFieldOrPropertyWithValue("errorCode", AuthErrorStatus.EMAIL_RATE_LIMIT_EXCEEDED);
+
+            verify(asyncMailSender, never()).sendVerificationCode(anyString(), anyString());
         }
 
         @Test
@@ -84,6 +78,8 @@ class MailVerificationServiceImplTest {
             assertThatThrownBy(() -> mailVerificationService.sendVerificationEmail(request))
                     .isInstanceOf(BusinessException.class)
                     .hasFieldOrPropertyWithValue("errorCode", AuthErrorStatus.DUPLICATE_EMAIL);
+
+            verify(asyncMailSender, never()).sendVerificationCode(anyString(), anyString());
         }
 
         @Test
@@ -96,6 +92,8 @@ class MailVerificationServiceImplTest {
             assertThatThrownBy(() -> mailVerificationService.sendVerificationEmail(request))
                     .isInstanceOf(BusinessException.class)
                     .hasFieldOrPropertyWithValue("errorCode", AuthErrorStatus.EMAIL_NOT_REGISTERED);
+
+            verify(asyncMailSender, never()).sendVerificationCode(anyString(), anyString());
         }
     }
 
@@ -108,11 +106,8 @@ class MailVerificationServiceImplTest {
         void 인증_성공_시_시도_횟수_초기화() {
             given(rateLimitRepository.isAttemptExceeded(TEST_EMAIL)).willReturn(false);
             given(verificationCodeRepository.findByEmail(TEST_EMAIL)).willReturn(Optional.of("123456"));
-            doNothing().when(verificationCodeRepository).deleteByEmail(TEST_EMAIL);
-            doNothing().when(rateLimitRepository).resetAttempts(TEST_EMAIL);
 
-            com.daramg.server.auth.dto.CodeVerificationRequestDto request =
-                    new com.daramg.server.auth.dto.CodeVerificationRequestDto(TEST_EMAIL, "123456");
+            CodeVerificationRequestDto request = new CodeVerificationRequestDto(TEST_EMAIL, "123456");
             mailVerificationService.verifyEmailWithCode(request);
 
             verify(rateLimitRepository).resetAttempts(TEST_EMAIL);
@@ -123,8 +118,7 @@ class MailVerificationServiceImplTest {
         void 시도_횟수_초과_시_예외_발생() {
             given(rateLimitRepository.isAttemptExceeded(TEST_EMAIL)).willReturn(true);
 
-            com.daramg.server.auth.dto.CodeVerificationRequestDto request =
-                    new com.daramg.server.auth.dto.CodeVerificationRequestDto(TEST_EMAIL, "123456");
+            CodeVerificationRequestDto request = new CodeVerificationRequestDto(TEST_EMAIL, "123456");
 
             assertThatThrownBy(() -> mailVerificationService.verifyEmailWithCode(request))
                     .isInstanceOf(BusinessException.class)
@@ -137,8 +131,7 @@ class MailVerificationServiceImplTest {
             given(rateLimitRepository.isAttemptExceeded(TEST_EMAIL)).willReturn(false);
             given(verificationCodeRepository.findByEmail(TEST_EMAIL)).willReturn(Optional.of("123456"));
 
-            com.daramg.server.auth.dto.CodeVerificationRequestDto request =
-                    new com.daramg.server.auth.dto.CodeVerificationRequestDto(TEST_EMAIL, "999999");
+            CodeVerificationRequestDto request = new CodeVerificationRequestDto(TEST_EMAIL, "999999");
 
             assertThatThrownBy(() -> mailVerificationService.verifyEmailWithCode(request))
                     .isInstanceOf(BusinessException.class)

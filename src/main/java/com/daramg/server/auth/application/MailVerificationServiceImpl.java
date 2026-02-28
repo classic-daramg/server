@@ -1,24 +1,18 @@
 package com.daramg.server.auth.application;
 
-import com.daramg.server.auth.domain.MailMessages;
 import com.daramg.server.auth.dto.EmailVerificationRequestDto;
 import com.daramg.server.auth.dto.CodeVerificationRequestDto;
 import com.daramg.server.auth.exception.AuthErrorStatus;
 import com.daramg.server.auth.repository.VerificationCodeRepository;
-import com.daramg.server.auth.util.MailContentBuilder;
-import com.daramg.server.auth.util.MimeMessageGenerator;
 import com.daramg.server.auth.util.VerificationCodeGenerator;
 import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.user.exception.UserErrorStatus;
 import com.daramg.server.user.repository.UserRepository;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
+
 import com.daramg.server.auth.repository.RateLimitRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.RedisConnectionFailureException;
-import org.springframework.mail.MailException;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -26,9 +20,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class MailVerificationServiceImpl implements MailVerificationService{
 
-    private final MimeMessageGenerator mimeMessageGenerator;
-    private final MailContentBuilder mailContentBuilder;
-    private final JavaMailSender javaMailSender;
+    private final AsyncMailSender asyncMailSender;
     private final VerificationCodeRepository verificationCodeRepository;
     private final RateLimitRepository rateLimitRepository;
     private final UserRepository userRepository;
@@ -77,19 +69,7 @@ public class MailVerificationServiceImpl implements MailVerificationService{
             verificationCodeRepository.save(request.getEmail(), verificationCode)
         );
 
-        try {
-            String htmlContent = mailContentBuilder.buildVerificationEmail(verificationCode);
-            MimeMessage mimeMessage = mimeMessageGenerator.generate(
-                    request.getEmail(),
-                    MailMessages.MAIL_VERIFICATION_SUBJECT,
-                    htmlContent
-            );
-
-            javaMailSender.send(mimeMessage);
-        } catch (MessagingException | MailException | java.io.UnsupportedEncodingException e) {
-            log.error("이메일 발송 실패 - email: {}, error: {}", request.getEmail(), e.getMessage());
-            throw new BusinessException(AuthErrorStatus.SEND_VERIFICATION_EMAIL_FAILED);
-        }
+        asyncMailSender.sendVerificationCode(request.getEmail(), verificationCode);
     }
 
     public void verifyEmailWithCode(CodeVerificationRequestDto request) {
