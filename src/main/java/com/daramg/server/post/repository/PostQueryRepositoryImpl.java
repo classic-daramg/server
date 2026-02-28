@@ -10,8 +10,10 @@ import com.daramg.server.post.domain.Post;
 import com.daramg.server.post.domain.PostStatus;
 import com.daramg.server.post.domain.QPost;
 import com.daramg.server.post.domain.StoryPost;
+import com.daramg.server.post.dto.StoryPostStatsDto;
 import com.daramg.server.composer.domain.QComposer;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.EntityPathBase;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -21,6 +23,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.daramg.server.post.domain.QPost.post;
 import static com.daramg.server.post.domain.QPostScrap.postScrap;
@@ -181,6 +185,31 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                 Post::getCreatedAt,
                 Post::getId
         );
+    }
+
+    @Override
+    public Map<Long, StoryPostStatsDto> findStoryPostStatsByAllComposers() {
+        List<Tuple> results = queryFactory
+                .select(
+                        storyPost.primaryComposer.id,
+                        storyPost._super.id.count(),
+                        storyPost._super.createdAt.max()
+                )
+                .from(storyPost)
+                .where(
+                        storyPost._super.isBlocked.isFalse()
+                                .and(storyPost._super.postStatus.eq(PostStatus.PUBLISHED))
+                )
+                .groupBy(storyPost.primaryComposer.id)
+                .fetch();
+
+        return results.stream().collect(Collectors.toMap(
+                tuple -> tuple.get(storyPost.primaryComposer.id),
+                tuple -> new StoryPostStatsDto(
+                        tuple.get(storyPost._super.id.count()),
+                        tuple.get(storyPost._super.createdAt.max())
+                )
+        ));
     }
 
     private <T extends Post> List<T> getAllPostsWithPaging(
