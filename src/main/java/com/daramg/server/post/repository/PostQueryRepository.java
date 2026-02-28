@@ -7,8 +7,10 @@ import com.daramg.server.post.domain.CurationPost;
 import com.daramg.server.post.domain.FreePost;
 import com.daramg.server.post.domain.Post;
 import com.daramg.server.post.domain.StoryPost;
+import com.daramg.server.post.dto.StoryPostStatsDto;
 
 import java.util.List;
+import java.util.Map;
 
 public interface PostQueryRepository {
     List<FreePost> getAllFreePostsWithPaging(PageRequestDto pageRequest);
@@ -18,4 +20,5 @@ public interface PostQueryRepository {
     List<Post> getUserDraftPostsWithPaging(Long userId, PageRequestDto pageRequest);
     List<Post> getUserScrappedPostsWithPaging(Long userId, PageRequestDto pageRequest);
     List<Post> getPostsByComposerIdWithPaging(Long composerId, PageRequestDto pageRequest);
+    Map<Long, StoryPostStatsDto> findStoryPostStatsByAllComposers();
 }

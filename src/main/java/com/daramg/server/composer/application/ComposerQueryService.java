@@ -6,6 +6,8 @@ import com.daramg.server.composer.domain.Era;
 import com.daramg.server.composer.dto.ComposerResponseDto;
 import com.daramg.server.composer.repository.ComposerLikeRepository;
 import com.daramg.server.composer.repository.ComposerRepository;
+import com.daramg.server.post.dto.StoryPostStatsDto;
+import com.daramg.server.post.repository.PostQueryRepository;
 import com.daramg.server.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,9 +27,11 @@ public class ComposerQueryService {
 
     private final ComposerRepository composerRepository;
     private final ComposerLikeRepository composerLikeRepository;
+    private final PostQueryRepository postQueryRepository;
 
     public List<ComposerResponseDto> getAllComposers(User user, List<Era> eras, List<Continent> continents) {
         Set<Long> likedComposerIds = getLikedComposerIds(user);
+        Map<Long, StoryPostStatsDto> statsMap = postQueryRepository.findStoryPostStatsByAllComposers();
         List<Composer> allComposers = composerRepository.findAll();
 
         return allComposers.stream()
@@ -34,7 +39,8 @@ public class ComposerQueryService {
                 .filter(composer -> continents == null || continents.isEmpty() || continents.contains(composer.getContinent()))
                 .map(composer -> ComposerResponseDto.from(
                         composer,
-                        likedComposerIds.contains(composer.getId())
+                        likedComposerIds.contains(composer.getId()),
+                        statsMap.get(composer.getId())
                 ))
                 .sorted(
                         Comparator.comparing(ComposerResponseDto::isLiked).reversed()

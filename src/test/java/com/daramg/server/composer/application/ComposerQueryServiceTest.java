@@ -8,6 +8,10 @@ import com.daramg.server.composer.domain.Era;
 import com.daramg.server.composer.dto.ComposerResponseDto;
 import com.daramg.server.composer.repository.ComposerLikeRepository;
 import com.daramg.server.composer.repository.ComposerRepository;
+import com.daramg.server.post.domain.PostStatus;
+import com.daramg.server.post.domain.StoryPost;
+import com.daramg.server.post.domain.vo.PostCreateVo;
+import com.daramg.server.post.repository.PostRepository;
 import com.daramg.server.testsupport.support.ServiceTestSupport;
 import com.daramg.server.user.domain.User;
 import com.daramg.server.user.repository.UserRepository;
@@ -34,6 +38,9 @@ public class ComposerQueryServiceTest extends ServiceTestSupport {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PostRepository postRepository;
 
     private User user;
     private Composer corelli;  // 코렐리
@@ -178,6 +185,33 @@ public class ComposerQueryServiceTest extends ServiceTestSupport {
         assertThat(result).hasSize(1);
         assertThat(result.getFirst().koreanName()).isEqualTo("하이든");
         assertThat(result.getFirst().isLiked()).isFalse();
+    }
+
+    @Test
+    @DisplayName("스토리 게시글이 있는 작곡가는 storyPostCount와 lastStoryPostAt이 반환된다")
+    void storyPostStats_returnedCorrectly() {
+        // given - 비발디에 PUBLISHED 스토리 2개, 코렐리에 1개 저장
+        postRepository.save(StoryPost.from(new PostCreateVo.Story(user, "비발디 글1", "내용", PostStatus.PUBLISHED, List.of(), null, List.of(), vivaldi)));
+        postRepository.save(StoryPost.from(new PostCreateVo.Story(user, "비발디 글2", "내용", PostStatus.PUBLISHED, List.of(), null, List.of(), vivaldi)));
+        postRepository.save(StoryPost.from(new PostCreateVo.Story(user, "코렐리 글1", "내용", PostStatus.PUBLISHED, List.of(), null, List.of(), corelli)));
+        // DRAFT는 집계 제외
+        postRepository.save(StoryPost.from(new PostCreateVo.Story(user, "비탈리 초안", "내용", PostStatus.DRAFT, List.of(), null, List.of(), vitali)));
+
+        // when
+        List<ComposerResponseDto> result = composerQueryService.getAllComposers(null, null, null);
+
+        // then
+        ComposerResponseDto vivaldResult = result.stream().filter(r -> r.koreanName().equals("비발디")).findFirst().orElseThrow();
+        assertThat(vivaldResult.storyPostCount()).isEqualTo(2L);
+        assertThat(vivaldResult.lastStoryPostAt()).isNotNull();
+
+        ComposerResponseDto corelliResult = result.stream().filter(r -> r.koreanName().equals("코렐리")).findFirst().orElseThrow();
+        assertThat(corelliResult.storyPostCount()).isEqualTo(1L);
+        assertThat(corelliResult.lastStoryPostAt()).isNotNull();
+
+        ComposerResponseDto vitaliResult = result.stream().filter(r -> r.koreanName().equals("비탈리")).findFirst().orElseThrow();
+        assertThat(vitaliResult.storyPostCount()).isEqualTo(0L);
+        assertThat(vitaliResult.lastStoryPostAt()).isNull();
     }
 
     @Test

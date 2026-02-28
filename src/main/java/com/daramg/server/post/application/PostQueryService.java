@@ -141,7 +141,7 @@ public class PostQueryService {
     public ComposerWithPostsResponseDto getComposerWithPosts(Long composerId, PageRequestDto pageRequest, User user) {
         Composer composer = entityUtils.getEntity(composerId, Composer.class);
         boolean isLiked = user != null && composerLikeRepository.existsByComposerIdAndUserId(composerId, user.getId());
-        ComposerResponseDto composerDto = ComposerResponseDto.from(composer, isLiked);
+        ComposerResponseDto composerDto = ComposerResponseDto.from(composer, isLiked, null);
 
         List<Post> posts = postQueryRepository.getPostsByComposerIdWithPaging(composerId, pageRequest);
         
