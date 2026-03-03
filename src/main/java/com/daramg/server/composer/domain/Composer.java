@@ -50,7 +50,7 @@ public class Composer extends BaseEntity<Composer> {
     @Builder
     private Composer(@NonNull String koreanName, @NonNull String englishName,
                    String nativeName, @NonNull Gender gender, String nationality,
-                   Short birthYear, Short deathYear, Era era, Continent continent) {
+                   Short birthYear, Short deathYear, String bio, Era era, Continent continent) {
         this.koreanName = koreanName;
         this.englishName = englishName;
         this.nativeName = nativeName;
@@ -58,6 +58,7 @@ public class Composer extends BaseEntity<Composer> {
         this.nationality = nationality;
         this.birthYear = birthYear;
         this.deathYear = deathYear;
+        this.bio = bio;
         this.era = era;
         this.continent = continent;
     }
