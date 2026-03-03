@@ -23,6 +23,12 @@ public class ComposerController {
         composerService.createComposer(dto, user);
     }
 
+    @DeleteMapping("/{composerId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteComposer(@PathVariable Long composerId, User user) {
+        composerService.deleteComposer(composerId, user);
+    }
+
     @PostMapping("/{composerId}/like")
     public ResponseEntity<ComposerLikeResponseDto> toggleComposerLike(@PathVariable Long composerId, User user) {
         ComposerLikeResponseDto response = composerService.toggleLike(composerId, user);
