@@ -7,12 +7,16 @@ import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.ResultActions;
+
+import java.util.Map;
 
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.springframework.restdocs.cookies.CookieDocumentation.cookieWithName;
 import static org.springframework.restdocs.cookies.CookieDocumentation.requestCookies;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -22,6 +26,55 @@ public class ComposerControllerTest extends ControllerTestSupport {
 
     @MockitoBean
     private ComposerService composerService;
+
+    @Test
+    void 작곡가를_생성한다() throws Exception {
+        // given
+        Map<String, Object> requestBody = Map.of(
+                "koreanName", "베토벤",
+                "englishName", "Ludwig van Beethoven",
+                "gender", "MALE",
+                "nationality", "독일",
+                "birthYear", 1770,
+                "deathYear", 1827,
+                "bio", "독일의 작곡가",
+                "era", "CLASSICAL",
+                "continent", "EUROPE"
+        );
+        Cookie cookie = new Cookie(COOKIE_NAME, "access_token");
+
+        // when
+        ResultActions result = mockMvc.perform(post("/composers")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody))
+                .cookie(cookie)
+        );
+
+        // then
+        result.andExpect(status().isCreated())
+                .andDo(restDocsHandler.document(
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("Composer API")
+                                .summary("작곡가 생성")
+                                .description("관리자가 작곡가를 생성합니다.")
+                                .requestFields(
+                                        fieldWithPath("koreanName").type(JsonFieldType.STRING).description("한국어 이름"),
+                                        fieldWithPath("englishName").type(JsonFieldType.STRING).description("영어 이름"),
+                                        fieldWithPath("gender").type(JsonFieldType.STRING).description("성별 (MALE / FEMALE / UNKNOWN)"),
+                                        fieldWithPath("nationality").type(JsonFieldType.STRING).description("국적").optional(),
+                                        fieldWithPath("birthYear").type(JsonFieldType.NUMBER).description("출생 연도").optional(),
+                                        fieldWithPath("deathYear").type(JsonFieldType.NUMBER).description("사망 연도").optional(),
+                                        fieldWithPath("bio").type(JsonFieldType.STRING).description("소개").optional(),
+                                        fieldWithPath("era").type(JsonFieldType.STRING).description("시대 (MEDIEVAL_RENAISSANCE / BAROQUE / CLASSICAL / ROMANTIC / MODERN_CONTEMPORARY)").optional(),
+                                        fieldWithPath("continent").type(JsonFieldType.STRING).description("대륙 (ASIA / NORTH_AMERICA / EUROPE / SOUTH_AMERICA / AFRICA_OCEANIA)").optional()
+                                )
+                                .build()
+                        ),
+                        requestCookies(
+                                cookieWithName(COOKIE_NAME).description("유저의 토큰")
+                        )
+                ));
+    }
 
     @Test
     void 작곡가_좋아요를_토글한다() throws Exception {
