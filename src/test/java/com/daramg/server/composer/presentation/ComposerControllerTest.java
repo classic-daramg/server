@@ -18,6 +18,7 @@ import static org.springframework.restdocs.cookies.CookieDocumentation.cookieWit
 import static org.springframework.restdocs.cookies.CookieDocumentation.requestCookies;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -67,6 +68,35 @@ public class ComposerControllerTest extends ControllerTestSupport {
                                         fieldWithPath("bio").type(JsonFieldType.STRING).description("소개").optional(),
                                         fieldWithPath("era").type(JsonFieldType.STRING).description("시대 (MEDIEVAL_RENAISSANCE / BAROQUE / CLASSICAL / ROMANTIC / MODERN_CONTEMPORARY)").optional(),
                                         fieldWithPath("continent").type(JsonFieldType.STRING).description("대륙 (ASIA / NORTH_AMERICA / EUROPE / SOUTH_AMERICA / AFRICA_OCEANIA)").optional()
+                                )
+                                .build()
+                        ),
+                        requestCookies(
+                                cookieWithName(COOKIE_NAME).description("유저의 토큰")
+                        )
+                ));
+    }
+
+    @Test
+    void 작곡가를_삭제한다() throws Exception {
+        // given
+        Long composerId = 1L;
+        Cookie cookie = new Cookie(COOKIE_NAME, "access_token");
+
+        // when
+        ResultActions result = mockMvc.perform(delete("/composers/{composerId}", composerId)
+                .cookie(cookie)
+        );
+
+        // then
+        result.andExpect(status().isNoContent())
+                .andDo(restDocsHandler.document(
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("Composer API")
+                                .summary("작곡가 삭제")
+                                .description("관리자가 작곡가를 삭제합니다.")
+                                .pathParameters(
+                                        parameterWithName("composerId").description("삭제할 작곡가 ID")
                                 )
                                 .build()
                         ),

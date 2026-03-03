@@ -56,6 +56,15 @@ public class ComposerService {
      * @return 좋아요 생성 시 {@code true}, 취소 시 {@code false}를 담은 DTO
      */
     @Transactional
+    public void deleteComposer(Long composerId, User user) {
+        if (user.getId() != 5L) {
+            throw new BusinessException(CommonErrorStatus.FORBIDDEN);
+        }
+        Composer composer = entityUtils.getEntity(composerId, Composer.class);
+        composerRepository.delete(composer);
+    }
+
+    @Transactional
     public ComposerLikeResponseDto toggleLike(Long composerId, User user) {
         Composer composer = entityUtils.getEntity(composerId, Composer.class);
 
