@@ -2,6 +2,7 @@ package com.daramg.server.composer.presentation;
 
 import com.daramg.server.composer.application.ComposerService;
 import com.daramg.server.composer.dto.ComposerCreateDto;
+import com.daramg.server.composer.dto.ComposerUpdateDto;
 import com.daramg.server.composer.dto.ComposerLikeResponseDto;
 import com.daramg.server.user.domain.User;
 import jakarta.validation.Valid;
@@ -21,6 +22,12 @@ public class ComposerController {
     @ResponseStatus(HttpStatus.CREATED)
     public void createComposer(@Valid @RequestBody ComposerCreateDto dto, User user) {
         composerService.createComposer(dto, user);
+    }
+
+    @PutMapping("/{composerId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateComposer(@PathVariable Long composerId, @Valid @RequestBody ComposerUpdateDto dto, User user) {
+        composerService.updateComposer(composerId, dto, user);
     }
 
     @DeleteMapping("/{composerId}")

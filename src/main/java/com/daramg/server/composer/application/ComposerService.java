@@ -6,6 +6,7 @@ import com.daramg.server.common.exception.CommonErrorStatus;
 import com.daramg.server.composer.domain.Composer;
 import com.daramg.server.composer.domain.ComposerLike;
 import com.daramg.server.composer.dto.ComposerCreateDto;
+import com.daramg.server.composer.dto.ComposerUpdateDto;
 import com.daramg.server.composer.dto.ComposerLikeResponseDto;
 import com.daramg.server.composer.repository.ComposerLikeRepository;
 import com.daramg.server.composer.repository.ComposerRepository;
@@ -55,6 +56,17 @@ public class ComposerService {
      * @param user       요청한 유저 (인증 객체)
      * @return 좋아요 생성 시 {@code true}, 취소 시 {@code false}를 담은 DTO
      */
+    @Transactional
+    public void updateComposer(Long composerId, ComposerUpdateDto dto, User user) {
+        if (user.getId() != 5L) {
+            throw new BusinessException(CommonErrorStatus.FORBIDDEN);
+        }
+        Composer composer = entityUtils.getEntity(composerId, Composer.class);
+        composer.update(dto.getKoreanName(), dto.getEnglishName(), dto.getNativeName(),
+                dto.getGender(), dto.getNationality(), dto.getBirthYear(), dto.getDeathYear(),
+                dto.getBio(), dto.getEra(), dto.getContinent());
+    }
+
     @Transactional
     public void deleteComposer(Long composerId, User user) {
         if (user.getId() != 5L) {
