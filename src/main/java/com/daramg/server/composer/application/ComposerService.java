@@ -25,7 +25,7 @@ public class ComposerService {
 
     @Transactional
     public void createComposer(ComposerCreateDto dto, User user) {
-        if (user.getId() != 1L) {
+        if (user.getId() != 5L) {
             throw new BusinessException(CommonErrorStatus.FORBIDDEN);
         }
         Composer composer = Composer.builder()
