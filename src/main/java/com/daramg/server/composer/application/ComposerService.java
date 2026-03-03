@@ -1,10 +1,14 @@
 package com.daramg.server.composer.application;
 
 import com.daramg.server.common.application.EntityUtils;
+import com.daramg.server.common.exception.BusinessException;
+import com.daramg.server.common.exception.CommonErrorStatus;
 import com.daramg.server.composer.domain.Composer;
 import com.daramg.server.composer.domain.ComposerLike;
+import com.daramg.server.composer.dto.ComposerCreateDto;
 import com.daramg.server.composer.dto.ComposerLikeResponseDto;
 import com.daramg.server.composer.repository.ComposerLikeRepository;
+import com.daramg.server.composer.repository.ComposerRepository;
 import com.daramg.server.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -16,7 +20,28 @@ import org.springframework.transaction.annotation.Transactional;
 public class ComposerService {
 
     private final ComposerLikeRepository composerLikeRepository;
+    private final ComposerRepository composerRepository;
     private final EntityUtils entityUtils;
+
+    @Transactional
+    public void createComposer(ComposerCreateDto dto, User user) {
+        if (user.getId() != 1L) {
+            throw new BusinessException(CommonErrorStatus.FORBIDDEN);
+        }
+        Composer composer = Composer.builder()
+                .koreanName(dto.getKoreanName())
+                .englishName(dto.getEnglishName())
+                .nativeName(dto.getNativeName())
+                .gender(dto.getGender())
+                .nationality(dto.getNationality())
+                .birthYear(dto.getBirthYear())
+                .deathYear(dto.getDeathYear())
+                .bio(dto.getBio())
+                .era(dto.getEra())
+                .continent(dto.getContinent())
+                .build();
+        composerRepository.save(composer);
+    }
 
     /**
      * 작곡가 좋아요 상태를 토글(Toggle)합니다.

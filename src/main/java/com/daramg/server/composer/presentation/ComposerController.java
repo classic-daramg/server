@@ -1,14 +1,14 @@
 package com.daramg.server.composer.presentation;
 
 import com.daramg.server.composer.application.ComposerService;
+import com.daramg.server.composer.dto.ComposerCreateDto;
 import com.daramg.server.composer.dto.ComposerLikeResponseDto;
 import com.daramg.server.user.domain.User;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -16,6 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class ComposerController {
 
     private final ComposerService composerService;
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createComposer(@Valid @RequestBody ComposerCreateDto dto, User user) {
+        composerService.createComposer(dto, user);
+    }
 
     @PostMapping("/{composerId}/like")
     public ResponseEntity<ComposerLikeResponseDto> toggleComposerLike(@PathVariable Long composerId, User user) {

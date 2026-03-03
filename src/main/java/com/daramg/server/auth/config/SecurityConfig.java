@@ -48,7 +48,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/signup").permitAll()
                         .requestMatchers("/auth/login").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/auth/password-reset").permitAll()
-                        .requestMatchers("/composers").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/composers").permitAll()
                         .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
                         .requestMatchers("/users/check-nickname").permitAll()
                         .requestMatchers("/composers/{composerId}/posts").permitAll()
