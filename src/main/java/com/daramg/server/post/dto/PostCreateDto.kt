@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size
 
 sealed class PostCreateDto(
     @get:NotBlank(message = "제목은 필수입니다")
-    @get:Size(max = 15, message = "제목은 15자를 초과할 수 없습니다")
+    @get:Size(max = 40, message = "제목은 40자를 초과할 수 없습니다")
     @get:NoBadWords
     open val title: String,
 
