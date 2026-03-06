@@ -46,10 +46,10 @@ class PostValidationTest {
     }
 
     @Test
-    @DisplayName("제목이 15자를 초과하면 검증에 실패한다")
+    @DisplayName("제목이 40자를 초과하면 검증에 실패한다")
     void title_Size_초과_실패() {
         // given
-        String longTitle = "a".repeat(16);
+        String longTitle = "a".repeat(41);
 
         PostCreateDto.CreateFree dto = new PostCreateDto.CreateFree(
                 longTitle,
@@ -65,7 +65,7 @@ class PostValidationTest {
 
         // then
         assertThat(violations).hasSize(1);
-        assertThat(violations.iterator().next().getMessage()).isEqualTo("제목은 15자를 초과할 수 없습니다");
+        assertThat(violations.iterator().next().getMessage()).isEqualTo("제목은 40자를 초과할 수 없습니다");
     }
 
     @Test
@@ -157,10 +157,10 @@ class PostValidationTest {
     class PostUpdateDtoValidationTest {
 
         @Test
-        @DisplayName("제목이 15자를 초과하면 검증에 실패한다")
+        @DisplayName("제목이 40자를 초과하면 검증에 실패한다")
         void title_Size_초과_실패() {
             // given
-            String longTitle = "a".repeat(16);
+            String longTitle = "a".repeat(41);
 
             PostUpdateDto.UpdateFree dto = new PostUpdateDto.UpdateFree(
                     longTitle,
@@ -176,7 +176,7 @@ class PostValidationTest {
 
             // then
             assertThat(violations).hasSize(1);
-            assertThat(violations.iterator().next().getMessage()).isEqualTo("제목은 15자를 초과할 수 없습니다");
+            assertThat(violations.iterator().next().getMessage()).isEqualTo("제목은 40자를 초과할 수 없습니다");
         }
 
         @Test
@@ -242,10 +242,10 @@ class PostValidationTest {
         }
 
         @Test
-        @DisplayName("제목이 15자 정확히 입력되면 검증에 성공한다")
-        void title_15자_정확히_성공() {
+        @DisplayName("제목이 40자 정확히 입력되면 검증에 성공한다")
+        void title_40자_정확히_성공() {
             // given
-            String exactTitle = "a".repeat(15); // 정확히 15자
+            String exactTitle = "a".repeat(40); // 정확히 40자
 
             PostUpdateDto.UpdateFree dto = new PostUpdateDto.UpdateFree(
                     exactTitle,
