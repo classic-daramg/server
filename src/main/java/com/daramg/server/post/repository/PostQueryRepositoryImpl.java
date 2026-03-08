@@ -75,7 +75,21 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
 
     @Override
     public List<StoryPost> getAllStoryPostsWithPaging(PageRequestDto pageRequest) {
-        return getAllPostsWithPaging(pageRequest, storyPost, storyPost._super);
+        JPAQuery<StoryPost> query = queryFactory
+                .selectFrom(storyPost)
+                .leftJoin(storyPost._super.user, user).fetchJoin()
+                .leftJoin(storyPost.primaryComposer).fetchJoin()
+                .where(
+                        storyPost._super.isBlocked.isFalse()
+                                .and(storyPost._super.postStatus.eq(PostStatus.PUBLISHED))
+                );
+
+        return pagingUtils.applyCursorPagination(
+                query,
+                pageRequest,
+                storyPost._super.createdAt,
+                storyPost._super.id
+        );
     }
 
     @Override
@@ -218,20 +232,57 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
     public List<Post> getRecentPostsWithPaging(PageRequestDto pageRequest) {
         Instant sevenDaysAgo = Instant.now().minus(7, ChronoUnit.DAYS);
 
-        JPAQuery<Post> query = queryFactory
-                .selectFrom(post)
-                .leftJoin(post.user, user).fetchJoin()
+        List<FreePost> freePosts = queryFactory
+                .selectFrom(freePost)
+                .leftJoin(freePost._super.user, user).fetchJoin()
                 .where(
-                        post.isBlocked.isFalse()
-                                .and(post.postStatus.eq(PostStatus.PUBLISHED))
-                                .and(post.createdAt.goe(sevenDaysAgo))
-                );
+                        freePost._super.isBlocked.isFalse()
+                                .and(freePost._super.postStatus.eq(PostStatus.PUBLISHED))
+                                .and(freePost._super.createdAt.goe(sevenDaysAgo))
+                )
+                .orderBy(freePost._super.createdAt.desc(), freePost._super.id.desc())
+                .fetch();
 
-        return pagingUtils.applyCursorPagination(
-                query,
+        List<StoryPost> storyPosts = queryFactory
+                .selectFrom(storyPost)
+                .leftJoin(storyPost._super.user, user).fetchJoin()
+                .leftJoin(storyPost.primaryComposer).fetchJoin()
+                .where(
+                        storyPost._super.isBlocked.isFalse()
+                                .and(storyPost._super.postStatus.eq(PostStatus.PUBLISHED))
+                                .and(storyPost._super.createdAt.goe(sevenDaysAgo))
+                )
+                .orderBy(storyPost._super.createdAt.desc(), storyPost._super.id.desc())
+                .fetch();
+
+        List<CurationPost> curationPosts = queryFactory
+                .selectFrom(curationPost)
+                .leftJoin(curationPost._super.user, user).fetchJoin()
+                .leftJoin(curationPost.primaryComposer).fetchJoin()
+                .where(
+                        curationPost._super.isBlocked.isFalse()
+                                .and(curationPost._super.postStatus.eq(PostStatus.PUBLISHED))
+                                .and(curationPost._super.createdAt.goe(sevenDaysAgo))
+                )
+                .orderBy(curationPost._super.createdAt.desc(), curationPost._super.id.desc())
+                .fetch();
+
+        List<Post> allPosts = new ArrayList<>();
+        allPosts.addAll(freePosts);
+        allPosts.addAll(storyPosts);
+        allPosts.addAll(curationPosts);
+
+        allPosts.sort((p1, p2) -> {
+            int dateCompare = p2.getCreatedAt().compareTo(p1.getCreatedAt());
+            if (dateCompare != 0) return dateCompare;
+            return Long.compare(p2.getId(), p1.getId());
+        });
+
+        return pagingUtils.applyCursorPaginationToList(
+                allPosts,
                 pageRequest,
-                post.createdAt,
-                post.id
+                Post::getCreatedAt,
+                Post::getId
         );
     }
 
