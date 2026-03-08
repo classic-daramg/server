@@ -745,5 +745,84 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                         )
                 ));
     }
+
+    @Test
+    void 최근_포스트_목록을_조회한다() throws Exception {
+        // given
+        PostResponseDto recentPost = new PostResponseDto(
+                1L,
+                "최근 포스트 제목",
+                "최근 포스트 내용입니다",
+                List.of("#해시태그1"),
+                Instant.parse("2024-01-15T10:30:00Z"),
+                "작성자1",
+                10,
+                5,
+                "https://example.com/image1.jpg",
+                PostType.FREE,
+                null,
+                null,
+                null,
+                null
+        );
+
+        PageResponseDto<PostResponseDto> response = new PageResponseDto<>(
+                List.of(recentPost),
+                null,
+                false
+        );
+
+        when(postQueryService.getRecentPosts(any(PageRequestDto.class), any())).thenReturn(response);
+
+        // when
+        ResultActions result = mockMvc.perform(get("/posts/recent")
+                .param("size", "10")
+                .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        // then
+        result.andExpect(status().isOk())
+                .andDo(document("최근_포스트_목록_조회",
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("Post Query API")
+                                .summary("최근 포스트 목록 조회")
+                                .description("7일 이내 발행된 모든 타입(FREE, STORY, CURATION)의 포스트를 최신순으로 조회합니다.")
+                                .queryParameters(
+                                        parameterWithName("cursor").description("다음 페이지 조회를 위한 커서 (Base64 인코딩된 문자열). 첫 페이지 조회 시 생략 가능")
+                                                .optional(),
+                                        parameterWithName("size").description("한 페이지에 조회할 포스트 개수. 생략 시 기본값: 10")
+                                                .optional()
+                                )
+                                .responseFields(
+                                        fieldWithPath("content").type(JsonFieldType.ARRAY).description("포스트 목록"),
+                                        fieldWithPath("content[].id").type(JsonFieldType.NUMBER).description("포스트 ID"),
+                                        fieldWithPath("content[].title").type(JsonFieldType.STRING).description("포스트 제목"),
+                                        fieldWithPath("content[].content").type(JsonFieldType.STRING).description("포스트 내용"),
+                                        fieldWithPath("content[].hashtags").type(JsonFieldType.ARRAY).description("해시태그 목록"),
+                                        fieldWithPath("content[].createdAt").type(JsonFieldType.STRING).description("생성일시 (ISO 8601 형식)"),
+                                        fieldWithPath("content[].writerNickname").type(JsonFieldType.STRING).description("작성자 닉네임"),
+                                        fieldWithPath("content[].likeCount").type(JsonFieldType.NUMBER).description("좋아요 개수"),
+                                        fieldWithPath("content[].commentCount").type(JsonFieldType.NUMBER).description("댓글 개수"),
+                                        fieldWithPath("content[].thumbnailImageUrl").type(JsonFieldType.STRING).description("썸네일 이미지 URL").optional(),
+                                        fieldWithPath("content[].type").type(JsonFieldType.STRING).description("포스트 타입 (FREE, CURATION, STORY)"),
+                                        fieldWithPath("content[].primaryComposer").type(JsonFieldType.OBJECT).description("대표 작곡가 정보 (STORY, CURATION 타입일 때만 존재)").optional(),
+                                        fieldWithPath("content[].primaryComposer.id").type(JsonFieldType.NUMBER).description("작곡가 ID").optional(),
+                                        fieldWithPath("content[].primaryComposer.koreanName").type(JsonFieldType.STRING).description("작곡가 한글 이름").optional(),
+                                        fieldWithPath("content[].primaryComposer.era").type(JsonFieldType.STRING).description("작곡가 시대 (Era)").optional(),
+                                        fieldWithPath("content[].primaryComposer.continent").type(JsonFieldType.STRING).description("작곡가 대륙 (Continent)").optional(),
+                                        fieldWithPath("content[].additionalComposers").type(JsonFieldType.ARRAY).description("추가 작곡가 목록 (CURATION 타입일 때만 존재)").optional(),
+                                        fieldWithPath("content[].additionalComposers[].id").type(JsonFieldType.NUMBER).description("추가 작곡가 ID").optional(),
+                                        fieldWithPath("content[].additionalComposers[].koreanName").type(JsonFieldType.STRING).description("추가 작곡가 한글 이름").optional(),
+                                        fieldWithPath("content[].additionalComposers[].era").type(JsonFieldType.STRING).description("추가 작곡가 시대 (Era)").optional(),
+                                        fieldWithPath("content[].additionalComposers[].continent").type(JsonFieldType.STRING).description("추가 작곡가 대륙 (Continent)").optional(),
+                                        fieldWithPath("content[].isLiked").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 좋아요 여부 (비로그인 시 null)").optional(),
+                                        fieldWithPath("content[].isScrapped").type(JsonFieldType.BOOLEAN).description("로그인한 유저의 스크랩 여부 (비로그인 시 null)").optional(),
+                                        fieldWithPath("nextCursor").type(JsonFieldType.STRING).description("다음 페이지 커서 (마지막 페이지인 경우 null)").optional(),
+                                        fieldWithPath("hasNext").type(JsonFieldType.BOOLEAN).description("다음 페이지 존재 여부")
+                                )
+                                .build()
+                        )
+                ));
+    }
 }
 
