@@ -34,6 +34,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
@@ -76,6 +77,9 @@ public class PostQueryServiceTest extends ServiceTestSupport {
 
     @Autowired
     private CommentLikeRepository commentLikeRepository;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     private User user;
     private User otherUser;
@@ -1279,6 +1283,175 @@ public class PostQueryServiceTest extends ServiceTestSupport {
             assertThat(response.posts().getContent())
                     .extracting(PostResponseDto::title)
                     .doesNotContain("DRAFT 스토리");
+        }
+    }
+
+    @Nested
+    @DisplayName("최근 게시물 조회 테스트")
+    class GetRecentPostsTest {
+
+        private Composer composer;
+
+        @BeforeEach
+        void setUpComposer() {
+            composer = Composer.builder()
+                    .koreanName("베토벤")
+                    .englishName("Ludwig van Beethoven")
+                    .gender(Gender.MALE)
+                    .era(Era.CLASSICAL)
+                    .continent(Continent.EUROPE)
+                    .build();
+            composerRepository.save(composer);
+        }
+
+        @Test
+        @DisplayName("7일 이내 PUBLISHED 게시물만 반환된다")
+        void getRecentPosts_ReturnsOnlyPostsWithinSevenDays() {
+            // given
+            FreePost recentPost = FreePost.from(
+                    new PostCreateVo.Free(user, "최근 게시물", "내용", PostStatus.PUBLISHED,
+                            List.of(), null, List.of())
+            );
+            FreePost oldPost = FreePost.from(
+                    new PostCreateVo.Free(user, "오래된 게시물", "내용", PostStatus.PUBLISHED,
+                            List.of(), null, List.of())
+            );
+            postRepository.save(recentPost);
+            postRepository.save(oldPost);
+            jdbcTemplate.update("UPDATE posts SET created_at = ? WHERE id = ?",
+                    Instant.now().minus(8, ChronoUnit.DAYS), oldPost.getId());
+
+            PageRequestDto pageRequest = new PageRequestDto(null, 100);
+
+            // when
+            PageResponseDto<PostResponseDto> response = postQueryService.getRecentPosts(pageRequest, null);
+
+            // then
+            assertThat(response.getContent())
+                    .extracting(PostResponseDto::title)
+                    .contains("최근 게시물")
+                    .doesNotContain("오래된 게시물");
+        }
+
+        @Test
+        @DisplayName("DRAFT 게시물은 반환되지 않는다")
+        void getRecentPosts_ExcludesDraftPosts() {
+            // given
+            FreePost draftPost = FreePost.from(
+                    new PostCreateVo.Free(user, "DRAFT 게시물", "내용", PostStatus.DRAFT,
+                            List.of(), null, List.of())
+            );
+            postRepository.save(draftPost);
+
+            PageRequestDto pageRequest = new PageRequestDto(null, 100);
+
+            // when
+            PageResponseDto<PostResponseDto> response = postQueryService.getRecentPosts(pageRequest, null);
+
+            // then
+            assertThat(response.getContent())
+                    .extracting(PostResponseDto::title)
+                    .doesNotContain("DRAFT 게시물");
+        }
+
+        @Test
+        @DisplayName("FreePost, StoryPost, CurationPost 모두 반환된다")
+        void getRecentPosts_ReturnsAllPostTypes() {
+            // given
+            FreePost freePost = FreePost.from(
+                    new PostCreateVo.Free(user, "자유 게시물", "내용", PostStatus.PUBLISHED,
+                            List.of(), null, List.of())
+            );
+            StoryPost storyPost = StoryPost.from(
+                    new PostCreateVo.Story(user, "스토리 게시물", "내용", PostStatus.PUBLISHED,
+                            List.of(), null, List.of(), composer)
+            );
+            CurationPost curationPost = CurationPost.from(
+                    new PostCreateVo.Curation(user, "큐레이션 게시물", "내용", PostStatus.PUBLISHED,
+                            List.of(), null, List.of(), composer, List.of())
+            );
+            postRepository.saveAll(List.of(freePost, storyPost, curationPost));
+
+            PageRequestDto pageRequest = new PageRequestDto(null, 100);
+
+            // when
+            PageResponseDto<PostResponseDto> response = postQueryService.getRecentPosts(pageRequest, null);
+
+            // then
+            assertThat(response.getContent())
+                    .extracting(PostResponseDto::title)
+                    .contains("자유 게시물", "스토리 게시물", "큐레이션 게시물");
+        }
+
+        @Test
+        @DisplayName("StoryPost와 CurationPost 응답에 primaryComposer가 포함된다")
+        void getRecentPosts_IncludesPrimaryComposerForStoryAndCuration() {
+            // given
+            StoryPost storyPost = StoryPost.from(
+                    new PostCreateVo.Story(user, "스토리 게시물", "내용", PostStatus.PUBLISHED,
+                            List.of(), null, List.of(), composer)
+            );
+            CurationPost curationPost = CurationPost.from(
+                    new PostCreateVo.Curation(user, "큐레이션 게시물", "내용", PostStatus.PUBLISHED,
+                            List.of(), null, List.of(), composer, List.of())
+            );
+            postRepository.saveAll(List.of(storyPost, curationPost));
+
+            PageRequestDto pageRequest = new PageRequestDto(null, 100);
+
+            // when
+            PageResponseDto<PostResponseDto> response = postQueryService.getRecentPosts(pageRequest, null);
+
+            // then
+            assertThat(response.getContent())
+                    .filteredOn(p -> p.type() != com.daramg.server.post.domain.PostType.FREE)
+                    .allSatisfy(p -> {
+                        assertThat(p.primaryComposer()).isNotNull();
+                        assertThat(p.primaryComposer().koreanName()).isEqualTo("베토벤");
+                    });
+        }
+
+        @Test
+        @DisplayName("로그인 유저의 경우 isLiked, isScrapped가 포함된다")
+        void getRecentPosts_WithLoginUser_IncludesLikedAndScrapped() {
+            // given
+            FreePost post = FreePost.from(
+                    new PostCreateVo.Free(user, "게시물", "내용", PostStatus.PUBLISHED,
+                            List.of(), null, List.of())
+            );
+            postRepository.save(post);
+
+            PostLike like = PostLike.of(post, user);
+            postLikeRepository.save(like);
+
+            PageRequestDto pageRequest = new PageRequestDto(null, 100);
+
+            // when
+            PageResponseDto<PostResponseDto> response = postQueryService.getRecentPosts(pageRequest, user);
+
+            // then
+            assertThat(response.getContent().getFirst().isLiked()).isTrue();
+            assertThat(response.getContent().getFirst().isScrapped()).isFalse();
+        }
+
+        @Test
+        @DisplayName("비로그인 유저의 경우 isLiked, isScrapped가 null이다")
+        void getRecentPosts_WithoutLoginUser_IsLikedAndIsScrappedAreNull() {
+            // given
+            FreePost post = FreePost.from(
+                    new PostCreateVo.Free(user, "게시물", "내용", PostStatus.PUBLISHED,
+                            List.of(), null, List.of())
+            );
+            postRepository.save(post);
+
+            PageRequestDto pageRequest = new PageRequestDto(null, 100);
+
+            // when
+            PageResponseDto<PostResponseDto> response = postQueryService.getRecentPosts(pageRequest, null);
+
+            // then
+            assertThat(response.getContent().getFirst().isLiked()).isNull();
+            assertThat(response.getContent().getFirst().isScrapped()).isNull();
         }
     }
 }
