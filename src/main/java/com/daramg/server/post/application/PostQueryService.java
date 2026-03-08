@@ -113,6 +113,21 @@ public class PostQueryService {
         );
     }
 
+    public PageResponseDto<PostResponseDto> getRecentPosts(PageRequestDto pageRequest, User user) {
+        List<Post> posts = postQueryRepository.getRecentPostsWithPaging(pageRequest);
+
+        Set<Long> likedPostIds = getLikedPostIds(posts, user);
+        Set<Long> scrappedPostIds = getScrappedPostIds(posts, user);
+
+        return pagingUtils.createPageResponse(
+                posts,
+                pageRequest.getValidatedSize(),
+                post -> toPostResponseDto(post, user, likedPostIds, scrappedPostIds),
+                Post::getCreatedAt,
+                Post::getId
+        );
+    }
+
     public PageResponseDto<PostResponseDto> getUserScrappedPosts(Long userId, PageRequestDto pageRequest){
         List<Post> posts = postQueryRepository.getUserScrappedPostsWithPaging(userId, pageRequest);
 

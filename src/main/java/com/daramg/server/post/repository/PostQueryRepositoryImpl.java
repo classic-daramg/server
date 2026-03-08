@@ -21,6 +21,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -210,6 +212,27 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                         tuple.get(storyPost._super.createdAt.max())
                 )
         ));
+    }
+
+    @Override
+    public List<Post> getRecentPostsWithPaging(PageRequestDto pageRequest) {
+        Instant sevenDaysAgo = Instant.now().minus(7, ChronoUnit.DAYS);
+
+        JPAQuery<Post> query = queryFactory
+                .selectFrom(post)
+                .leftJoin(post.user, user).fetchJoin()
+                .where(
+                        post.isBlocked.isFalse()
+                                .and(post.postStatus.eq(PostStatus.PUBLISHED))
+                                .and(post.createdAt.goe(sevenDaysAgo))
+                );
+
+        return pagingUtils.applyCursorPagination(
+                query,
+                pageRequest,
+                post.createdAt,
+                post.id
+        );
     }
 
     private <T extends Post> List<T> getAllPostsWithPaging(

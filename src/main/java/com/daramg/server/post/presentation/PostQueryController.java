@@ -51,6 +51,15 @@ public class PostQueryController {
         return postQueryService.getAllPublishedStoryPosts(request, user);
     }
 
+    @GetMapping("/recent")
+    @ResponseStatus(HttpStatus.OK)
+    public PageResponseDto<PostResponseDto> getRecentPosts(
+            @AuthenticationPrincipal User user,
+            @ModelAttribute PageRequestDto request
+    ) {
+        return postQueryService.getRecentPosts(request, user);
+    }
+
     @GetMapping("/{userId}/published")
     @ResponseStatus(HttpStatus.OK)
     public PageResponseDto<PostResponseDto> getUserPublishedPosts(
