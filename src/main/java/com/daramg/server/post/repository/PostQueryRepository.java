@@ -21,4 +21,5 @@ public interface PostQueryRepository {
     List<Post> getUserScrappedPostsWithPaging(Long userId, PageRequestDto pageRequest);
     List<Post> getPostsByComposerIdWithPaging(Long composerId, PageRequestDto pageRequest);
     Map<Long, StoryPostStatsDto> findStoryPostStatsByAllComposers();
+    List<Post> getRecentPostsWithPaging(PageRequestDto pageRequest);
 }
