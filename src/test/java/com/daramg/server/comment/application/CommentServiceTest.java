@@ -14,6 +14,7 @@ import com.daramg.server.post.dto.CommentReplyCreateDto;
 import com.daramg.server.post.repository.PostRepository;
 import com.daramg.server.testsupport.support.ServiceTestSupport;
 import com.daramg.server.user.domain.User;
+import com.daramg.server.user.domain.UserRole;
 import com.daramg.server.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -273,6 +274,22 @@ public class CommentServiceTest extends ServiceTestSupport {
             assertThatThrownBy(() -> commentService.deleteComment(comment.getId(), another))
                     .isInstanceOf(BusinessException.class)
                     .hasMessage("댓글을 작성한 유저만 댓글을 삭제할 수 있습니다.");
+        }
+
+        @Test
+        void ADMIN은_타인의_댓글을_삭제할_수_있다() {
+            // given
+            Comment comment = commentRepository.save(Comment.of(post, user, "일반 유저 댓글", null));
+            User admin = new User("admin@test.com", "password", "admin", LocalDate.now(), null, "관리자", null, null);
+            ReflectionTestUtils.setField(admin, "role", UserRole.ADMIN);
+            userRepository.save(admin);
+
+            // when
+            commentService.deleteComment(comment.getId(), admin);
+
+            // then
+            Comment deleted = commentRepository.findById(comment.getId()).orElseThrow();
+            assertThat(ReflectionTestUtils.getField(deleted, "isDeleted")).isEqualTo(true);
         }
 
         @Test

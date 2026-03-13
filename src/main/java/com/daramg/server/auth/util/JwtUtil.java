@@ -36,7 +36,7 @@ public class JwtUtil {
      */
     private static final String CLAIM_ID = "id";
     private static final String CLAIM_EMAIL = "email";
-    //private static final String CLAIM_ROLE = "role";
+    private static final String CLAIM_ROLE = "role";
 
     public TokenResponseDto generateTokens(User user) {
         String accessToken = createAccessToken(user);
@@ -57,7 +57,7 @@ public class JwtUtil {
                 .withExpiresAt(new Date(now.getTime() + accessTokenLifetimeInMillis))
                 .withClaim(CLAIM_ID, user.getId())
                 .withClaim(CLAIM_EMAIL, user.getEmail())
-                //.withClaim(CLAIM_ROLE, user.getRole().name())
+                .withClaim(CLAIM_ROLE, user.getRole().name())
                 .sign(Algorithm.HMAC512(secretKey));
     }
 
@@ -119,15 +119,14 @@ public class JwtUtil {
     }
 
 
-    // TODO: 매니저 엔티티 생성 시 role 검증 추가
-//    public String getRole(String token) {
-//        DecodedJWT decodedJWT = getDecodedJWT(token);
-//        Claim roleClaim = decodedJWT.getClaim(CLAIM_ROLE);
-//
-//        if (roleClaim.isNull()) {
-//            throw new UnauthorizedException(AuthorizationErrorMessages.INVALID_TOKEN_EXCEPTION);
-//        }
-//        return roleClaim.asString();
-//    }
+    public String getRole(String token) {
+        DecodedJWT decodedJWT = getDecodedJWT(token);
+        Claim roleClaim = decodedJWT.getClaim(CLAIM_ROLE);
+
+        if (roleClaim.isNull()) {
+            throw new BusinessException(AuthErrorStatus.INVALID_TOKEN_EXCEPTION);
+        }
+        return roleClaim.asString();
+    }
 
 }

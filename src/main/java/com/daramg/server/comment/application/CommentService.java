@@ -14,6 +14,7 @@ import com.daramg.server.notification.event.NotificationEvent;
 import com.daramg.server.post.dto.CommentCreateDto;
 import com.daramg.server.post.dto.CommentReplyCreateDto;
 import com.daramg.server.user.domain.User;
+import com.daramg.server.user.domain.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -108,7 +109,9 @@ public class CommentService {
         if (comment.isDeleted()){
             throw new BusinessException(CommentErrorStatus.ALREADY_DELETED);
         }
-        if (comment.getUser() == null || !comment.getUser().getId().equals(user.getId())){
+        boolean isAuthor = comment.getUser() != null && comment.getUser().getId().equals(user.getId());
+        boolean isAdmin = user.getRole() == UserRole.ADMIN;
+        if (!isAuthor && !isAdmin) {
             throw new BusinessException(CommentErrorStatus.NOT_COMMENT_AUTHOR);
         }
 
