@@ -79,6 +79,22 @@ dependencies {
 	// aws s3
 	implementation platform('software.amazon.awssdk:bom:2.25.35')
 	implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.1.1'
+
+	// security vulnerability overrides (transitive dependencies not managed by Spring Boot BOM)
+	constraints {
+		implementation('commons-beanutils:commons-beanutils:1.11.0') {
+			because 'CVE: Arbitrary code execution / Insecure deserialization / Improper access control'
+		}
+		implementation('org.json:json:20240303') {
+			because 'CVE: DoS via stack overflow and unbounded parsing'
+		}
+		implementation('com.google.guava:guava:33.4.0-jre') {
+			because 'CVE: Information disclosure and insecure use of temporary directory'
+		}
+		implementation('io.netty:netty-codec:4.1.125.Final') {
+			because 'CVE: DoS via zip bomb style attack'
+		}
+	}
 }
 
 def generatedDir = 'src/main/generated'
