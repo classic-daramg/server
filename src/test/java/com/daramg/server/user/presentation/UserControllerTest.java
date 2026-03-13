@@ -6,6 +6,7 @@ import com.daramg.server.user.domain.User;
 import com.daramg.server.user.dto.EmailChangeRequestDto;
 import com.daramg.server.user.dto.PasswordRequestDto;
 import com.daramg.server.user.dto.UserProfileResponseDto;
+import com.daramg.server.user.domain.UserRole;
 import com.daramg.server.user.dto.UserProfileUpdateRequestDto;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import jakarta.servlet.http.Cookie;
@@ -29,6 +30,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = UserController.class)
@@ -107,7 +109,7 @@ public class UserControllerTest extends ControllerTestSupport {
         String nickname = "테스트닉네임";
         String bio = "테스트 소개글";
         String email = "test@email.com";
-        UserProfileResponseDto responseDto = new UserProfileResponseDto(profileImage, nickname, bio, email);
+        UserProfileResponseDto responseDto = new UserProfileResponseDto(profileImage, nickname, bio, email, UserRole.USER);
         given(userService.getProfile(any(User.class))).willReturn(responseDto);
 
         Cookie cookie = new Cookie(COOKIE_NAME, "access_token");
@@ -120,6 +122,7 @@ public class UserControllerTest extends ControllerTestSupport {
 
         // then
         result.andExpect(status().isOk())
+                .andExpect(jsonPath("$.role").value("USER"))
                 .andDo(restDocsHandler.document(
                         resource(ResourceSnippetParameters.builder()
                                 .tag("User API")
@@ -129,7 +132,8 @@ public class UserControllerTest extends ControllerTestSupport {
                                         fieldWithPath("profileImage").type(JsonFieldType.STRING).description("프로필 이미지 URL").optional(),
                                         fieldWithPath("nickname").type(JsonFieldType.STRING).description("닉네임"),
                                         fieldWithPath("bio").type(JsonFieldType.STRING).description("자기소개").optional(),
-                                        fieldWithPath("email").type(JsonFieldType.STRING).description("이메일")
+                                        fieldWithPath("email").type(JsonFieldType.STRING).description("이메일"),
+                                        fieldWithPath("role").type(JsonFieldType.STRING).description("유저 권한 (USER | ADMIN)")
                                 )
                                 .build()
                         ),

@@ -8,7 +8,8 @@ public enum ErrorCategory {
     POST("POST_"),
     IMAGE("IMAGE_"),
     COMMENT("COMMENT_"),
-    NOTIFICATION("NOTIFICATION_");
+    NOTIFICATION("NOTIFICATION_"),
+    BANNER("BANNER_");
 
     private final String prefix;
 
