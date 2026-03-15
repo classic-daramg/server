@@ -60,10 +60,11 @@ public class SecurityConfig {
                         .requestMatchers("/docs/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll() // 추가: h2 db 접근
 
+                        .requestMatchers(HttpMethod.GET, "/banners").permitAll()
+
                         /**
                          * ADMIN 전용 경로
                          */
-                        .requestMatchers(HttpMethod.GET, "/banners").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/banners/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/banners/images").hasRole("ADMIN")
 
