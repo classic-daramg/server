@@ -75,11 +75,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         String email = jwtTokenProvider.getUserEmail(accessToken);
 
         User user = authService.loadUserByEmail(email);
-        return new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
-
-        //TODO: role
-//        String role = jwtTokenProvider.getRole(accessToken);
-//        Collection<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
+        String role = "ROLE_" + user.getRole().name();
+        return new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority(role)));
     }
 
 }

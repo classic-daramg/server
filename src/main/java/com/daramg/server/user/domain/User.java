@@ -56,6 +56,10 @@ public class User extends BaseEntity<User> {
     @Column(name = "user_status", nullable = false)
     private UserStatus userStatus;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private UserRole role = UserRole.USER;
+
     @Column(name = "deleted_at")
     private Instant deletedAt;
 
