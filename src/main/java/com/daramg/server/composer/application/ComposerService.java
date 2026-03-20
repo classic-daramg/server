@@ -11,6 +11,7 @@ import com.daramg.server.composer.dto.ComposerLikeResponseDto;
 import com.daramg.server.composer.repository.ComposerLikeRepository;
 import com.daramg.server.composer.repository.ComposerRepository;
 import com.daramg.server.user.domain.User;
+import com.daramg.server.user.domain.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ public class ComposerService {
 
     @Transactional
     public void createComposer(ComposerCreateDto dto, User user) {
-        if (user.getId() != 5L) {
+        if (user.getRole() != UserRole.ADMIN) {
             throw new BusinessException(CommonErrorStatus.FORBIDDEN);
         }
         Composer composer = Composer.builder()
@@ -58,7 +59,7 @@ public class ComposerService {
      */
     @Transactional
     public void updateComposer(Long composerId, ComposerUpdateDto dto, User user) {
-        if (user.getId() != 5L) {
+        if (user.getRole() != UserRole.ADMIN) {
             throw new BusinessException(CommonErrorStatus.FORBIDDEN);
         }
         Composer composer = entityUtils.getEntity(composerId, Composer.class);
@@ -69,7 +70,7 @@ public class ComposerService {
 
     @Transactional
     public void deleteComposer(Long composerId, User user) {
-        if (user.getId() != 5L) {
+        if (user.getRole() != UserRole.ADMIN) {
             throw new BusinessException(CommonErrorStatus.FORBIDDEN);
         }
         Composer composer = entityUtils.getEntity(composerId, Composer.class);
