@@ -11,6 +11,9 @@ import com.daramg.server.common.exception.GlobalExceptionHandler;
 import com.daramg.server.common.validation.BadWordFilter;
 import com.daramg.server.testsupport.config.RestDocsConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +31,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
@@ -70,7 +75,13 @@ public abstract class SecurityControllerTestSupport {
 
     @BeforeEach
     void setUp(WebApplicationContext webApplicationContext,
-               RestDocumentationContextProvider restDocumentation) {
+               RestDocumentationContextProvider restDocumentation) throws Exception {
+        doAnswer(inv -> {
+            inv.getArgument(2, FilterChain.class)
+                    .doFilter(inv.getArgument(0, ServletRequest.class), inv.getArgument(1, ServletResponse.class));
+            return null;
+        }).when(jwtAuthorizationFilter).doFilter(any(ServletRequest.class), any(ServletResponse.class), any(FilterChain.class));
+
         this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
                 .apply(documentationConfiguration(restDocumentation))
                 .apply(springSecurity())
