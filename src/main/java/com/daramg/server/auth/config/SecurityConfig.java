@@ -54,6 +54,14 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
                         .requestMatchers("/users/check-nickname").permitAll()
                         .requestMatchers("/composers/{composerId}/posts").permitAll()
+
+                        /**
+                         * 관리자 전용 경로
+                         */
+                        .requestMatchers(HttpMethod.POST, "/composers").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/composers/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/composers/**").hasRole("ADMIN")
+                        .requestMatchers("/banner/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/notice/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/search").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()

@@ -58,7 +58,7 @@ public class User extends BaseEntity<User> {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
-    private UserRole role;
+    private UserRole role = UserRole.USER;
 
     @Column(name = "deleted_at")
     private Instant deletedAt;
