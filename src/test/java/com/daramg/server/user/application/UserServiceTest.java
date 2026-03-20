@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.daramg.server.user.domain.UserRole;
 import com.daramg.server.user.domain.UserStatus;
 import java.time.LocalDate;
 
@@ -75,6 +76,7 @@ public class UserServiceTest extends ServiceTestSupport {
             assertThat(result.nickname()).isEqualTo(nickname);
             assertThat(result.bio()).isEqualTo(bio);
             assertThat(result.email()).isEqualTo(email);
+            assertThat(result.role()).isEqualTo(UserRole.USER);
         }
 
         @Test
@@ -93,6 +95,7 @@ public class UserServiceTest extends ServiceTestSupport {
             assertThat(result.nickname()).isEqualTo(nickname);
             assertThat(result.bio()).isNull();
             assertThat(result.email()).isEqualTo(email);
+            assertThat(result.role()).isEqualTo(UserRole.USER);
         }
     }
 

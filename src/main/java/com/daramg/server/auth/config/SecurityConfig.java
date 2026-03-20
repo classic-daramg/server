@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -20,6 +21,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -65,6 +67,14 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/docs/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll() // 추가: h2 db 접근
+
+                        .requestMatchers(HttpMethod.GET, "/banners").permitAll()
+
+                        /**
+                         * ADMIN 전용 경로
+                         */
+                        .requestMatchers(HttpMethod.PATCH, "/banners/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/banners/images").hasRole("ADMIN")
 
                         /**
                          * 위에서 등록되지 않은 모든 경로는 인증 필요
