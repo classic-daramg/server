@@ -1,5 +1,6 @@
 package com.daramg.server.comment.application;
 
+import com.daramg.server.aicomment.application.AiCommentService;
 import com.daramg.server.comment.domain.Comment;
 import com.daramg.server.comment.domain.CommentLike;
 import com.daramg.server.comment.dto.CommentLikeResponseDto;
@@ -29,6 +30,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final CommentLikeRepository commentLikeRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final AiCommentService aiCommentService;
 
     public void createComment(Long postId, CommentCreateDto request, User user){
         Post post = entityUtils.getEntity(postId, Post.class);
@@ -75,6 +77,10 @@ public class CommentService {
             eventPublisher.publishEvent(new NotificationEvent(
                     parentComment.getUser(), user, post, NotificationType.REPLY
             ));
+        }
+
+        if (parentComment.isAi()) {
+            aiCommentService.scheduleReplyForAiComment(parentComment, post);
         }
     }
 

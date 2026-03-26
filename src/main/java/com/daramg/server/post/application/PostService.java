@@ -1,5 +1,6 @@
 package com.daramg.server.post.application;
 
+import com.daramg.server.aicomment.application.AiCommentService;
 import com.daramg.server.common.application.EntityUtils;
 import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.post.exception.PostErrorStatus;
@@ -40,6 +41,7 @@ public class PostService {
     private final PostLikeRepository postLikeRepository;
     private final PostScrapRepository postScrapRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final AiCommentService aiCommentService;
 
     @Transactional
     public void createFree(PostCreateDto.CreateFree dto, User user) {
@@ -54,6 +56,7 @@ public class PostService {
         );
         Post post = FreePost.from(vo);
         postRepository.save(post);
+        aiCommentService.scheduleForPost(post);
     }
 
     @Transactional
@@ -88,6 +91,7 @@ public class PostService {
         );
         Post post = CurationPost.from(vo);
         postRepository.save(post);
+        aiCommentService.scheduleForPost(post);
     }
 
     @Transactional
@@ -110,6 +114,7 @@ public class PostService {
         );
         Post post = StoryPost.from(vo);
         postRepository.save(post);
+        aiCommentService.scheduleForPost(post);
     }
 
     @Transactional

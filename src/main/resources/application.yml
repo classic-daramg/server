@@ -50,6 +50,13 @@ jwt:
   access-time: 3600000 # 1시간
   refresh-time: 604800000 # 7일
 
+gemini:
+  api-key: ${GEMINI_API_KEY:}
+
+ai-comment:
+  initial-delay-minutes: 10
+  reply-delay-minutes: 5
+
 cors:
   allowed-origins:
     - "http://localhost:3000"

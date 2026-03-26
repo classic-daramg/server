@@ -3,12 +3,18 @@ package com.daramg.server.composer.application;
 import com.daramg.server.common.application.EntityUtils;
 import com.daramg.server.common.exception.BusinessException;
 import com.daramg.server.common.exception.CommonErrorStatus;
+import com.daramg.server.common.exception.NotFoundException;
 import com.daramg.server.composer.domain.Composer;
 import com.daramg.server.composer.domain.ComposerLike;
+import com.daramg.server.composer.domain.ComposerPersona;
 import com.daramg.server.composer.dto.ComposerCreateDto;
-import com.daramg.server.composer.dto.ComposerUpdateDto;
 import com.daramg.server.composer.dto.ComposerLikeResponseDto;
+import com.daramg.server.composer.dto.ComposerPersonaCreateDto;
+import com.daramg.server.composer.dto.ComposerPersonaResponseDto;
+import com.daramg.server.composer.dto.ComposerPersonaUpdateDto;
+import com.daramg.server.composer.dto.ComposerUpdateDto;
 import com.daramg.server.composer.repository.ComposerLikeRepository;
+import com.daramg.server.composer.repository.ComposerPersonaRepository;
 import com.daramg.server.composer.repository.ComposerRepository;
 import com.daramg.server.user.domain.User;
 import com.daramg.server.user.domain.UserRole;
@@ -17,12 +23,15 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ComposerService {
 
     private final ComposerLikeRepository composerLikeRepository;
     private final ComposerRepository composerRepository;
+    private final ComposerPersonaRepository composerPersonaRepository;
     private final EntityUtils entityUtils;
 
     @Transactional
@@ -75,6 +84,58 @@ public class ComposerService {
         }
         Composer composer = entityUtils.getEntity(composerId, Composer.class);
         composerRepository.delete(composer);
+    }
+
+    @Transactional
+    public void createPersona(Long composerId, ComposerPersonaCreateDto dto, User user) {
+        if (user.getRole() != UserRole.ADMIN) {
+            throw new BusinessException(CommonErrorStatus.FORBIDDEN);
+        }
+        Composer composer = entityUtils.getEntity(composerId, Composer.class);
+        if (composerPersonaRepository.findByComposerId(composerId).isPresent()) {
+            throw new BusinessException("이미 페르소나가 존재합니다. 수정 API를 사용하세요.");
+        }
+        ComposerPersona persona = ComposerPersona.builder()
+                .composer(composer)
+                .identity(dto.identity())
+                .mission(dto.mission())
+                .constraintsText(dto.constraintsText())
+                .build();
+        composerPersonaRepository.save(persona);
+    }
+
+    @Transactional
+    public void updatePersona(Long composerId, ComposerPersonaUpdateDto dto, User user) {
+        if (user.getRole() != UserRole.ADMIN) {
+            throw new BusinessException(CommonErrorStatus.FORBIDDEN);
+        }
+        ComposerPersona persona = composerPersonaRepository.findByComposerId(composerId)
+                .orElseThrow(() -> new NotFoundException("해당 작곡가의 페르소나를 찾을 수 없습니다."));
+        persona.update(dto.identity(), dto.mission(), dto.constraintsText());
+    }
+
+    @Transactional
+    public void togglePersonaActive(Long composerId, User user) {
+        if (user.getRole() != UserRole.ADMIN) {
+            throw new BusinessException(CommonErrorStatus.FORBIDDEN);
+        }
+        ComposerPersona persona = composerPersonaRepository.findByComposerId(composerId)
+                .orElseThrow(() -> new NotFoundException("해당 작곡가의 페르소나를 찾을 수 없습니다."));
+        if (persona.isActive()) {
+            persona.deactivate();
+        } else {
+            persona.activate();
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<ComposerPersonaResponseDto> getAllPersonas(User user) {
+        if (user.getRole() != UserRole.ADMIN) {
+            throw new BusinessException(CommonErrorStatus.FORBIDDEN);
+        }
+        return composerPersonaRepository.findAllWithComposer().stream()
+                .map(ComposerPersonaResponseDto::from)
+                .toList();
     }
 
     @Transactional
