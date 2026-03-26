@@ -15,6 +15,8 @@ public record CommentResponseDto(
         String writerNickname,
         String writerProfileImage,
         Boolean isLiked,
+        boolean isAi,
+        String composerName,
         List<ChildCommentResponseDto> childComments
 ) {
 
@@ -23,6 +25,12 @@ public record CommentResponseDto(
                 ? (int) childComments.stream().filter(c -> !c.isDeleted()).count()
                 : 0;
 
+        String writerNickname = comment.isAi() ? null : comment.getUser().getNickname();
+        String writerProfileImage = comment.isAi() ? null : comment.getUser().getProfileImage();
+        String composerName = comment.isAi() && comment.getComposer() != null
+                ? comment.getComposer().getKoreanName()
+                : null;
+
         return new CommentResponseDto(
                 comment.getId(),
                 comment.getContent(),
@@ -30,9 +38,11 @@ public record CommentResponseDto(
                 comment.getLikeCount(),
                 childCommentCount,
                 comment.getCreatedAt(),
-                comment.getUser().getNickname(),
-                comment.getUser().getProfileImage(),
+                writerNickname,
+                writerProfileImage,
                 isLiked,
+                comment.isAi(),
+                composerName,
                 childComments
         );
     }
@@ -45,19 +55,29 @@ public record CommentResponseDto(
             Instant createdAt,
             String writerNickname,
             String writerProfileImage,
-            Boolean isLiked
+            Boolean isLiked,
+            boolean isAi,
+            String composerName
     ) {
 
         public static ChildCommentResponseDto from(Comment comment, Boolean isLiked) {
+            String writerNickname = comment.isAi() ? null : comment.getUser().getNickname();
+            String writerProfileImage = comment.isAi() ? null : comment.getUser().getProfileImage();
+            String composerName = comment.isAi() && comment.getComposer() != null
+                    ? comment.getComposer().getKoreanName()
+                    : null;
+
             return new ChildCommentResponseDto(
                     comment.getId(),
                     comment.getContent(),
                     comment.isDeleted(),
                     comment.getLikeCount(),
                     comment.getCreatedAt(),
-                    comment.getUser().getNickname(),
-                    comment.getUser().getProfileImage(),
-                    isLiked
+                    writerNickname,
+                    writerProfileImage,
+                    isLiked,
+                    comment.isAi(),
+                    composerName
             );
         }
     }

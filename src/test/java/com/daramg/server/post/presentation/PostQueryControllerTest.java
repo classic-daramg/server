@@ -639,7 +639,9 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 createdAt.plus(5, ChronoUnit.MINUTES),
                 "대댓글작성자",
                 "https://example.com/child-profile.jpg",
-                true
+                true,
+                false,
+                null
         );
         CommentResponseDto parentComment = new CommentResponseDto(
                 1L,
@@ -651,6 +653,8 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                 "댓글작성자",
                 "https://example.com/comment-profile.jpg",
                 false,
+                false,
+                null,
                 List.of(childComment)
         );
         PostDetailResponse postResponse = new PostDetailResponse(
@@ -731,15 +735,19 @@ public class PostQueryControllerTest extends ControllerTestSupport {
                                         fieldWithPath("comments[].writerNickname").type(JsonFieldType.STRING).description("댓글 작성자 닉네임"),
                                         fieldWithPath("comments[].writerProfileImage").type(JsonFieldType.STRING).description("댓글 작성자 프로필 이미지 URL").optional(),
                                         fieldWithPath("comments[].isLiked").type(JsonFieldType.BOOLEAN).description("현재 로그인 유저의 댓글 좋아요 여부 (비로그인 시 null)").optional(),
+                                        fieldWithPath("comments[].isAi").type(JsonFieldType.BOOLEAN).description("AI 댓글 여부"),
+                                        fieldWithPath("comments[].composerName").type(JsonFieldType.STRING).description("AI 댓글인 경우 작곡가 이름 (일반 댓글이면 null)").optional(),
                                         fieldWithPath("comments[].childComments").type(JsonFieldType.ARRAY).description("대댓글 목록"),
                                         fieldWithPath("comments[].childComments[].id").type(JsonFieldType.NUMBER).description("대댓글 ID"),
                                         fieldWithPath("comments[].childComments[].content").type(JsonFieldType.STRING).description("대댓글 내용"),
                                         fieldWithPath("comments[].childComments[].isDeleted").type(JsonFieldType.BOOLEAN).description("대댓글 삭제 여부"),
                                         fieldWithPath("comments[].childComments[].likeCount").type(JsonFieldType.NUMBER).description("대댓글 좋아요 개수"),
                                         fieldWithPath("comments[].childComments[].createdAt").type(JsonFieldType.STRING).description("대댓글 작성 시각"),
-                                        fieldWithPath("comments[].childComments[].writerNickname").type(JsonFieldType.STRING).description("대댓글 작성자 닉네임"),
+                                        fieldWithPath("comments[].childComments[].writerNickname").type(JsonFieldType.STRING).description("대댓글 작성자 닉네임").optional(),
                                         fieldWithPath("comments[].childComments[].writerProfileImage").type(JsonFieldType.STRING).description("대댓글 작성자 프로필 이미지 URL").optional(),
-                                        fieldWithPath("comments[].childComments[].isLiked").type(JsonFieldType.BOOLEAN).description("현재 로그인 유저의 대댓글 좋아요 여부 (비로그인 시 null)").optional()
+                                        fieldWithPath("comments[].childComments[].isLiked").type(JsonFieldType.BOOLEAN).description("현재 로그인 유저의 대댓글 좋아요 여부 (비로그인 시 null)").optional(),
+                                        fieldWithPath("comments[].childComments[].isAi").type(JsonFieldType.BOOLEAN).description("AI 대댓글 여부"),
+                                        fieldWithPath("comments[].childComments[].composerName").type(JsonFieldType.STRING).description("AI 대댓글인 경우 작곡가 이름 (일반 댓글이면 null)").optional()
                                 )
                                 .build()
                         )

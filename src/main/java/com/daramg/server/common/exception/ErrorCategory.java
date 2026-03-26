@@ -9,7 +9,8 @@ public enum ErrorCategory {
     IMAGE("IMAGE_"),
     COMMENT("COMMENT_"),
     NOTIFICATION("NOTIFICATION_"),
-    BANNER("BANNER_");
+    BANNER("BANNER_"),
+    AI_COMMENT("AI_COMMENT_");
 
     private final String prefix;
 
