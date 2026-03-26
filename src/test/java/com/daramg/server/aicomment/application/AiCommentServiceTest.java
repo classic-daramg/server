@@ -329,7 +329,7 @@ public class AiCommentServiceTest extends ServiceTestSupport {
 
             // then
             assertThat(result).hasSize(1);
-            assertThat(result.get(0).getScheduledAt()).isEqualTo(past);
+            assertThat(result.get(0).getScheduledAt()).isEqualTo(past.truncatedTo(java.time.temporal.ChronoUnit.MICROS));
         }
 
         @Test
