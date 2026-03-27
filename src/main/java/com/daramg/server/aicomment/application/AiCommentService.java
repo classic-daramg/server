@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -71,23 +72,28 @@ public class AiCommentService {
             return;
         }
 
-        Composer composer = getComposerFromPost(post);
-        if (composer == null) {
-            composer = detectComposerFromContent(post.getTitle() + " " + post.getContent());
-        }
-        if (composer == null) {
-            return;
-        }
-
-        Optional<ComposerPersona> persona = composerPersonaRepository.findByComposerId(composer.getId());
-        if (persona.isEmpty() || !persona.get().isActive()) {
+        List<Composer> composers = getComposersForPost(post);
+        log.info("AI 댓글 대상 작곡가 탐지 - postId={}, composers={}", post.getId(),
+                composers.stream().map(c -> c.getId() + "(" + c.getKoreanName() + ")").toList());
+        if (composers.isEmpty()) {
             return;
         }
 
         Instant scheduledAt = Instant.now().plusSeconds(initialDelayMinutes * 60L);
-        AiCommentJob job = AiCommentJob.of(post, composer, AiCommentJobTriggerType.POST_CREATED, null, scheduledAt);
-        aiCommentJobRepository.save(job);
-        log.info("AI 댓글 잡 등록 - postId={}, composerId={}, scheduledAt={}", post.getId(), composer.getId(), scheduledAt);
+        for (Composer composer : composers) {
+            Optional<ComposerPersona> persona = composerPersonaRepository.findByComposerId(composer.getId());
+            if (persona.isEmpty()) {
+                log.info("AI 댓글 잡 스킵 - 페르소나 없음 composerId={}", composer.getId());
+                continue;
+            }
+            if (!persona.get().isActive()) {
+                log.info("AI 댓글 잡 스킵 - 페르소나 비활성 composerId={}", composer.getId());
+                continue;
+            }
+            AiCommentJob job = AiCommentJob.of(post, composer, AiCommentJobTriggerType.POST_CREATED, null, scheduledAt);
+            aiCommentJobRepository.save(job);
+            log.info("AI 댓글 잡 등록 - postId={}, composerId={}, scheduledAt={}", post.getId(), composer.getId(), scheduledAt);
+        }
     }
 
     @Transactional
@@ -144,6 +150,24 @@ public class AiCommentService {
         return aiCommentJobRepository.findPendingJobsDue(AiCommentJobStatus.PENDING, Instant.now());
     }
 
+    private List<Composer> getComposersForPost(Post post) {
+        List<Composer> composers = new ArrayList<>();
+
+        Composer primary = getComposerFromPost(post);
+        if (primary != null) {
+            composers.add(primary);
+        }
+
+        String text = post.getTitle() + " " + post.getContent();
+        for (Composer c : detectComposersFromContent(text)) {
+            if (composers.stream().noneMatch(existing -> existing.getId().equals(c.getId()))) {
+                composers.add(c);
+            }
+        }
+
+        return composers;
+    }
+
     private Composer getComposerFromPost(Post post) {
         if (post instanceof StoryPost storyPost) {
             return storyPost.getPrimaryComposer();
@@ -154,15 +178,16 @@ public class AiCommentService {
         return null;
     }
 
-    private Composer detectComposerFromContent(String text) {
+    private List<Composer> detectComposersFromContent(String text) {
         List<ComposerPersona> activePersonas = composerPersonaRepository.findAllActiveWithComposer();
+        List<Composer> result = new ArrayList<>();
         for (ComposerPersona persona : activePersonas) {
             Composer composer = persona.getComposer();
             if (text.contains(composer.getKoreanName()) || text.contains(composer.getEnglishName())) {
-                return composer;
+                result.add(composer);
             }
         }
-        return null;
+        return result;
     }
 
     private String buildSystemInstruction(ComposerPersona persona) {
