@@ -122,27 +122,30 @@ public class AiCommentService {
 
     @Transactional
     public void processJob(AiCommentJob job) {
-        job.markInProgress();
+        AiCommentJob managedJob = aiCommentJobRepository.findById(job.getId())
+                .orElseThrow(() -> new IllegalStateException("Job not found: " + job.getId()));
+
+        managedJob.markInProgress();
 
         try {
-            ComposerPersona persona = composerPersonaRepository.findByComposerId(job.getComposer().getId())
+            ComposerPersona persona = composerPersonaRepository.findByComposerId(managedJob.getComposer().getId())
                     .orElseThrow();
 
             String systemInstruction = buildSystemInstruction(persona);
-            String userPrompt = buildUserPrompt(job);
+            String userPrompt = buildUserPrompt(managedJob);
 
             String generatedText = geminiClient.generateComment(systemInstruction, userPrompt);
 
-            Comment parentComment = job.getParentComment();
-            Comment comment = Comment.ofAi(job.getPost(), getBotUser(), generatedText.strip(), parentComment, job.getComposer());
+            Comment parentComment = managedJob.getParentComment();
+            Comment comment = Comment.ofAi(managedJob.getPost(), getBotUser(), generatedText.strip(), parentComment, managedJob.getComposer());
             commentRepository.save(comment);
-            job.getPost().incrementCommentCount();
+            managedJob.getPost().incrementCommentCount();
 
-            job.markDone();
-            log.info("AI 댓글 생성 완료 - jobId={}", job.getId());
+            managedJob.markDone();
+            log.info("AI 댓글 생성 완료 - jobId={}", managedJob.getId());
         } catch (Exception e) {
-            job.markFailed();
-            log.error("AI 댓글 생성 실패 - jobId={}", job.getId(), e);
+            managedJob.markFailed();
+            log.error("AI 댓글 생성 실패 - jobId={}", managedJob.getId(), e);
         }
     }
 

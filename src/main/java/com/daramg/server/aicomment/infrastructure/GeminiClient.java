@@ -45,8 +45,11 @@ public class GeminiClient {
                     .body(Map.class);
 
             return extractText(response);
+        } catch (org.springframework.web.client.HttpClientErrorException e) {
+            log.error("Gemini API HTTP 오류 - status={}, body={}", e.getStatusCode(), e.getResponseBodyAsString());
+            throw new RuntimeException("Gemini API 호출 실패", e);
         } catch (Exception e) {
-            log.error("Gemini API 호출 실패", e);
+            log.error("Gemini API 호출 실패 - {}: {}", e.getClass().getSimpleName(), e.getMessage());
             throw new RuntimeException("Gemini API 호출 실패", e);
         }
     }
