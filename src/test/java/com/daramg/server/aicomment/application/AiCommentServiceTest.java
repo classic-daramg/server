@@ -272,7 +272,8 @@ public class AiCommentServiceTest extends ServiceTestSupport {
             aiCommentService.processJob(job);
 
             // then
-            assertThat(job.getStatus()).isEqualTo(AiCommentJobStatus.DONE);
+            AiCommentJob savedJob = aiCommentJobRepository.findById(job.getId()).orElseThrow();
+            assertThat(savedJob.getStatus()).isEqualTo(AiCommentJobStatus.DONE);
 
             List<Comment> comments = commentRepository.findAll();
             assertThat(comments).hasSize(1);
@@ -302,7 +303,8 @@ public class AiCommentServiceTest extends ServiceTestSupport {
             aiCommentService.processJob(job);
 
             // then
-            assertThat(job.getStatus()).isEqualTo(AiCommentJobStatus.FAILED);
+            AiCommentJob savedJob = aiCommentJobRepository.findById(job.getId()).orElseThrow();
+            assertThat(savedJob.getStatus()).isEqualTo(AiCommentJobStatus.FAILED);
             assertThat(commentRepository.findAll()).isEmpty();
         }
     }
