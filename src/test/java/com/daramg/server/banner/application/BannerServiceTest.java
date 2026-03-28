@@ -19,6 +19,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class BannerServiceTest extends ServiceTestSupport {
@@ -130,6 +131,66 @@ public class BannerServiceTest extends ServiceTestSupport {
             assertThat(result.orderIndex()).isEqualTo(0);
             assertThat(result.id()).isNotNull();
             assertThat(bannerRepository.findAll()).hasSize(1);
+        }
+    }
+
+    @Nested
+    @DisplayName("배너 이미지 교체")
+    class UpdateBannerImageTest {
+
+        @Test
+        void 기존_이미지를_삭제하고_새_이미지로_교체된다() {
+            // given
+            String oldImageUrl = "https://s3.example.com/old.jpg";
+            String newImageUrl = "https://s3.example.com/new-uuid.jpg";
+            Banner banner = bannerRepository.save(Banner.builder().imageUrl(oldImageUrl).isActive(true).orderIndex(0).build());
+            when(s3ImageService.uploadImage(any())).thenReturn(newImageUrl);
+            MockMultipartFile image = new MockMultipartFile("image", "new.jpg", "image/jpeg", "fake".getBytes());
+
+            // when
+            BannerResponseDto result = bannerService.updateBannerImage(banner.getId(), image);
+
+            // then
+            assertThat(result.imageUrl()).isEqualTo(newImageUrl);
+            verify(s3ImageService).deleteImage(oldImageUrl);
+        }
+
+        @Test
+        void 존재하지_않는_배너_이미지_교체_시_예외가_발생한다() {
+            // given
+            MockMultipartFile image = new MockMultipartFile("image", "new.jpg", "image/jpeg", "fake".getBytes());
+
+            // when & then
+            assertThatThrownBy(() -> bannerService.updateBannerImage(999L, image))
+                    .isInstanceOf(BusinessException.class)
+                    .hasMessage("배너를 찾을 수 없습니다.");
+        }
+    }
+
+    @Nested
+    @DisplayName("배너 삭제")
+    class DeleteBannerTest {
+
+        @Test
+        void 배너를_삭제하면_DB에서_제거되고_S3_이미지도_삭제된다() {
+            // given
+            String imageUrl = "https://s3.example.com/banner.jpg";
+            Banner banner = bannerRepository.save(Banner.builder().imageUrl(imageUrl).isActive(true).orderIndex(0).build());
+
+            // when
+            bannerService.deleteBanner(banner.getId());
+
+            // then
+            assertThat(bannerRepository.findAll()).isEmpty();
+            verify(s3ImageService).deleteImage(imageUrl);
+        }
+
+        @Test
+        void 존재하지_않는_배너_삭제_시_예외가_발생한다() {
+            // when & then
+            assertThatThrownBy(() -> bannerService.deleteBanner(999L))
+                    .isInstanceOf(BusinessException.class)
+                    .hasMessage("배너를 찾을 수 없습니다.");
         }
     }
 }

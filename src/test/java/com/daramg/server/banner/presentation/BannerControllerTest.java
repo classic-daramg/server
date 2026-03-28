@@ -20,6 +20,7 @@ import java.util.List;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.cookies.CookieDocumentation.cookieWithName;
 import static org.springframework.restdocs.cookies.CookieDocumentation.requestCookies;
@@ -155,6 +156,81 @@ public class BannerControllerTest extends ControllerTestSupport {
                                         fieldWithPath("orderIndex").type(JsonFieldType.NUMBER).description("노출 순서 (기본값: 0)"),
                                         fieldWithPath("createdAt").type(JsonFieldType.STRING).description("생성일시"),
                                         fieldWithPath("updatedAt").type(JsonFieldType.STRING).description("수정일시")
+                                )
+                                .build()
+                        ),
+                        requestCookies(
+                                cookieWithName(COOKIE_NAME).description("ADMIN 유저의 토큰")
+                        )
+                ));
+    }
+
+    @Test
+    void 배너_이미지를_교체한다() throws Exception {
+        // given
+        Long bannerId = 1L;
+        Cookie cookie = new Cookie(COOKIE_NAME, "access_token");
+        MockMultipartFile image = new MockMultipartFile(
+                "image", "new-banner.jpg", MediaType.IMAGE_JPEG_VALUE, "fake-image-data".getBytes()
+        );
+        when(bannerService.updateBannerImage(anyLong(), any())).thenReturn(
+                new BannerResponseDto(bannerId, "https://s3.example.com/new-banner.jpg", null, true, 0, Instant.now(), Instant.now())
+        );
+
+        // when
+        ResultActions result = mockMvc.perform(multipart("/banners/{bannerId}/images", bannerId)
+                .file(image)
+                .with(req -> { req.setMethod("PUT"); return req; })
+                .cookie(cookie));
+
+        // then
+        result.andExpect(status().isOk())
+                .andExpect(jsonPath("$.imageUrl").value("https://s3.example.com/new-banner.jpg"))
+                .andDo(restDocsHandler.document(
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("Banner API")
+                                .summary("배너 이미지 교체")
+                                .description("기존 배너의 이미지를 새 이미지로 교체합니다. (ADMIN 전용)")
+                                .pathParameters(
+                                        parameterWithName("bannerId").description("이미지를 교체할 배너 ID")
+                                )
+                                .responseFields(
+                                        fieldWithPath("id").type(JsonFieldType.NUMBER).description("배너 ID"),
+                                        fieldWithPath("imageUrl").type(JsonFieldType.STRING).description("교체된 이미지 URL"),
+                                        fieldWithPath("linkUrl").type(JsonFieldType.STRING).description("배너 링크 URL").optional(),
+                                        fieldWithPath("isActive").type(JsonFieldType.BOOLEAN).description("활성화 여부"),
+                                        fieldWithPath("orderIndex").type(JsonFieldType.NUMBER).description("노출 순서"),
+                                        fieldWithPath("createdAt").type(JsonFieldType.STRING).description("생성일시"),
+                                        fieldWithPath("updatedAt").type(JsonFieldType.STRING).description("수정일시")
+                                )
+                                .build()
+                        ),
+                        requestCookies(
+                                cookieWithName(COOKIE_NAME).description("ADMIN 유저의 토큰")
+                        )
+                ));
+    }
+
+    @Test
+    void 배너를_삭제한다() throws Exception {
+        // given
+        Long bannerId = 1L;
+        Cookie cookie = new Cookie(COOKIE_NAME, "access_token");
+        doNothing().when(bannerService).deleteBanner(anyLong());
+
+        // when
+        ResultActions result = mockMvc.perform(delete("/banners/{bannerId}", bannerId)
+                .cookie(cookie));
+
+        // then
+        result.andExpect(status().isNoContent())
+                .andDo(restDocsHandler.document(
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("Banner API")
+                                .summary("배너 삭제")
+                                .description("배너를 영구 삭제합니다. S3 이미지도 함께 삭제됩니다. (ADMIN 전용)")
+                                .pathParameters(
+                                        parameterWithName("bannerId").description("삭제할 배너 ID")
                                 )
                                 .build()
                         ),
