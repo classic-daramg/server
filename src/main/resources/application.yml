@@ -47,7 +47,7 @@ cookie:
   refresh-name: "refresh_token"
 
 jwt:
-  access-time: 3600000 # 1시간
+  access-time: 345600000 # 4일
   refresh-time: 604800000 # 7일
 
 gemini:
