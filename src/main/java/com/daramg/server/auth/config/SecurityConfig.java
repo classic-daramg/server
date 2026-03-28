@@ -75,6 +75,8 @@ public class SecurityConfig {
                          */
                         .requestMatchers(HttpMethod.PATCH, "/banners/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/banners/images").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/banners/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/banners/**").hasRole("ADMIN")
 
                         /**
                          * 위에서 등록되지 않은 모든 경로는 인증 필요
