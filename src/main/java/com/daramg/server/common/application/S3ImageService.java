@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
@@ -70,6 +71,19 @@ public class S3ImageService {
         } catch (IOException e) {
             log.error("Failed to read file input stream", e);
             throw new BusinessException(ImageErrorStatus.FILE_UPLOAD_FAILED);
+        }
+    }
+
+    public void deleteImage(String imageUrl) {
+        try {
+            String key = imageUrl.substring(imageUrl.indexOf("images/"));
+            s3Client.deleteObject(DeleteObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(key)
+                    .build());
+            log.info("Image deleted successfully: {}", imageUrl);
+        } catch (S3Exception e) {
+            log.warn("Failed to delete image from S3: {}", imageUrl, e);
         }
     }
 

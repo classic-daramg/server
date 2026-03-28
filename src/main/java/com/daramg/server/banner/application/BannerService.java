@@ -42,4 +42,22 @@ public class BannerService {
         Banner banner = bannerRepository.save(Banner.of(imageUrl));
         return BannerResponseDto.from(banner);
     }
+
+    @Transactional
+    public BannerResponseDto updateBannerImage(Long bannerId, MultipartFile image) {
+        Banner banner = bannerRepository.findById(bannerId)
+                .orElseThrow(() -> new BusinessException(BannerErrorStatus.BANNER_NOT_FOUND));
+        s3ImageService.deleteImage(banner.getImageUrl());
+        String newImageUrl = s3ImageService.uploadImage(image);
+        banner.update(newImageUrl, null, null, null);
+        return BannerResponseDto.from(banner);
+    }
+
+    @Transactional
+    public void deleteBanner(Long bannerId) {
+        Banner banner = bannerRepository.findById(bannerId)
+                .orElseThrow(() -> new BusinessException(BannerErrorStatus.BANNER_NOT_FOUND));
+        s3ImageService.deleteImage(banner.getImageUrl());
+        bannerRepository.delete(banner);
+    }
 }

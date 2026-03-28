@@ -38,4 +38,18 @@ public class BannerController {
     ) {
         return bannerService.uploadBannerImage(image);
     }
+
+    @PutMapping(value = "/{bannerId}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public BannerResponseDto updateBannerImage(
+            @PathVariable Long bannerId,
+            @RequestPart("image") MultipartFile image
+    ) {
+        return bannerService.updateBannerImage(bannerId, image);
+    }
+
+    @DeleteMapping("/{bannerId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteBanner(@PathVariable Long bannerId) {
+        bannerService.deleteBanner(bannerId);
+    }
 }
