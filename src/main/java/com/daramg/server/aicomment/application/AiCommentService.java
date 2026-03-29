@@ -194,8 +194,11 @@ public class AiCommentService {
     }
 
     private String buildSystemInstruction(ComposerPersona persona) {
+        Composer composer = persona.getComposer();
         return String.format(
-                "너는 %s를 가진 작곡가야. %s를 수행하고 %s를 반드시 지켜서 답해줘.",
+                "너는 작곡가 %s(%s)야. %s의 성격을 가지고 있어. %s를 수행하고 %s를 반드시 지켜서 답해줘. 절대로 자기 자신을 3인칭으로 언급하지 마. 반드시 150자 이내로 짧게 답해.",
+                composer.getKoreanName(),
+                composer.getEnglishName(),
                 persona.getIdentity(),
                 persona.getMission(),
                 persona.getConstraintsText()

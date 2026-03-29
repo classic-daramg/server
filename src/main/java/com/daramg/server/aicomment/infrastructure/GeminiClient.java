@@ -32,7 +32,7 @@ public class GeminiClient {
                         Map.of("parts", List.of(Map.of("text", userPrompt)))
                 ),
                 "generationConfig", Map.of(
-                        "maxOutputTokens", 200
+                        "maxOutputTokens", 100
                 )
         );
 
