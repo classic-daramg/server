@@ -1,0 +1,8 @@
+CREATE TABLE ai_comment_settings (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    auto_detect_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)
+);
+
+INSERT INTO ai_comment_settings (auto_detect_enabled) VALUES (TRUE);
