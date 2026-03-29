@@ -3,17 +3,22 @@ package com.daramg.server.aicomment.application;
 import com.daramg.server.aicomment.domain.AiCommentJob;
 import com.daramg.server.aicomment.domain.AiCommentJobStatus;
 import com.daramg.server.aicomment.domain.AiCommentJobTriggerType;
+import com.daramg.server.aicomment.domain.AiCommentSettings;
 import com.daramg.server.aicomment.infrastructure.GeminiClient;
 import com.daramg.server.aicomment.repository.AiCommentJobRepository;
+import com.daramg.server.aicomment.repository.AiCommentSettingsRepository;
 import com.daramg.server.comment.domain.Comment;
 import com.daramg.server.comment.repository.CommentRepository;
 import com.daramg.server.composer.domain.Composer;
 import com.daramg.server.composer.domain.ComposerPersona;
 import com.daramg.server.composer.repository.ComposerPersonaRepository;
+import com.daramg.server.composer.repository.ComposerRepository;
+import com.daramg.server.common.exception.NotFoundException;
 import com.daramg.server.post.domain.Post;
 import com.daramg.server.post.domain.PostStatus;
 import com.daramg.server.post.domain.StoryPost;
 import com.daramg.server.post.domain.CurationPost;
+import com.daramg.server.post.repository.PostRepository;
 import com.daramg.server.user.domain.User;
 import com.daramg.server.user.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
@@ -43,8 +48,11 @@ public class AiCommentService {
     private int replyDelayMinutes;
 
     private final AiCommentJobRepository aiCommentJobRepository;
+    private final AiCommentSettingsRepository aiCommentSettingsRepository;
     private final ComposerPersonaRepository composerPersonaRepository;
+    private final ComposerRepository composerRepository;
     private final CommentRepository commentRepository;
+    private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final GeminiClient geminiClient;
 
@@ -66,9 +74,49 @@ public class AiCommentService {
         return botUser;
     }
 
+    @Transactional(readOnly = true)
+    public boolean isAutoDetectEnabled() {
+        return aiCommentSettingsRepository.findAll().stream()
+                .findFirst()
+                .map(AiCommentSettings::isAutoDetectEnabled)
+                .orElse(true);
+    }
+
+    @Transactional
+    public void setAutoDetectEnabled(boolean enabled) {
+        AiCommentSettings settings = aiCommentSettingsRepository.findAll().stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("AI 댓글 설정을 찾을 수 없습니다."));
+        settings.setAutoDetectEnabled(enabled);
+        log.info("AI 자동 감지 설정 변경 - enabled={}", enabled);
+    }
+
+    @Transactional
+    public void scheduleManually(Long postId, Long composerId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new NotFoundException("게시물을 찾을 수 없습니다."));
+        Composer composer = composerRepository.findById(composerId)
+                .orElseThrow(() -> new NotFoundException("작곡가를 찾을 수 없습니다."));
+
+        ComposerPersona persona = composerPersonaRepository.findByComposerId(composerId)
+                .orElseThrow(() -> new NotFoundException("해당 작곡가의 페르소나를 찾을 수 없습니다."));
+        if (!persona.isActive()) {
+            throw new IllegalStateException("비활성화된 페르소나입니다.");
+        }
+
+        AiCommentJob job = AiCommentJob.of(post, composer, AiCommentJobTriggerType.ADMIN_ASSIGNED, null, Instant.now());
+        aiCommentJobRepository.save(job);
+        log.info("AI 댓글 수동 할당 - postId={}, composerId={}", postId, composerId);
+    }
+
     @Transactional
     public void scheduleForPost(Post post) {
         if (post.getPostStatus() != PostStatus.PUBLISHED) {
+            return;
+        }
+
+        if (!isAutoDetectEnabled()) {
+            log.info("AI 자동 감지 비활성화 상태 - postId={} 스킵", post.getId());
             return;
         }
 
