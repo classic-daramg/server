@@ -220,14 +220,14 @@ public class AiCommentServiceTest extends ServiceTestSupport {
             commentRepository.save(aiComment);
 
             // when
-            aiCommentService.scheduleReplyForAiComment(aiComment, post);
+            aiCommentService.scheduleReplyForAiComment(aiComment.getId(), post.getId());
 
             // then
             List<AiCommentJob> jobs = aiCommentJobRepository.findAll();
             assertThat(jobs).hasSize(1);
             assertThat(jobs.get(0).getTriggerType()).isEqualTo(AiCommentJobTriggerType.USER_REPLY);
             assertThat(jobs.get(0).getParentComment().getId()).isEqualTo(aiComment.getId());
-            assertThat(aiComment.getAiReplyCount()).isEqualTo((byte) 1);
+            assertThat(commentRepository.findById(aiComment.getId()).get().getAiReplyCount()).isEqualTo((byte) 1);
         }
 
         @Test
@@ -240,9 +240,10 @@ public class AiCommentServiceTest extends ServiceTestSupport {
             Comment aiComment = Comment.ofAi(post, botUser, "AI 댓글", null, composer);
             commentRepository.save(aiComment);
             ReflectionTestUtils.setField(aiComment, "aiReplyCount", (byte) 2);
+            commentRepository.save(aiComment);
 
             // when
-            aiCommentService.scheduleReplyForAiComment(aiComment, post);
+            aiCommentService.scheduleReplyForAiComment(aiComment.getId(), post.getId());
 
             // then
             assertThat(aiCommentJobRepository.findAll()).isEmpty();
