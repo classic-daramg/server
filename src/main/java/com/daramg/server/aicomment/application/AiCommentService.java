@@ -145,7 +145,12 @@ public class AiCommentService {
     }
 
     @Transactional
-    public void scheduleReplyForAiComment(Comment aiComment, Post post) {
+    public void scheduleReplyForAiComment(Long aiCommentId, Long postId) {
+        Comment aiComment = commentRepository.findById(aiCommentId).orElse(null);
+        if (aiComment == null) {
+            return;
+        }
+
         if (aiComment.getAiReplyCount() >= MAX_AI_REPLY_COUNT) {
             return;
         }
@@ -157,6 +162,11 @@ public class AiCommentService {
 
         Optional<ComposerPersona> persona = composerPersonaRepository.findByComposerId(composer.getId());
         if (persona.isEmpty() || !persona.get().isActive()) {
+            return;
+        }
+
+        Post post = postRepository.findById(postId).orElse(null);
+        if (post == null) {
             return;
         }
 
