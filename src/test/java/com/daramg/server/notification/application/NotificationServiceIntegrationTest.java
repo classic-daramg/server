@@ -8,11 +8,11 @@ import com.daramg.server.notification.domain.Notification;
 import com.daramg.server.notification.domain.NotificationType;
 import com.daramg.server.notification.dto.NotificationResponseDto;
 import com.daramg.server.notification.repository.NotificationRepository;
+import com.daramg.server.post.application.PostService;
 import com.daramg.server.post.domain.FreePost;
 import com.daramg.server.post.domain.Post;
 import com.daramg.server.post.domain.PostStatus;
 import com.daramg.server.post.domain.vo.PostCreateVo;
-import com.daramg.server.post.application.PostService;
 import com.daramg.server.post.dto.CommentCreateDto;
 import com.daramg.server.post.dto.CommentReplyCreateDto;
 import com.daramg.server.post.repository.PostRepository;
@@ -31,6 +31,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class NotificationServiceIntegrationTest extends ServiceTestSupport {
@@ -61,6 +62,7 @@ public class NotificationServiceIntegrationTest extends ServiceTestSupport {
 
     private User postAuthor;
     private User actor;
+    private User seedSender;
     private Post post;
 
     @BeforeEach
@@ -70,6 +72,9 @@ public class NotificationServiceIntegrationTest extends ServiceTestSupport {
 
         actor = new User("actor@test.com", "password", "행위자", LocalDate.now(), "profile", "행위자닉", "bio", null);
         userRepository.save(actor);
+
+        seedSender = new User("seed@test.com", "password", "시드", LocalDate.now(), "profile", "시드닉", "bio", null);
+        userRepository.save(seedSender);
 
         post = FreePost.from(new PostCreateVo.Free(
                 postAuthor, "제목", "내용", PostStatus.PUBLISHED, List.of(), null, List.of()
@@ -243,6 +248,50 @@ public class NotificationServiceIntegrationTest extends ServiceTestSupport {
     }
 
     @Nested
+    @DisplayName("알림 개수 제한")
+    class NotificationLimitTest {
+        @Test
+        void 게시글_댓글_알림이_101개째_생겨도_댓글_생성은_성공하고_최신_100개만_유지한다() {
+            // given
+            createNotificationsUpToLimit();
+
+            // when
+            assertThatCode(() -> commentService.createComment(post.getId(), new CommentCreateDto("새 댓글"), actor))
+                    .doesNotThrowAnyException();
+
+            // then
+            assertThat(notificationRepository.countByReceiverId(postAuthor.getId())).isEqualTo(100);
+            assertThat(notificationRepository.findAll())
+                    .filteredOn(notification -> notification.getReceiver().getId().equals(postAuthor.getId()))
+                    .anyMatch(notification ->
+                            notification.getSender().getId().equals(actor.getId()) &&
+                                    notification.getType() == NotificationType.COMMENT &&
+                                    notification.getPost().getId().equals(post.getId())
+                    );
+        }
+
+        @Test
+        void 게시글_좋아요_알림이_101개째_생겨도_좋아요는_성공하고_최신_100개만_유지한다() {
+            // given
+            createNotificationsUpToLimit();
+
+            // when
+            assertThatCode(() -> postService.toggleLike(post.getId(), actor))
+                    .doesNotThrowAnyException();
+
+            // then
+            assertThat(notificationRepository.countByReceiverId(postAuthor.getId())).isEqualTo(100);
+            assertThat(notificationRepository.findAll())
+                    .filteredOn(notification -> notification.getReceiver().getId().equals(postAuthor.getId()))
+                    .anyMatch(notification ->
+                            notification.getSender().getId().equals(actor.getId()) &&
+                                    notification.getType() == NotificationType.POST_LIKE &&
+                                    notification.getPost().getId().equals(post.getId())
+                    );
+        }
+    }
+
+    @Nested
     @DisplayName("알림 조회")
     class QueryNotificationTest {
         @Test
@@ -338,6 +387,17 @@ public class NotificationServiceIntegrationTest extends ServiceTestSupport {
             assertThatThrownBy(() -> notificationService.delete(notification.getId(), actor))
                     .isInstanceOf(BusinessException.class)
                     .hasMessage("본인의 알림만 처리할 수 있습니다.");
+        }
+    }
+
+    private void createNotificationsUpToLimit() {
+        for (int i = 0; i < 100; i++) {
+            notificationRepository.save(Notification.of(
+                    postAuthor,
+                    seedSender,
+                    post,
+                    NotificationType.COMMENT_LIKE
+            ));
         }
     }
 }
